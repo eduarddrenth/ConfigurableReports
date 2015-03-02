@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+
+<dm:datamappings
+   xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+   xmlns:dm='http://www.vectorprint.nl/report/datamapping/1.3'>
+   <dm:datamapping classname=".*" regex="true">
+      <dm:element>
+         <dm:datatype dataclass="com.vectorprint.report.data.types.TextValue"/>
+         <dm:elementtype>Paragraph</dm:elementtype>
+      </dm:element>
+   </dm:datamapping>
+   <dm:datamapping classname=".*" regex="true" id="idee">
+      <dm:startcontainer>
+         <dm:styleclass>table</dm:styleclass>
+         <dm:containertype>TABLE</dm:containertype>
+      </dm:startcontainer>
+      <dm:element>
+         <dm:styleclass>bold</dm:styleclass>
+         <dm:elementtype>pdf.PdfPCell</dm:elementtype>
+      </dm:element>
+      <dm:element>
+         <dm:styleclass>bold</dm:styleclass>
+         <dm:elementtype>pdf.PdfPCell</dm:elementtype>
+      </dm:element>
+      <dm:endcontainer>
+         <dm:containertype>TABLE</dm:containertype>
+      </dm:endcontainer>
+   </dm:datamapping>
+
+</dm:datamappings>

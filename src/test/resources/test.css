@@ -1,0 +1,62 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Dec 18, 2013, 8:42:29 AM
+    Author     : Eduard Drenth at VectorPrint.nl
+*/
+
+.class {
+   background-color: #a33e3e;
+   border: 10mm solid red;
+   height: 25pt;
+   cursor: auto
+}
+.class2 {
+   border: 1pt solid #ff0000;
+   font-style: italic;
+   font-size: 10pt;
+   font-family: sans-serif;
+   color: blue;
+}
+.list2 {
+   list-style-type: decimal
+}
+.list3 {
+   list-style-type: lower-alpha;
+   list-style-image: url("file:config/zon.pdf")
+}
+.combi, .class {
+   border-color: #33ff33;
+   border-width: 2pt;
+}
+.right {
+   text-align: right;
+   vertical-align: middle;
+}
+.margin {
+   margin: 10mm;
+   margin: 10mm 5mm;
+   margin: 10mm 5mm 20mm;
+   margin: 10mm 20mm 10mm 1cm;
+   margin-bottom: 12mm;
+   margin-top: 14mm;
+   margin-left: 16mm;
+   margin-right: 18mm;
+}
+.padding {
+   padding: 10mm;
+   padding: 10mm 5mm 20mm;
+   padding: 10mm 20mm 10mm 1cm;
+   padding: 10mm 5mm;
+   padding-bottom: 12mm;
+   padding-top: 14mm;
+   padding-left: 16mm;
+   padding-right: 18mm;
+}
+.spacing {
+      margin-bottom: 3px;
+   margin-top: 5px
+}

@@ -1,0 +1,1087 @@
+package com.vectorprint.report.itext;
+
+/*
+ * #%L
+ * VectorPrintReport4.0
+ * %%
+ * Copyright (C) 2012 - 2013 VectorPrint
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * #L%
+ */
+//~--- non-JDK imports --------------------------------------------------------
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.Section;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfContentByte;
+import com.itextpdf.text.pdf.PdfLayer;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.PdfStamper;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.SimpleBookmark;
+import com.vectorprint.VectorPrintException;
+import com.vectorprint.VectorPrintRuntimeException;
+import com.vectorprint.configuration.EnhancedMap;
+import com.vectorprint.configuration.annotation.Settings;
+import com.vectorprint.report.ReportConstants;
+import static com.vectorprint.report.ReportConstants.DEBUG;
+import com.vectorprint.report.ReportGenerator;
+import com.vectorprint.report.data.DataCollectionMessages;
+import com.vectorprint.report.data.BlockingDataCollector.QUEUECONTROL;
+import com.vectorprint.report.data.ReportDataHolder;
+import com.vectorprint.report.data.ReportDataHolder.IdData;
+import com.vectorprint.report.data.types.DateValue;
+import com.vectorprint.report.data.types.Formatter;
+import com.vectorprint.report.data.types.MoneyValue;
+import com.vectorprint.report.data.types.NumberValue;
+import com.vectorprint.report.data.types.PercentageValue;
+import com.vectorprint.report.data.types.DurationValue;
+import com.vectorprint.report.data.types.PeriodValue;
+import com.vectorprint.report.data.types.TextValue;
+import com.vectorprint.report.data.types.ValueHelper;
+import com.vectorprint.report.itext.debug.DebugHelper;
+import com.vectorprint.report.itext.jaxb.Datamappingstype;
+import com.vectorprint.report.itext.mappingconfig.AbstractDatamappingProcessor;
+import com.vectorprint.report.itext.mappingconfig.DatamappingHelper;
+import com.vectorprint.report.itext.mappingconfig.model.DataMapping;
+import com.vectorprint.report.itext.mappingconfig.model.ElementConfig;
+import com.vectorprint.report.itext.mappingconfig.model.StartContainerConfig;
+import com.vectorprint.report.itext.style.BaseStyler;
+import com.vectorprint.report.itext.style.DefaultStylerFactory;
+import com.vectorprint.report.itext.style.DocumentStyler;
+import com.vectorprint.report.itext.style.StyleHelper;
+import com.vectorprint.report.itext.style.StylerFactory;
+import com.vectorprint.report.itext.style.StylerFactoryHelper;
+import com.vectorprint.report.itext.style.stylers.SimpleColumns;
+import com.vectorprint.report.itext.style.stylers.DocumentSettings;
+import com.vectorprint.report.running.ReportRunner;
+import java.awt.Color;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.security.Key;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.Certificate;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.xml.bind.JAXBException;
+
+//~--- JDK imports ------------------------------------------------------------
+/**
+ * This implementation of ReportGenerator uses a {@link EventHelper} and a {@link ElementProducer} to build an iText
+ * report. Subclasses should provide a constructor and implement {@link #createReportBody(com.itextpdf.text.DocumentSettings, com.vectorprint.itextreport.data.ReportDataHolder)
+ * }
+ *
+ * @author Eduard Drenth at VectorPrint.nl
+ * @param <RD> The type of data this generator can use
+ */
+public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDatamappingProcessor
+    implements ReportGenerator<RD> {
+
+   /**
+    * exitcode from {@link #generate(com.vectorprint.report.data.ReportDataHolder, java.io.OutputStream) }
+    * indicating the error can be found in the report itsself
+    */
+   public static final int ERRORINREPORT = -1;
+   private static final Logger log = Logger.getLogger(BaseReportGenerator.class.getName());
+   public static final String DEBUGPAGE = "debugpage";
+   public static final String FAILUREPAGE = "failurepage";
+   /**
+    * factory ({@link DefaultStylerFactory see default}) to provide {@link BaseStyler stylers} for elements
+    */
+   private StylerFactory stylerFactory = new DefaultStylerFactory();
+   /**
+    * the pdf document that elements can be added to
+    */
+   private Document document;
+   /**
+    * the writer that produces the pdf
+    */
+   private PdfWriter writer;
+   /**
+    * the pagehelper responsible for header/footer
+    */
+   private EventHelper<RD> eventHelper;
+   /**
+    * helper for creating elements to add to the document
+    */
+   private final ElementProducer elementProducer;
+   @Settings
+   private EnhancedMap settings;
+   private final StyleHelper styleHelper = new StyleHelper();
+   private ItextHelper itextHelper;
+
+   /**
+    * Basic constructor
+    *
+    * @param eventHelper
+    * @param elementProducer {@link DefaultElementProvider see default}
+    * @throws com.vectorprint.VectorPrintException
+    */
+   public BaseReportGenerator(EventHelper<RD> eventHelper, ElementProducer elementProducer)
+       throws VectorPrintException {
+      super();
+
+      if (eventHelper == null) {
+         throw new VectorPrintException("PageHelper may not be null");
+      }
+
+      if (elementProducer == null) {
+         throw new VectorPrintException("ElementProvider may not be null");
+      }
+
+      this.eventHelper = eventHelper;
+      this.elementProducer = elementProducer;
+      this.eventHelper.setElementProvider(elementProducer);
+      eventHelper.setItextStylerFactory(stylerFactory);
+      eventHelper.setLayerManager(elementProducer);
+      stylerFactory.setImageLoader(elementProducer);
+      stylerFactory.setLayerManager(elementProducer);
+      styleHelper.setStylerFactory(stylerFactory);
+      if (elementProducer instanceof DefaultElementProducer) {
+         ((DefaultElementProducer) elementProducer).setStyleHelper(styleHelper);
+      }
+   }
+
+   public BaseReportGenerator() throws VectorPrintException {
+      this(new EventHelper<RD>(), new DefaultElementProducer());
+   }
+
+   @Override
+   public List<BaseStyler> getStylers(String... styleClasses) throws VectorPrintException {
+      return stylerFactory.getStylers(styleClasses);
+   }
+
+   private boolean wasDebug = false;
+
+   /**
+    * prepare the report, call {@link #handleMessages(com.vectorprint.itextreport.DataCollectionMessages)
+    * }
+    * and when true {@link #createReportBody(com.itextpdf.text.Document, com.vectorprint.itextreport.data.ReportDataHolder)
+    * }. Depending on a
+    * {@link ReportRunner#getRunProperties() property "stoponerror" true/false} {@link VectorPrintException}s will be
+    * caught or not. When {@link VectorPrintException}s are caught a
+    * {@link ReportRunner#getMessages() default messages (renderfault)} will be shown in the pdf or the {@link VectorPrintException#getMessage()
+    * }. VectorPrintExceptions as well as {@link DocumentException}s thrown outside createReportBody will be dealt with
+    * in the same manner.
+    *
+    * @param data
+    * @param outputStream
+    * @return 0, {@link #ERRORINREPORT} or {@link #INVALIDPDF}
+    * @throws com.vectorprint.VectorPrintException
+    */
+   @Override
+   public final int generate(RD data, OutputStream outputStream) throws VectorPrintException {
+      OutputStream out = null;
+      try {
+         DocumentStyler ds = stylerFactory.getDocumentStyler();
+         ds.setReportDataHolder(data);
+
+         out = (out instanceof BufferedOutputStream) ? outputStream : new BufferedOutputStream(outputStream, bufferSize);
+
+         wasDebug = getSettings().getBooleanProperty(DEBUG, Boolean.FALSE);
+         if (ds.getValue(DocumentSettings.TOC, Boolean.class)) {
+            out = new TocOutputStream(out);
+            getSettings().put(DEBUG, Boolean.FALSE.toString());
+         }
+
+         if (ds.isParameterSet(DocumentSettings.KEYSTORE)) {
+            out = new SigningOutputStream(out);
+         }
+
+         document = new VectorPrintDocument(eventHelper, stylerFactory, styleHelper);
+         writer = PdfWriter.getInstance(document, out);
+         styleHelper.setVpd((VectorPrintDocument) document);
+         ((VectorPrintDocument) document).setWriter(writer);
+
+         eventHelper.setReportDataHolder(data);
+         writer.setPageEvent(eventHelper);
+         stylerFactory.setDocument(document, writer);
+         stylerFactory.setImageLoader(elementProducer);
+         stylerFactory.setLayerManager(elementProducer);
+
+         StylerFactoryHelper.initStylingObject(ds, writer, document, this, elementProducer, settings);
+         ds.loadFonts();
+         styleHelper.style(document, data, StyleHelper.toCollection(ds));
+         document.open();
+         if (ds.canStyle(document) && ds.shouldStyle(data, document)) {
+            ds.styleAfterOpen(document, data);
+         }
+
+         // data from the data collection phase don't have to be present
+         if ((data == null) || continueOnDataCollectionMessages(data.getMessages(), document)) {
+            createReportBody(document, data, writer);
+            /*
+             * when using queueing we may have run into failures in the data collection thread
+             */
+            if (data == null || data.getData().isEmpty()) {
+            } else {
+               Object t = data.getData().poll();
+               if (t instanceof Throwable) {
+                  throw new VectorPrintException((Throwable) t);
+               }
+            }
+         }
+         eventHelper.setLastPage(writer.getCurrentPageNumber());
+
+         if (getSettings().getBooleanProperty(DEBUG, false)) {
+            eventHelper.setLastPage(writer.getCurrentPageNumber());
+            document.setPageSize(new Rectangle(ItextHelper.mmToPts(297), ItextHelper.mmToPts(210)));
+            document.setMargins(5, 5, 5, 5);
+            document.newPage();
+            eventHelper.setDebugHereAfter(true);
+            if (!ds.getValue(DocumentSettings.TOC, Boolean.class)) {
+               DebugHelper.appendDebugInfo(writer, document, settings, stylerFactory);
+            }
+         }
+
+         document.close();
+         writer.close();
+
+         return 0;
+      } catch (RuntimeException e) {
+         return handleException(e, out);
+      } catch (DocumentException e) {
+         return handleException(e, out);
+      } catch (VectorPrintException e) {
+         return handleException(e, out);
+      } catch (IOException e) {
+         return handleException(e, out);
+      }
+   }
+
+   /**
+    * This method will be called when exceptions are thrown in
+    * {@link #createReportBody(com.itextpdf.text.Document, com.vectorprint.report.data.ReportDataHolder)} or {@link #appendDebugInfo()
+    * }, it will rethrow the exception by default. If you provide a property "stoponerror" with a value of false, the
+    * stacktrace will be appended to the pdf and the document and writer will be closed.
+    *
+    * @param ex
+    * @param output the pdf document output stream
+    * @return 1
+    */
+   protected int handleException(Exception ex, OutputStream output) throws VectorPrintRuntimeException {
+      if (getSettings().getBooleanProperty("stoponerror", Boolean.TRUE)) {
+         throw (ex instanceof VectorPrintRuntimeException)
+             ? (VectorPrintRuntimeException) ex
+             : new VectorPrintRuntimeException("failed to generate the report: " + ex.getMessage(), ex);
+      } else {
+         PrintStream out;
+
+         try {
+            ByteArrayOutputStream bo = new ByteArrayOutputStream();
+
+            out = new PrintStream(bo, true, "UTF-8");
+            ex.printStackTrace(out);
+            out.close();
+
+            try {
+               Font f = FontFactory.getFont(FontFactory.COURIER, 8);
+
+               f.setColor(itextHelper.fromColor(getSettings().getColorProperty("debugcolor", Color.MAGENTA)));
+
+               String s = getSettings().getProperty("renderfault", bo.toString("UTF-8"));
+               eventHelper.setLastPage(writer.getCurrentPageNumber());
+               document.setPageSize(new Rectangle(ItextHelper.mmToPts(297), ItextHelper.mmToPts(210)));
+               document.setMargins(5, 5, 5, 5);
+
+               document.newPage();
+               eventHelper.setFailuresHereAfter(true);
+
+               document.add(new Chunk("Below you find information that help solving the problems in this report.", f).setLocalDestination(FAILUREPAGE));
+               newLine();
+               document.add(new Paragraph(new Chunk(s, f)));
+               document.newPage();
+               DebugHelper.appendDebugInfo(writer, document, settings, stylerFactory);
+            } catch (VectorPrintException e) {
+               log.log(Level.SEVERE, null, e);
+            } catch (DocumentException e) {
+               log.log(Level.SEVERE, null, e);
+            } finally {
+               document.close();
+               writer.close();
+            }
+         } catch (UnsupportedEncodingException ex1) {
+            log.log(Level.SEVERE, null, ex1);
+         }
+      }
+
+      return ERRORINREPORT;
+   }
+
+   /**
+    * Calls {@link #processData(com.vectorprint.report.data.ReportDataHolder) }
+    *
+    * @throws com.vectorprint.VectorPrintException
+    * @see com.vectorprint.report.itext.annotations.Element
+    *
+    * @param document
+    * @param data
+    * @param writer the value of writer
+    * @throws DocumentException
+    */
+   protected void createReportBody(Document document, RD data, com.itextpdf.text.pdf.PdfWriter writer) throws DocumentException, VectorPrintException {
+      processData(data);
+   }
+
+   /**
+    *
+    * @param mm measure in millimeters
+    * @return measure in points
+    */
+   protected float mmToPts(float mm) {
+      return ItextHelper.mmToPts(mm);
+   }
+
+   public EventHelper<RD> getPageEventHelper() {
+      return eventHelper;
+   }
+
+   public final void setStylerFactory(StylerFactory stylerFactory) {
+      if (stylerFactory != null) {
+         eventHelper.setItextStylerFactory(stylerFactory);
+         this.stylerFactory = stylerFactory;
+         StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(stylerFactory, settings);
+         stylerFactory.setDocument(document, writer);
+         styleHelper.setStylerFactory(stylerFactory);
+      }
+   }
+
+   public StylerFactory getItextStylerFactory() {
+      return stylerFactory;
+   }
+
+   /**
+    * create a value that supports {@link Formatter configurable formatting of datatypes}.
+    *
+    * @see ValueHelper
+    * @param n
+    * @return
+    */
+   public NumberValue getNumber(int n) {
+      return ValueHelper.createNumber(n);
+   }
+
+   /**
+    * create a value that supports {@link Formatter configurable formatting of datatypes}.
+    *
+    * @see ValueHelper
+    * @param n
+    * @return
+    */
+   public NumberValue getNumber(long n) {
+      return ValueHelper.createNumber(n);
+   }
+
+   /**
+    * create a value that supports {@link Formatter configurable formatting of datatypes}.
+    *
+    * @see ValueHelper
+    * @param n
+    * @return
+    */
+   public NumberValue getNumber(double n) {
+      return ValueHelper.createNumber(n);
+   }
+
+   /**
+    * create a value that supports {@link Formatter configurable formatting of datatypes}.
+    *
+    * @param d
+    * @see ValueHelper
+    * @return
+    */
+   public MoneyValue getMoney(double d) {
+      return ValueHelper.createMoney(d);
+   }
+
+   /**
+    * create a value that supports {@link Formatter configurable formatting of datatypes}.
+    *
+    * @param millis
+    * @see ValueHelper
+    * @return
+    */
+   public DateValue getDate(long millis) {
+      return ValueHelper.createDate(new Date(millis));
+   }
+
+   /**
+    * create a value that supports {@link Formatter configurable formatting of datatypes}.
+    *
+    * @param d
+    * @see ValueHelper
+    * @return
+    */
+   public DateValue getDate(Date d) {
+      return ValueHelper.createDate(d);
+   }
+
+   /**
+    * create a value that supports {@link Formatter configurable formatting of datatypes}.
+    *
+    * @param txt
+    * @see ValueHelper
+    * @return
+    */
+   public TextValue getText(String txt) {
+      return ValueHelper.createText(txt);
+   }
+
+   /**
+    * create a value that supports {@link Formatter configurable formatting of datatypes}.
+    *
+    * @param p
+    * @see ValueHelper
+    * @return
+    */
+   public PercentageValue getPercentage(double p) {
+      return ValueHelper.createPercentage(p);
+   }
+
+   /**
+    * create a value that supports {@link Formatter configurable formatting of datatypes}.
+    *
+    * @param millis
+    * @see ValueHelper
+    * @return
+    */
+   public DurationValue getDuration(long millis) {
+      return ValueHelper.createDuration(millis);
+   }
+
+   public PeriodValue getPeriod(long start, long end) {
+      return ValueHelper.createPeriod(start, end);
+   }
+
+   /**
+    *
+    */
+   @Override
+   public EnhancedMap getSettings() {
+      return settings;
+   }
+
+   public void setSettings(EnhancedMap settings) {
+      bufferSize = settings.getIntegerProperty(ReportConstants.BUFFERSIZE, ReportConstants.DEFAULTBUFFERSIZE);
+      this.settings = settings;
+      StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(elementProducer, settings);
+      StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(stylerFactory, settings);
+      StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(eventHelper, settings);
+      itextHelper=new ItextHelper();
+   }
+
+   @Override
+   public Document getDocument() {
+      return document;
+   }
+
+   @Override
+   public PdfWriter getWriter() {
+      return writer;
+   }
+
+   @Override
+   public LayerManager getLayerManager() {
+      return elementProducer;
+   }
+
+   @Override
+   public void loadTiff(InputStream tiff, ImageProcessor imageProcessor, int... pages) throws VectorPrintException {
+      elementProducer.loadTiff(tiff, imageProcessor, pages);
+   }
+
+   @Override
+   public void loadTiff(URL tiff, ImageProcessor imageProcessor, int... pages) throws VectorPrintException {
+      elementProducer.loadTiff(tiff, imageProcessor, pages);
+   }
+
+   @Override
+   public StyleHelper getStyleHelper() {
+      return styleHelper;
+   }
+
+   @Override
+   public SimpleColumns createColumns(List<? extends BaseStyler> stylers) throws VectorPrintException {
+      return elementProducer.createColumns(stylers);
+   }
+
+   private class SigningOutputStream extends AbstractTwoPassStream {
+
+      public SigningOutputStream(OutputStream out) throws IOException {
+         super(out, bufferSize);
+      }
+
+      @Override
+      public void secondPass(InputStream firstPass, OutputStream orig) throws IOException {
+         PdfReader reader = null;
+         try {
+            reader = new PdfReader(firstPass);
+
+            PdfStamper stamper = PdfStamper.createSignature(reader, orig, '\0');
+
+            BaseReportGenerator.this.stylerFactory.getDocumentStyler()
+                .configureVisualSignature(stamper.getSignatureAppearance());
+
+            stamper.close();
+         } catch (DocumentException ex) {
+            throw new VectorPrintRuntimeException(ex);
+         } catch (KeyStoreException ex) {
+            throw new VectorPrintRuntimeException(ex);
+         } catch (NoSuchAlgorithmException ex) {
+            throw new VectorPrintRuntimeException(ex);
+         } catch (UnrecoverableKeyException ex) {
+            throw new VectorPrintRuntimeException(ex);
+         } catch (VectorPrintException ex) {
+            throw new VectorPrintRuntimeException(ex);
+         } finally {
+            if (reader != null) {
+               reader.close();
+            }
+         }
+      }
+
+   }
+
+   private class TocOutputStream extends AbstractTwoPassStream {
+
+      public TocOutputStream(OutputStream out) throws IOException {
+         super(out, bufferSize);
+      }
+
+      @Override
+      public void secondPass(InputStream firstPass, OutputStream orig) throws IOException {
+         PdfReader reader = null;
+         VectorPrintDocument vpd = (VectorPrintDocument) BaseReportGenerator.this.document;
+         try {
+            reader = new PdfReader(firstPass);
+
+            prepareToc();
+
+            // init fresh components for second pass styling
+            StylerFactory _stylerFactory = BaseReportGenerator.this.stylerFactory.getClass().newInstance();
+            StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(_stylerFactory, settings);
+            _stylerFactory.setLayerManager(elementProducer);
+            _stylerFactory.setImageLoader(elementProducer);
+            styleHelper.setStylerFactory(_stylerFactory);
+            stylerFactory = _stylerFactory;
+
+            EventHelper<RD> event = eventHelper.getClass().newInstance();
+            event.setItextStylerFactory(_stylerFactory);
+            event.setElementProvider(elementProducer);
+            eventHelper = event;
+            ((DefaultElementProducer) elementProducer).setPh(event);
+
+            Document d = new VectorPrintDocument(event, _stylerFactory, styleHelper);
+
+            PdfWriter w = PdfWriter.getInstance(d, orig);
+            w.setPageEvent(event);
+
+            styleHelper.setVpd((VectorPrintDocument) d);
+            _stylerFactory.setDocument(d, w);
+
+            DocumentStyler ds = _stylerFactory.getDocumentStyler();
+
+            styleHelper.style(d, null, StyleHelper.toCollection(ds));
+            d.open();
+            ds.styleAfterOpen(d, null);
+
+            List outline = SimpleBookmark.getBookmark(reader);
+            if (!ds.getValue(DocumentSettings.TOCAPPEND, Boolean.class)) {
+               printToc(d, w, vpd);
+               if (outline != null) {
+                  int cur = w.getCurrentPageNumber();
+                  SimpleBookmark.shiftPageNumbers(outline, cur, null);
+               }
+               d.newPage();
+            }
+
+            getSettings().put(DEBUG, Boolean.FALSE.toString());
+            for (int p = 1; p <= reader.getNumberOfPages(); p++) {
+               Image page = Image.getInstance(w.getImportedPage(reader, p));
+               page.setAbsolutePosition(0, 0);
+               d.setPageSize(page);
+               d.newPage();
+               Chunk i = new Chunk(" ");
+               if (vpd.getToc().containsKey(p)) {
+                  Section s = null;
+                  for (Map.Entry<Integer, List<Section>> e : vpd.getToc().entrySet()) {
+                     if (e.getKey() == p) {
+                        s = e.getValue().get(0);
+                        break;
+                     }
+                  }
+
+                  i.setLocalDestination(s.getTitle().getContent());
+               }
+               d.add(i);
+               w.getDirectContent().addImage(page);
+               w.freeReader(reader);
+            }
+            if (_stylerFactory.getDocumentStyler().getValue(DocumentSettings.TOCAPPEND, Boolean.class)) {
+               printToc(d, w, vpd);
+            }
+
+            w.setOutlines(outline);
+            if (wasDebug) {
+               event.setLastPage(writer.getCurrentPageNumber());
+               d.setPageSize(new Rectangle(ItextHelper.mmToPts(297), ItextHelper.mmToPts(210)));
+               d.setMargins(5, 5, 5, 5);
+               d.newPage();
+               getSettings().put(DEBUG, Boolean.TRUE.toString());
+               event.setDebugHereAfter(true);
+               DebugHelper.appendDebugInfo(w, d, settings, _stylerFactory);
+            }
+            d.close();
+         } catch (VectorPrintException ex) {
+            throw new VectorPrintRuntimeException(ex);
+         } catch (DocumentException ex) {
+            throw new VectorPrintRuntimeException(ex);
+         } catch (InstantiationException ex) {
+            throw new VectorPrintRuntimeException(ex);
+         } catch (IllegalAccessException ex) {
+            throw new VectorPrintRuntimeException(ex);
+         } finally {
+            if (reader != null) {
+               reader.close();
+            }
+         }
+
+      }
+
+   }
+
+   private void prepareToc() throws VectorPrintException {
+      DocumentStyler ds = stylerFactory.getDocumentStyler();
+      if (!settings.containsKey(DocumentSettings.TOCTITLESTYLEKEY)) {
+         settings.put(DocumentSettings.TOCTITLESTYLEKEY, DocumentSettings.TOCTITLESTYLE);
+      }
+      if (!settings.containsKey(DocumentSettings.TOCNRSTYLEKEY)) {
+         settings.put(DocumentSettings.TOCNRSTYLEKEY, DocumentSettings.TOCNRSTYLE);
+      }
+      if (!settings.containsKey(DocumentSettings.TOCHEADERSTYLEKEY)) {
+         settings.put(DocumentSettings.TOCHEADERSTYLEKEY, DocumentSettings.TOCHEADER);
+      }
+      if (!settings.containsKey(DocumentSettings.TOCCAPTIONKEY)) {
+         settings.put(DocumentSettings.TOCCAPTIONKEY, DocumentSettings.TOCCAPTION);
+      }
+      settings.remove(DefaultStylerFactory.DEFAULTSTYLERSFIRST);
+      settings.remove(DefaultStylerFactory.DEFAULTSTYLERSLAST);
+      settings.remove(DefaultStylerFactory.PAGESTYLERS);
+      settings.put(ReportConstants.PRINTFOOTER, "false");
+
+      if (!settings.containsKey(DocumentSettings.TOCTABLEKEY)) {
+         float tot = ItextHelper.ptsToMm(document.getPageSize().getWidth() - document.leftMargin() - document.rightMargin());
+         settings.put(DocumentSettings.TOCTABLEKEY, new StringBuilder("Table(columns=2,widths=")
+             .append(Math.round(tot * ds.getValue(DocumentSettings.TOCLEFTWIDTH, Float.class))).append('|')
+             .append(Math.round(tot * ds.getValue(DocumentSettings.TOCRIGHTWIDTH, Float.class))).append(')')
+             .append(";AddCell(data=Table of Contents,styleclass=toccaption);AddCell(data=title,styleclass=tocheader);AddCell(data=page,styleclass=tocheader)")
+             .toString()
+         );
+      }
+   }
+
+   private void printToc(Document d, PdfWriter w, VectorPrintDocument vpd) throws VectorPrintException, InstantiationException, IllegalAccessException, DocumentException {
+      DocumentStyler ds = stylerFactory.getDocumentStyler();
+      if (ds.getValue(DocumentSettings.TOCAPPEND, Boolean.class)) {
+         d.add(Chunk.NEXTPAGE);
+      }
+      if (wasDebug) {
+         getSettings().put(DEBUG, Boolean.TRUE.toString());
+         PdfContentByte canvas = w.getDirectContent();
+         startLayerInGroup(DEBUG, canvas);
+         BaseFont bf = DebugHelper.debugFont(canvas, settings);
+         canvas.showTextAligned(Element.ALIGN_RIGHT, "FOR DEBUG INFO IN THE DOCUMENT TURN OFF TOC (-DocumentSettings.toc=false)",
+             d.right(), d.getPageSize().getHeight() - ItextHelper.getTextHeight("F", bf, 8), 0);
+         canvas.endLayer();
+      }
+      PdfPTable tocTable = createElement(null, PdfPTable.class, DocumentSettings.TOCTABLEKEY);
+
+      for (Map.Entry<Integer, List<Section>> e : vpd.getToc().entrySet()) {
+         String link = null;
+         for (Section s : e.getValue()) {
+            if (ds.isParameterSet(DocumentSettings.TOCMAXDEPTH) && ds.getValue(DocumentSettings.TOCMAXDEPTH, Integer.class) < s.getDepth()) {
+               continue;
+            }
+            if (link == null) {
+               link = s.getTitle().getContent();
+            }
+            Chunk c = createElement(s.getTitle().getContent(), Chunk.class, DocumentSettings.TOCTITLESTYLEKEY);
+            if (ds.getValue(DocumentSettings.TOCDOTS, Boolean.class)) {
+               float tw = ItextHelper.getTextWidth(c);
+               float cw = tocTable.getAbsoluteWidths()[0];
+               float dw = ItextHelper.getTextWidth(createElement(".", Chunk.class, DocumentSettings.TOCTITLESTYLEKEY)) * 1.5f;
+               int numDots = (int) ((cw > tw) ? (cw - tw) / dw : 0);
+               char[] dots = new char[numDots];
+               Arrays.fill(dots, '.');
+               c = createElement(s.getTitle().getContent() + "  " + String.valueOf(dots), Chunk.class, DocumentSettings.TOCTITLESTYLEKEY);
+            }
+            c.setLocalGoto(link);
+            tocTable.addCell(createElement(c, PdfPCell.class, DocumentSettings.TOCTITLESTYLEKEY));
+
+            c = createElement(e.getKey(), Chunk.class, DocumentSettings.TOCNRSTYLEKEY);
+            c.setLocalGoto(link);
+            tocTable.addCell(createElement(c, PdfPCell.class, DocumentSettings.TOCNRSTYLEKEY));
+         }
+      }
+      d.add(tocTable);
+   }
+
+   private int bufferSize = ReportConstants.DEFAULTBUFFERSIZE;
+
+   public void newLine() throws DocumentException {
+      newLine(1);
+   }
+
+   public void newLine(int n) throws DocumentException {
+      if (n < 1) {
+         n = 1;
+      }
+      for (int i = 0; i < n; i++) {
+         document.add(Chunk.NEWLINE);
+      }
+   }
+
+   /**
+    *
+    * @param <E> the element to be returned
+    * @param data the value of data
+    * @param elementClass the value of elementClass
+    * @param styleClass the value of styleClass
+    * @return the element created
+    * @throws VectorPrintException
+    * @throws InstantiationException
+    * @throws IllegalAccessException
+    */
+   public <E extends Element> E createElement(Object data, Class<E> elementClass, String... styleClass) throws VectorPrintException, InstantiationException, IllegalAccessException {
+      return createElement(data, elementClass, getStylers(styleClass));
+   }
+
+   @Override
+   public <E extends Element> E createElement(Object data, Class<E> elementClass, List<? extends BaseStyler> stylers) throws VectorPrintException, InstantiationException, IllegalAccessException {
+      return elementProducer.createElement(data, elementClass, stylers);
+   }
+
+   /**
+    *
+    * @param <E> the element created and added to the document
+    * @param data the value of data
+    * @param elementClass the value of elementClass
+    * @param styleClass the styleClasses to use for styling
+    * @return the element created and added to the document
+    * @throws VectorPrintException
+    * @throws InstantiationException
+    * @throws IllegalAccessException
+    * @throws DocumentException
+    */
+   public <E extends Element> E createAndAddElement(Object data, Class<E> elementClass, String... styleClass) throws VectorPrintException, InstantiationException, IllegalAccessException, DocumentException {
+      return createAndAddElement(data, getStylers(styleClass), elementClass);
+   }
+
+   public <E extends Element> E createAndAddElement(Object data, List<? extends BaseStyler> stylers, Class<E> elementClass) throws VectorPrintException, InstantiationException, IllegalAccessException, DocumentException {
+      E e = createElement(data, elementClass, stylers);
+      document.add(e);
+      return e;
+   }
+
+   public Section getIndex(String title, int nesting, String... styleClass) throws VectorPrintException, InstantiationException, IllegalAccessException {
+      return getIndex(title, nesting, getStylers(styleClass));
+   }
+
+   @Override
+   public Section getIndex(String title, int nesting, List<? extends BaseStyler> stylers) throws VectorPrintException, InstantiationException, IllegalAccessException {
+      return elementProducer.getIndex(title, nesting, stylers);
+   }
+
+   public Section getAndAddIndex(String title, int nesting, String... styleClass) throws VectorPrintException, InstantiationException, IllegalAccessException, DocumentException {
+      return getAndAddIndex(title, nesting, getStylers(styleClass));
+   }
+
+   public Section getAndAddIndex(String title, int nesting, List<? extends BaseStyler> stylers) throws VectorPrintException, InstantiationException, IllegalAccessException, DocumentException {
+      Section s = getIndex(title, nesting, stylers);
+      document.add(s);
+      return s;
+   }
+
+   @Override
+   public String formatValue(Object data) {
+      return elementProducer.formatValue(data);
+   }
+
+   @Override
+   public void loadPdf(URL pdf, PdfWriter writer, byte[] password, ImageProcessor imageProcessor, int... pages) throws VectorPrintException {
+      elementProducer.loadPdf(pdf, writer, password, imageProcessor, pages);
+   }
+
+   @Override
+   public Image loadImage(URL image, float opacity) throws VectorPrintException {
+      return elementProducer.loadImage(image,opacity);
+   }
+
+   @Override
+   public void loadPdf(InputStream pdf, PdfWriter writer, byte[] password, ImageProcessor imageProcessor, int... pages) throws VectorPrintException {
+      elementProducer.loadPdf(pdf, writer, password, imageProcessor, pages);
+   }
+
+   @Override
+   public void loadPdf(InputStream pdf, PdfWriter writer, Certificate certificate, Key key, String securityProvider, ImageProcessor imageProcessor, int... pages) throws VectorPrintException {
+      elementProducer.loadPdf(pdf, writer, certificate, key, securityProvider, imageProcessor, pages);
+   }
+
+   /**
+    *
+    * @param image the value of image
+    * @param opacity the value of opacity
+    * @throws VectorPrintException
+    */
+   @Override
+   public Image loadImage(InputStream image, float opacity) throws VectorPrintException {
+      return elementProducer.loadImage(image,opacity);
+   }
+
+   @Override
+   public DocumentStyler getDocumentStyler() throws VectorPrintException {
+      return stylerFactory.getDocumentStyler();
+   }
+
+   @Override
+   public Map<String, String> getStylerSetup() {
+      return stylerFactory.getStylerSetup();
+   }
+
+   @Override
+   public void setDocument(Document document, PdfWriter writer) {
+   }
+
+   @Override
+   public void setImageLoader(ImageLoader imageLoader) {
+   }
+
+   @Override
+   public PdfLayer initLayerGroup(String layerId, PdfContentByte canvas) {
+      return elementProducer.initLayerGroup(layerId, canvas);
+   }
+
+   @Override
+   public PdfLayer startLayerInGroup(String layerId, PdfContentByte canvas) {
+      return elementProducer.startLayerInGroup(layerId, canvas);
+   }
+
+   @Override
+   public void setLayerManager(LayerManager layerManager) {
+   }
+
+   @Override
+   public Formatter getFormatter() {
+      return elementProducer.getFormatter();
+   }
+
+   @Override
+   public List<BaseStyler> getBaseStylersFromCache(String... styleClasses) throws VectorPrintException {
+      return stylerFactory.getBaseStylersFromCache(styleClasses);
+   }
+
+   private final DatamappingHelper dmh = new DatamappingHelper();
+
+   /**
+    * looks for configuration of data mapping to process data
+    *
+    * @see DatamappingHelper#toDataConfig(java.lang.Class, com.vectorprint.report.itext.jaxb.Datamappingstype)
+    *
+    * @param o
+    * @param containers
+    * @throws VectorPrintException
+    * @throws DocumentException
+    */
+   protected void processDataObject(IdData dw, Deque containers) throws VectorPrintException, DocumentException {
+      Object o = dw.getData();
+      Class dataClass = o.getClass();
+
+      if (log.isLoggable(Level.FINE)) {
+         log.log(Level.FINE, "processing {0}", dataClass.getName());
+      }
+
+      try {
+         Datamappingstype dmt = null;
+         if (settings.containsKey(ReportConstants.DATAMAPPINGXML)) {
+            dmt = DatamappingHelper.fromXML(
+                new InputStreamReader(
+                    settings.getURLProperty(ReportConstants.DATAMAPPINGXML, null).openStream()
+                )
+            );
+         }
+
+         DataMapping dataMapping = dmh.toDataConfig(dataClass, dw.getId(), dmt);
+
+         if (dataMapping != null) {
+
+            if (!dataMapping.getStartcontainer().isEmpty()) {
+               for (StartContainerConfig scc : dataMapping.getStartcontainer()) {
+                  addContainer(scc, containers, o);
+               }
+            }
+
+            if (!dataMapping.getElement().isEmpty()) {
+               for (ElementConfig ec : dataMapping.getElement()) {
+                  addElement(ec, containers, o);
+               }
+            }
+
+            if (dataMapping.getElementsfromdata() != null) {
+               Method m = dataClass.getMethod(dataMapping.getElementsfromdata().getDatalistmethod(), (Class[]) null);
+               Object result = m.invoke(o, (Object[]) null);
+               if (result instanceof java.util.List) {
+                  for (Object lo : (java.util.List) result) {
+                     addElement(dataMapping.getElementsfromdata().getElement(), containers, lo);
+                  }
+               } else {
+                  throw new VectorPrintException(String.format("%s not supported as return type, required java.util.List", (result == null) ? "null" : result.getClass().getName()));
+               }
+            }
+
+            if (dataMapping.getEndcontainer() != null) {
+               endContainer(dataMapping.getEndcontainer().getContainertype(), dataMapping.getEndcontainer().getDepthtoend(), containers);
+            }
+
+         } else {
+            throw new VectorPrintException(String.format("no datamapping configuration found for %s", dataClass.getName()));
+         }
+      } catch (IOException ex) {
+         throw new VectorPrintException(ex);
+      } catch (JAXBException ex) {
+         throw new VectorPrintException(ex);
+      } catch (ClassNotFoundException ex) {
+         throw new VectorPrintException(ex);
+      } catch (NoSuchMethodException ex) {
+         throw new VectorPrintException(ex);
+      } catch (SecurityException ex) {
+         throw new VectorPrintException(ex);
+      } catch (IllegalAccessException ex) {
+         throw new VectorPrintException(ex);
+      } catch (InvocationTargetException ex) {
+         throw new VectorPrintException(ex);
+      } catch (InstantiationException ex) {
+         throw new VectorPrintException(ex);
+      }
+
+   }
+
+   /**
+    * When {@link ReportDataHolder#getData() } is a {@link BlockingQueue} uses {@link BlockingQueue#take() } to process
+    * objects and stops processing when a {@link QUEUECONTROL#END} is found on the queue, otherwise {@link Queue#poll() } is used.
+    *
+    * @param dataHolder
+    * @throws VectorPrintException
+    * @throws DocumentException
+    */
+   @Override
+   public final void processData(RD dataHolder) throws VectorPrintException, DocumentException {
+      Deque containers = new LinkedList();
+      if (dataHolder.getData() instanceof BlockingQueue) {
+         try {
+            BlockingQueue<IdData> bq = (BlockingQueue<IdData>) dataHolder.getData();
+            Object o;
+            IdData dw;
+            /*
+             * wait for data in a blocking way
+             */
+            while ((dw = bq.take()) != null) {
+               o = dw.getData();
+               if (QUEUECONTROL.END.equals(o)) {
+                  break;
+               } else if (o instanceof Throwable) {
+                  throw new VectorPrintException((Throwable) o);
+               }
+               processDataObject(dw, containers);
+            }
+         } catch (InterruptedException ex) {
+            throw new VectorPrintException(ex);
+         }
+      } else {
+         IdData dw;
+         while ((dw = (IdData) dataHolder.getData().poll()) != null) {
+            processDataObject(dw, containers);
+         }
+      }
+      // process any containers not added to the document yet
+      if (!containers.isEmpty()) {
+         if (containers.getLast() instanceof Element) {
+            document.add((Element) containers.getLast());
+         } else {
+            throw new VectorPrintException(String.format("don't know what to do with container %s", containers.getLast().getClass().getName()));
+         }
+      }
+   }
+
+   /**
+    * When messages of level {@link DataCollectionMessages.Level error} are present, put these in the document and
+    * return false. Otherwise log messages and return true.
+    *
+    * @param messages
+    * @param document
+    * @return
+    * @throws VectorPrintException
+    */
+   @Override
+   public boolean continueOnDataCollectionMessages(DataCollectionMessages messages, com.itextpdf.text.Document document) throws VectorPrintException {
+      if (!messages.getMessages(DataCollectionMessages.Level.ERROR).isEmpty()) {
+         try {
+            createAndAddElement(messages.getMessages(DataCollectionMessages.Level.ERROR), Phrase.class, "");
+         } catch (InstantiationException ex) {
+            throw new VectorPrintException(ex);
+         } catch (IllegalAccessException ex) {
+            throw new VectorPrintException(ex);
+         } catch (DocumentException ex) {
+            throw new VectorPrintException(ex);
+         }
+         return false;
+      } else {
+         for (DataCollectionMessages.Level l : DataCollectionMessages.Level.values()) {
+            for (Object m : messages.getMessages(l)) {
+               log.warning(String.format("message of level %s during data collection: %s", l.name(), String.valueOf(m)));
+            }
+         }
+      }
+      return true;
+   }
+}
