@@ -23,6 +23,7 @@ package com.vectorprint.report.itext.style.css;
 import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.VectorPrintProperties;
+import com.vectorprint.configuration.decoration.ParsingProperties;
 import com.vectorprint.configuration.parameters.Parameter;
 import com.vectorprint.configuration.parameters.ParameterHelper;
 import com.vectorprint.configuration.parameters.Parameterizable;
@@ -37,10 +38,10 @@ import com.vectorprint.report.itext.style.stylers.Border;
 import com.vectorprint.report.itext.style.stylers.DocumentSettings;
 import com.vectorprint.report.itext.style.stylers.Padding;
 import java.awt.Color;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -537,7 +538,7 @@ public class CssDocumentHandler implements CssToBaseStylers {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       printStylers(out);
       try {
-         styling = new VectorPrintProperties(new ByteArrayInputStream(out.toByteArray()), toString(), null);
+         styling = new ParsingProperties(new VectorPrintProperties(),new StringReader(out.toString()));
          return styling;
       } catch (ParseException ex) {
          throw new VectorPrintRuntimeException(ex);

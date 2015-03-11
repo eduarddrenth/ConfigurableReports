@@ -33,6 +33,7 @@ import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.VectorPrintProperties;
 import com.vectorprint.configuration.annotation.Settings;
+import com.vectorprint.configuration.decoration.ParsingProperties;
 import com.vectorprint.configuration.observing.TrimKeyValue;
 import com.vectorprint.configuration.parameters.BooleanParameter;
 import com.vectorprint.configuration.parameters.Parameter;
@@ -54,6 +55,7 @@ import com.vectorprint.report.itext.style.StylingCondition;
 import com.vectorprint.report.itext.style.conditions.PageNumberCondition;
 import static com.vectorprint.report.itext.style.stylers.StylerHelper.supported;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -281,7 +283,8 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
             em = cssNames;
             if (em == null) {
                try {
-                  cssNames = em = new VectorPrintProperties(AbstractStyler.class.getResourceAsStream(CSS_NAMESPROPERTIES), "cssNames", StylerHelper.toList(new TrimKeyValue()));
+                  cssNames = em = new ParsingProperties(new VectorPrintProperties(StylerHelper.toList(new TrimKeyValue())),
+                      new InputStreamReader(AbstractStyler.class.getResourceAsStream(CSS_NAMESPROPERTIES) ));
                } catch (IOException ex) {
                   throw new VectorPrintRuntimeException(ex);
                } catch (ParseException ex) {
