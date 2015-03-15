@@ -149,7 +149,7 @@ public class ConfigurableReportBuilderTest {
     */
    @Test
    public void testGetConfigDir() throws IOException {
-      String expResult = "file:src/test/resources/config";
+      String expResult = "src/test/resources/config";
       String result = instance.getSettings().getProperty(ThreadSafeReportBuilder.CONFIG_URL);
       assertEquals(expResult, result);
    }

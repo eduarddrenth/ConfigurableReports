@@ -34,6 +34,7 @@ import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.VectorPrintProperties;
 import com.vectorprint.configuration.annotation.Settings;
 import com.vectorprint.configuration.decoration.ParsingProperties;
+import com.vectorprint.configuration.decoration.PreparingProperties;
 import com.vectorprint.configuration.observing.TrimKeyValue;
 import com.vectorprint.configuration.parameters.BooleanParameter;
 import com.vectorprint.configuration.parameters.Parameter;
@@ -283,7 +284,7 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
             em = cssNames;
             if (em == null) {
                try {
-                  cssNames = em = new ParsingProperties(new VectorPrintProperties(StylerHelper.toList(new TrimKeyValue())),
+                  cssNames = em = new ParsingProperties(new PreparingProperties(new VectorPrintProperties(),StylerHelper.toList(new TrimKeyValue())),
                       new InputStreamReader(AbstractStyler.class.getResourceAsStream(CSS_NAMESPROPERTIES) ));
                } catch (IOException ex) {
                   throw new VectorPrintRuntimeException(ex);

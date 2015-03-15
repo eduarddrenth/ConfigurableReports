@@ -76,7 +76,7 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
    public static final int EXITFROMPROPERTYCODE = -1;
    public static final int EXITNOSETTINGS = -2;
    public static final String DATACLASS_HELP = "annotate your dataclasses, extend " + DataCollectorImpl.class.getName() + " and provide its classname using the property " + DATACLASS;
-   private EnhancedMap settings;
+   private final EnhancedMap settings;
 
    public ReportRunner(EnhancedMap properties) {
       if (properties == null) {
@@ -95,14 +95,13 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
     */
    @Override
    public final int buildReport(String[] args) throws Exception {
-      EnhancedMap properties = getSettings();
 
       try {
          if (args != null) {
-            properties.addFromArguments(args);
+            settings.addFromArguments(args);
          }
 
-         if (properties.containsKey(VERSION)) {
+         if (settings.containsKey(VERSION)) {
             for (VersionInfo.VersionInformation mi : VersionInfo.getVersionInfo().values()) {
                System.out.println(mi);
             }
@@ -110,25 +109,25 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
             return EXITFROMPROPERTYCODE;
          }
 
-         if (properties.containsKey(HELP)) {
-            showHelp(properties);
+         if (settings.containsKey(HELP)) {
+            showHelp(settings);
 
             return EXITFROMPROPERTYCODE;
          }
 
-         if (STREAM.equals(properties.getProperty(OUTPUT))) {
+         if (STREAM.equals(settings.getProperty(OUTPUT))) {
             OutputStream o = System.out;
 
-            System.setOut(new PrintStream(properties.getProperty(SYSOUT, getClass().getSimpleName() + ".out"),
+            System.setOut(new PrintStream(settings.getProperty(SYSOUT, getClass().getSimpleName() + ".out"),
                 "UTF-8"));
             log.info("printing report to standard output");
 
             // stream
             return buildReport(null, o);
          } else {
-            log.info(String.format("printing report to %s", properties.getProperty(OUTPUT)));
+            log.info(String.format("printing report to %s", settings.getProperty(OUTPUT)));
 
-            String to = properties.getProperty(OUTPUT);
+            String to = settings.getProperty(OUTPUT);
 
             if (to.indexOf(':') == -1) {
                to = "file:" + to;
@@ -186,7 +185,9 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
          }
          Class dataClass = Class.forName(getSettings().getProperty(DATACLASS));
 
-         return (DataCollector) dataClass.newInstance();
+         Object newInstance = dataClass.newInstance();
+         StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(newInstance, settings);
+         return (DataCollector<RD>) newInstance;
       } catch (ClassNotFoundException ex) {
          throw new VectorPrintException(ex);
       } catch (InstantiationException ex) {
@@ -207,7 +208,9 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
       try {
          Class reportClass = Class.forName(getSettings().getProperty(REPORTCLASS, BaseReportGenerator.class.getName()));
 
-         return (ReportGenerator) reportClass.newInstance();
+         Object newInstance = reportClass.newInstance();
+         StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(newInstance, settings);
+         return (ReportGenerator<RD>) newInstance;
       } catch (InstantiationException ex) {
          throw new VectorPrintException(ex);
       } catch (IllegalAccessException ex) {

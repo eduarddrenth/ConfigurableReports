@@ -55,7 +55,6 @@ import com.vectorprint.report.itext.style.BaseStyler;
 import com.vectorprint.report.itext.style.DefaultStylerFactory;
 import com.vectorprint.report.itext.style.DocumentStyler;
 import com.vectorprint.report.itext.style.StylerFactory;
-import com.vectorprint.report.itext.style.StylerFactoryHelper;
 import com.vectorprint.report.itext.style.stylers.Advanced;
 import java.awt.Color;
 import java.util.ArrayList;
@@ -120,7 +119,6 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
    void setItextStylerFactory(StylerFactory itextStylerFactory) {
       this.stylerFactory = itextStylerFactory;
       itextHelper = new ItextHelper();
-      StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(itextHelper, getSettings());
    }
 
    /**

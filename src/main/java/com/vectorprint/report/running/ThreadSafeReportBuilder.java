@@ -20,9 +20,7 @@ package com.vectorprint.report.running;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-
 //~--- non-JDK imports --------------------------------------------------------
-
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.VectorPrintProperties;
@@ -31,10 +29,12 @@ import com.vectorprint.configuration.decoration.FindableProperties;
 import com.vectorprint.configuration.decoration.HelpSupportedProperties;
 import com.vectorprint.configuration.decoration.MultipleProperties;
 import com.vectorprint.configuration.decoration.ParsingProperties;
+import com.vectorprint.configuration.decoration.PreparingProperties;
 import com.vectorprint.configuration.decoration.ThreadSafeProperties;
 import com.vectorprint.configuration.observing.HandleEmptyValues;
 import com.vectorprint.configuration.observing.PrepareKeyValue;
 import com.vectorprint.configuration.observing.TrimKeyValue;
+import com.vectorprint.configuration.parameters.MultipleValueParser;
 import com.vectorprint.configuration.parser.ParseException;
 import com.vectorprint.report.ReportConstants;
 import com.vectorprint.report.data.ReportDataHolder;
@@ -49,7 +49,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 //~--- JDK imports ------------------------------------------------------------
-
 /**
  * A Threadsafe reportbuilder; you can safely call {@link #buildReport(java.lang.String[]) } at the same time from
  * different threads on an instance of this class. When threads are reused (pooled) unwanted access to thread variables
@@ -94,8 +93,7 @@ public class ThreadSafeReportBuilder<RD extends ReportDataHolder> extends Report
     */
    public static final String MESSAGECONFIG = "messages.properties";
    /**
-    * default set of property fileNames
-    * }
+    * default set of property fileNames }
     */
    static final Collection<String> DEFAULTPROPERTYURLS = Collections.unmodifiableList(Arrays.asList(new String[]{
       RUNCONFIG, STYLINGCONFIG, PAGECONFIG, CHARTCONFIG, TABLECONFIG, MESSAGECONFIG
@@ -103,8 +101,8 @@ public class ThreadSafeReportBuilder<RD extends ReportDataHolder> extends Report
    private ThreadLocal<String> configbaseurl = new InheritableThreadLocal<String>();
 
    /**
-    * constructor tries to figure out where the configs are using {@link #REPORT_CONFIG} and
-    * {@link #CONFIG_URL}. Uses {@link #DEFAULTPROPERTYURLS} to load settings.
+    * constructor tries to figure out where the configs are using {@link #REPORT_CONFIG} and {@link #CONFIG_URL}. Uses
+    * {@link #DEFAULTPROPERTYURLS} to load settings.
     *
     * @param allowEmptyValues when true allow empty values for properties
     * @param trimKeyValues when true trim keys and values for properties
@@ -127,7 +125,8 @@ public class ThreadSafeReportBuilder<RD extends ReportDataHolder> extends Report
    }
 
    /**
-    * Calls {@link #initObservers(boolean, boolean) } and {@link #ThreadSafeReportBuilder(java.lang.String, java.lang.String[], java.util.List)}.
+    * Calls {@link #initObservers(boolean, boolean) } and
+    * {@link #ThreadSafeReportBuilder(java.lang.String, java.lang.String[], java.util.List)}.
     *
     * @param allowEmptyValues when true allow empty values for properties
     * @param trimKeyValues when true trim keys and values for properties
@@ -200,18 +199,16 @@ public class ThreadSafeReportBuilder<RD extends ReportDataHolder> extends Report
    public static EnhancedMap initProperties(String[] propertyFileNames, String configUrl,
        List<PrepareKeyValue<String, String>> observers)
        throws IOException, VectorPrintException, ParseException {
-       if (propertyFileNames==null||propertyFileNames.length==0) {
-           throw new VectorPrintException("we need at least one property file");
-       }
+      if (propertyFileNames == null || propertyFileNames.length == 0) {
+         throw new VectorPrintException("we need at least one property file");
+      }
       MultipleProperties mp = null;
-
-      configUrl = ((new File(configUrl).isDirectory()) ? "file:" : "") + configUrl;
 
       for (String name : propertyFileNames) {
          if (mp == null) {
-            mp = new MultipleProperties(new ParsingProperties(new VectorPrintProperties(observers),configUrl + "/" + name));
+            mp = new MultipleProperties(new ParsingProperties(new PreparingProperties(new VectorPrintProperties(), observers), configUrl + "/" + name));
          } else {
-            mp.addProperties(new ParsingProperties(new VectorPrintProperties(observers),configUrl + "/" + name));
+            mp.addProperties(new ParsingProperties(new PreparingProperties(new VectorPrintProperties(), observers), configUrl + "/" + name));
          }
       }
       mp.put(CONFIG_URL, configUrl);
@@ -220,18 +217,17 @@ public class ThreadSafeReportBuilder<RD extends ReportDataHolder> extends Report
    }
 
    /**
-    * called from the constructor, wraps properties in {@link CachingProperties}, {@link ThreadSafeProperties}, {@link HelpSupportedProperties} and
+    * called from the constructor, wraps properties in
+    * {@link ThreadSafeProperties}, {@link HelpSupportedProperties} and
     * {@link FindableProperties}.
     *
     * @param mp
     * @return
     */
    public static EnhancedMap wrapProperties(MultipleProperties mp) throws VectorPrintException {
-      try {
-         return new CachingProperties(new ThreadSafeProperties(new HelpSupportedProperties(new FindableProperties(mp), new URL(mp.getProperty(CONFIG_URL)))));
-      } catch (MalformedURLException ex) {
-         throw new VectorPrintException(ex);
-      }
+      return new ThreadSafeProperties(new HelpSupportedProperties(new FindableProperties(mp),
+          MultipleValueParser.URL_PARSER.parseString(mp.getProperty(CONFIG_URL))
+      ));
    }
 
    /**

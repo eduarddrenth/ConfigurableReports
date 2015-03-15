@@ -69,7 +69,7 @@ public class FloatArrayParameter extends com.vectorprint.configuration.parameter
    @Override
    public Float[] convert(String value) throws VectorPrintRuntimeException {
       try {
-         return ArrayHelper.toArray(MultipleValueParser.getParamInstance().parseValues(value, (mmToPts)?TO_PTS_FLOAT_PARSER: MultipleValueParser.FLOAT_PARSER,false));
+         return ArrayHelper.toArray(MultipleValueParser.getParamInstance().parseValues(value, (mmToPts)?TO_PTS_FLOAT_PARSER: MultipleValueParser.FLOAT_PARSER));
       } catch (ParseException ex) {
          throw new VectorPrintRuntimeException(ex);
       }

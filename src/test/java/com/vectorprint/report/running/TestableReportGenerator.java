@@ -36,13 +36,12 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.vectorprint.VectorPrintException;
+import com.vectorprint.configuration.parameters.MultipleValueParser;
 import com.vectorprint.report.data.DataCollectionMessages;
 import com.vectorprint.report.data.ReportDataHolder;
 import com.vectorprint.report.itext.BaseReportGenerator;
 import com.vectorprint.report.itext.DefaultElementProducer;
 import com.vectorprint.report.itext.EventHelper;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Date;
 
 /**
@@ -82,138 +81,137 @@ public class TestableReportGenerator extends BaseReportGenerator<ReportDataHolde
              getText("dit is een hele lange \ntext met een grote\nregelhoogte"), Phrase.class, "wide");
          newLine();
          createColumns(getStylers("kols")).addContent(
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
-             "kolom " +
              "kolom "
-             , "bold").write(false).addContent(createElement("9992345678906", Image.class, "bc"), null).write();
-         
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom "
+             + "kolom ", "bold").write(false).addContent(createElement("9992345678906", Image.class, "bc"), null).write();
+
          newLine();
          createAndAddElement(
              getText("dit is een hele lange \ntext met een kleine\nregelhoogte"), Phrase.class, "narrow");
@@ -240,29 +238,21 @@ public class TestableReportGenerator extends BaseReportGenerator<ReportDataHolde
          document.add(getIndex("Tweede", 1, "chapter"));
          com.vectorprint.report.itext.style.stylers.Image ims
              = new com.vectorprint.report.itext.style.stylers.Image(this, this, document, writer, getSettings());
-         try {
-            // the setters here could also be done from setup
-            ims.setUrl(new URL(getSettings().getProperty(ThreadSafeReportBuilder.CONFIG_URL)
-                + "/" + "zon.pdf"));
-            ims.setPdf(true);
-            ims.setShifty(50);
-            ims.setTransform(new Float[]{2f, 25f, 2f, 2f, 0f, 0f});
-            ims.setShiftx(document.getPageSize().getLeft());
-            if (writer.getPDFXConformance() != PdfWriter.PDFX1A2001) {
-               ims.setOpacity(0.3f);
-            }
-            ims.draw(new Rectangle(10, 10, 100, 100), "");
-         } catch (MalformedURLException ex) {
-            throw new VectorPrintException(ex);
+         // the setters here could also be done from setup
+         ims.setUrl(MultipleValueParser.URL_PARSER.parseString(getSettings().getProperty(ThreadSafeReportBuilder.CONFIG_URL)
+             + "/" + "zon.pdf"));
+         ims.setPdf(true);
+         ims.setShifty(50);
+         ims.setTransform(new Float[]{2f, 25f, 2f, 2f, 0f, 0f});
+         ims.setShiftx(document.getPageSize().getLeft());
+         if (writer.getPDFXConformance() != PdfWriter.PDFX1A2001) {
+            ims.setOpacity(0.3f);
          }
+         ims.draw(new Rectangle(10, 10, 100, 100), "");
          newLine();
-         try {
-            if (writer.getPDFXConformance() != PdfWriter.PDFX1A2001) {
-               document.add(loadImage(new URL(getSettings().getProperty(ThreadSafeReportBuilder.CONFIG_URL)
-                   + "/" + "pointer.png"), 1));
-            }
-         } catch (MalformedURLException ex) {
-            throw new VectorPrintException(ex);
+         if (writer.getPDFXConformance() != PdfWriter.PDFX1A2001) {
+            document.add(loadImage(MultipleValueParser.URL_PARSER.parseString(getSettings().getProperty(ThreadSafeReportBuilder.CONFIG_URL)
+                + "/" + "pointer.png"), 1));
          }
          newLine();
 
@@ -297,8 +287,6 @@ public class TestableReportGenerator extends BaseReportGenerator<ReportDataHolde
          t2.addCell(createElement("n2", PdfPCell.class, "headerleft"));
          t2.addCell(createElement("n3", PdfPCell.class, "headerleftc2"));
          t.addCell(createElement(t2, PdfPCell.class, "headerleft"));
-
-         
 
          document.add(t);
 
