@@ -27,7 +27,6 @@ import com.vectorprint.configuration.VectorPrintProperties;
 import com.vectorprint.configuration.decoration.CachingProperties;
 import com.vectorprint.configuration.decoration.FindableProperties;
 import com.vectorprint.configuration.decoration.HelpSupportedProperties;
-import com.vectorprint.configuration.decoration.MultipleProperties;
 import com.vectorprint.configuration.decoration.ParsingProperties;
 import com.vectorprint.configuration.decoration.PreparingProperties;
 import com.vectorprint.configuration.decoration.ThreadSafeProperties;
@@ -55,7 +54,8 @@ import java.util.List;
  * may occur. When an environment variable {@link #REPORT_CONFIG} is set it is assumed to point to the base url where
  * property files are found, otherwise {@link #CONFIG_URL} is used}.
  *
- * @see MultiThreadProps
+ * @see MultipleProperties
+ * @see ThreadSafeProperties
  * @author Eduard Drenth at VectorPrint.nl
  */
 public class ThreadSafeReportBuilder<RD extends ReportDataHolder> extends ReportRunner<RD> {
@@ -186,8 +186,8 @@ public class ThreadSafeReportBuilder<RD extends ReportDataHolder> extends Report
    }
 
    /**
-    * Initializes {@link MultipleProperties} and {@link VectorPrintProperties} from the arguments, adds a property
-    * {@link #CONFIG_URL} and calls {@link #wrapProperties(MultipleProperties) }.
+    * Initializes {@link ParsingProperties} from the arguments, adds a property
+    * {@link #CONFIG_URL} and calls {@link #wrapProperties(com.vectorprint.configuration.EnhancedMap)  }.
     *
     * @param propertyFileNames
     * @param configUrl
@@ -202,18 +202,18 @@ public class ThreadSafeReportBuilder<RD extends ReportDataHolder> extends Report
       if (propertyFileNames == null || propertyFileNames.length == 0) {
          throw new VectorPrintException("we need at least one property file");
       }
-      MultipleProperties mp = null;
+      ParsingProperties pp = null;
 
       for (String name : propertyFileNames) {
-         if (mp == null) {
-            mp = new MultipleProperties(new ParsingProperties(new PreparingProperties(new VectorPrintProperties(), observers), configUrl + "/" + name));
+         if (pp == null) {
+            pp = new ParsingProperties(new PreparingProperties(new VectorPrintProperties(), observers), configUrl + "/" + name);
          } else {
-            mp.addProperties(new ParsingProperties(new PreparingProperties(new VectorPrintProperties(), observers), configUrl + "/" + name));
+            pp.addFromURL(configUrl + "/" + name);
          }
       }
-      mp.put(CONFIG_URL, configUrl);
+      pp.put(CONFIG_URL, configUrl);
 
-      return wrapProperties(mp);
+      return wrapProperties(pp);
    }
 
    /**
@@ -224,9 +224,9 @@ public class ThreadSafeReportBuilder<RD extends ReportDataHolder> extends Report
     * @param mp
     * @return
     */
-   public static EnhancedMap wrapProperties(MultipleProperties mp) throws VectorPrintException {
-      return new ThreadSafeProperties(new HelpSupportedProperties(new FindableProperties(mp),
-          MultipleValueParser.URL_PARSER.parseString(mp.getProperty(CONFIG_URL))
+   public static EnhancedMap wrapProperties(EnhancedMap mp) throws VectorPrintException {
+      return new ThreadSafeProperties(new CachingProperties(new HelpSupportedProperties(new FindableProperties(mp),
+          MultipleValueParser.URL_PARSER.parseString(mp.getProperty(CONFIG_URL)))
       ));
    }
 

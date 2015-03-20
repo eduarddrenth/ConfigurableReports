@@ -268,7 +268,7 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
             if (shiftArgs.length > 0) {
                System.arraycopy(args, 1, shiftArgs, 0, shiftArgs.length);
             }
-            System.exit(new ReportRunner(new CachingProperties(new ParsingProperties(new VectorPrintProperties(),args[0]))).buildReport(shiftArgs));
+            System.exit(new ReportRunner(new ParsingProperties(new VectorPrintProperties(),args[0])).buildReport(shiftArgs));
          }
       }
       if (EXITNOSETTINGS == findSettingsAndBuild()) {
