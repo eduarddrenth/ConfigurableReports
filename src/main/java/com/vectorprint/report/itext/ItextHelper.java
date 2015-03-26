@@ -30,7 +30,7 @@ import com.itextpdf.text.pdf.ExtendedColor;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.EnhancedMap;
-import com.vectorprint.configuration.annotation.Settings;
+import com.vectorprint.configuration.annotation.SettingsField;
 import com.vectorprint.report.ReportConstants;
 import java.awt.Color;
 import java.awt.color.ICC_ColorSpace;
@@ -124,7 +124,7 @@ public class ItextHelper {
    
    private ICC_ColorSpace icc = null;
    
-   @Settings
+   @SettingsField
    private EnhancedMap settings;
 
    public BaseColor fromColor(Color color) {

@@ -54,9 +54,9 @@ public class Formatter {
    private String durationSuffix = DEFAULT_DURATION_SUFFIX;
    private String percentageFormat = DEFAULT_PERCENTAGE_FORMAT;
    private String currencyFormat = DEFAULT_CURRENCY_FORMAT;
-   @Setting(key = ReportConstants.CURRENCYSYMBOL)
+   @Setting(keys = ReportConstants.CURRENCYSYMBOL)
    private String currencySymbol = DEFAULTCURRENCYSYMBOL;
-   @Setting(key = ReportConstants.DEBUG)
+   @Setting(keys = ReportConstants.DEBUG)
    private boolean debug = false;
   
 

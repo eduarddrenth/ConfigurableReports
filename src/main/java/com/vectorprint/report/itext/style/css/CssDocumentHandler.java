@@ -22,7 +22,7 @@ package com.vectorprint.report.itext.style.css;
  */
 import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.EnhancedMap;
-import com.vectorprint.configuration.VectorPrintProperties;
+import com.vectorprint.configuration.Settings;
 import com.vectorprint.configuration.decoration.ParsingProperties;
 import com.vectorprint.configuration.parameters.Parameter;
 import com.vectorprint.configuration.parameters.ParameterHelper;
@@ -538,7 +538,7 @@ public class CssDocumentHandler implements CssToBaseStylers {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       printStylers(out);
       try {
-         styling = new ParsingProperties(new VectorPrintProperties(),new StringReader(out.toString()));
+         styling = new ParsingProperties(new Settings(),new StringReader(out.toString()));
          return styling;
       } catch (ParseException ex) {
          throw new VectorPrintRuntimeException(ex);

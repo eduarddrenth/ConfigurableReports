@@ -44,7 +44,7 @@ import com.itextpdf.text.pdf.SimpleBookmark;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.EnhancedMap;
-import com.vectorprint.configuration.annotation.Settings;
+import com.vectorprint.configuration.annotation.SettingsField;
 import com.vectorprint.report.ReportConstants;
 import static com.vectorprint.report.ReportConstants.DEBUG;
 import com.vectorprint.report.ReportGenerator;
@@ -146,7 +146,7 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
     * helper for creating elements to add to the document
     */
    private final ElementProducer elementProducer;
-   @Settings
+   @SettingsField
    private EnhancedMap settings;
    private final StyleHelper styleHelper = new StyleHelper();
    private ItextHelper itextHelper;

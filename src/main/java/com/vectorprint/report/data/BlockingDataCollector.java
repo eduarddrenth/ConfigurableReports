@@ -70,9 +70,9 @@ public abstract class BlockingDataCollector extends DataCollectorImpl implements
     */
    public static final String QUEUETIMEOUT = "queuetimeout";
    public static final Long DEFAULTTIMEOUT = 5000l;
-   @Setting(key = DATAQUEUESIZE)
+   @Setting(keys = DATAQUEUESIZE)
    private int dataQueueSize = DEFAULTQUEUESIZE;
-   @Setting(key = QUEUETIMEOUT)
+   @Setting(keys = QUEUETIMEOUT)
    private long queueTimeout = DEFAULTTIMEOUT;
    
    public static final int DEFAULTQUEUESIZE = 50;

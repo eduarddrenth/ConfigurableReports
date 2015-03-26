@@ -29,7 +29,7 @@ import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfPTableEvent;
 import com.vectorprint.configuration.EnhancedMap;
-import com.vectorprint.configuration.annotation.Settings;
+import com.vectorprint.configuration.annotation.SettingsField;
 import static com.vectorprint.report.ReportConstants.DEBUG;
 import com.vectorprint.report.itext.ItextHelper;
 import com.vectorprint.report.itext.LayerManager;
@@ -48,7 +48,7 @@ public class ZebraStripes implements PdfPTableEvent, LayerManagerAware {
    private int alternate;
    private Color oddColor;
    private Color evenColor;
-   @Settings
+   @SettingsField
    private EnhancedMap settings;
    private LayerManager layerManager;
    private ItextHelper itextHelper;

@@ -25,10 +25,7 @@ package com.vectorprint.report.data;
  * #L%
  */
 
-import com.vectorprint.configuration.EnhancedMap;
-import com.vectorprint.configuration.annotation.Settings;
 import com.vectorprint.report.data.ReportDataHolder.IdData;
-import com.vectorprint.report.itext.style.StylerFactoryHelper;
 
 /**
  * Default implementation of a DataCollector, uses ReportDataHolderImpl as generic parameters

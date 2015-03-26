@@ -29,8 +29,7 @@ package com.vectorprint.report.running;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.VersionInfo;
 import com.vectorprint.configuration.EnhancedMap;
-import com.vectorprint.configuration.VectorPrintProperties;
-import com.vectorprint.configuration.decoration.CachingProperties;
+import com.vectorprint.configuration.Settings;
 import com.vectorprint.configuration.decoration.ParsingProperties;
 import static com.vectorprint.report.ReportConstants.DATACLASS;
 import static com.vectorprint.report.ReportConstants.HELP;
@@ -243,11 +242,11 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
     */
    public static int findSettingsAndBuild() throws Exception {
       if (new File(CONFIG_FILE).canRead()) {
-         return new ReportRunner(new ParsingProperties(new VectorPrintProperties(),CONFIG_FILE)).buildReport(null);
+         return new ReportRunner(new ParsingProperties(new Settings(),CONFIG_FILE)).buildReport(null);
       } else {
          InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream('/' + CONFIG_FILE);
          if (in != null) {
-            return new ReportRunner(new ParsingProperties(new VectorPrintProperties(),CONFIG_FILE)).buildReport(null);
+            return new ReportRunner(new ParsingProperties(new Settings(),CONFIG_FILE)).buildReport(null);
          }
       }
       return EXITNOSETTINGS;
@@ -268,7 +267,7 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
             if (shiftArgs.length > 0) {
                System.arraycopy(args, 1, shiftArgs, 0, shiftArgs.length);
             }
-            System.exit(new ReportRunner(new ParsingProperties(new VectorPrintProperties(),args[0])).buildReport(shiftArgs));
+            System.exit(new ReportRunner(new ParsingProperties(new Settings(),args[0])).buildReport(shiftArgs));
          }
       }
       if (EXITNOSETTINGS == findSettingsAndBuild()) {

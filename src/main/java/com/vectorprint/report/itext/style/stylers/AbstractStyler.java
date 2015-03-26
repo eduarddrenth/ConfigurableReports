@@ -31,8 +31,8 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.EnhancedMap;
-import com.vectorprint.configuration.VectorPrintProperties;
-import com.vectorprint.configuration.annotation.Settings;
+import com.vectorprint.configuration.Settings;
+import com.vectorprint.configuration.annotation.SettingsField;
 import com.vectorprint.configuration.decoration.ParsingProperties;
 import com.vectorprint.configuration.decoration.PreparingProperties;
 import com.vectorprint.configuration.observing.TrimKeyValue;
@@ -93,7 +93,7 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
     * @see StylingCondition#getConfigKey()
     */
    public static final String NOT_FROM_CONFIGURATION = "not from configuration";
-   @Settings
+   @SettingsField
    private EnhancedMap settings;
    public static final String CONDITONS = "conditions";
    private java.util.List<StylingCondition> conditions = new ArrayList<StylingCondition>(1);
@@ -284,7 +284,7 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
             em = cssNames;
             if (em == null) {
                try {
-                  cssNames = em = new ParsingProperties(new PreparingProperties(new VectorPrintProperties(),StylerHelper.toList(new TrimKeyValue())),
+                  cssNames = em = new ParsingProperties(new PreparingProperties(new Settings(),StylerHelper.toList(new TrimKeyValue())),
                       new InputStreamReader(AbstractStyler.class.getResourceAsStream(CSS_NAMESPROPERTIES) ));
                } catch (IOException ex) {
                   throw new VectorPrintRuntimeException(ex);

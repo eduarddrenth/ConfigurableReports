@@ -23,7 +23,7 @@ package com.vectorprint.report.running;
 //~--- non-JDK imports --------------------------------------------------------
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.EnhancedMap;
-import com.vectorprint.configuration.VectorPrintProperties;
+import com.vectorprint.configuration.Settings;
 import com.vectorprint.configuration.decoration.CachingProperties;
 import com.vectorprint.configuration.decoration.FindableProperties;
 import com.vectorprint.configuration.decoration.HelpSupportedProperties;
@@ -206,7 +206,7 @@ public class ThreadSafeReportBuilder<RD extends ReportDataHolder> extends Report
 
       for (String name : propertyFileNames) {
          if (pp == null) {
-            pp = new ParsingProperties(new PreparingProperties(new VectorPrintProperties(), observers), configUrl + "/" + name);
+            pp = new ParsingProperties(new PreparingProperties(new Settings(), observers), configUrl + "/" + name);
          } else {
             pp.addFromURL(configUrl + "/" + name);
          }

@@ -47,7 +47,7 @@ import com.vectorprint.VectorPrintException;
 import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.annotation.Setting;
-import com.vectorprint.configuration.annotation.Settings;
+import com.vectorprint.configuration.annotation.SettingsField;
 import com.vectorprint.report.ReportConstants;
 import com.vectorprint.report.data.types.Formatter;
 import com.vectorprint.report.data.types.ReportValue;
@@ -104,11 +104,11 @@ public class DefaultElementProducer implements ElementProducer, LayerManager {
     * @see PageHelper#addDelayedStyler(java.lang.String, java.util.Collection)
     */
    public static final String ADV = "adv";
-   @Setting(key = ReportConstants.DEBUG)
+   @Setting(keys = ReportConstants.DEBUG)
    private boolean debug = false;
    private int genericTag = -1;
    private final Formatter formatter;
-   @Settings
+   @SettingsField
    private EnhancedMap settings;
    private EventHelper ph;
    private StyleHelper styleHelper;

@@ -27,7 +27,7 @@ import com.vectorprint.VectorPrintException;
 import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.annotation.Setting;
-import com.vectorprint.configuration.annotation.Settings;
+import com.vectorprint.configuration.annotation.SettingsField;
 import com.vectorprint.configuration.parser.ObjectParser;
 import com.vectorprint.configuration.parser.ParseException;
 import com.vectorprint.configuration.parser.TokenMgrError;
@@ -83,7 +83,7 @@ public class DefaultStylerFactory implements StylerFactory {
    public static final String STYLERPACKAGENAME = Font.class.getPackage().getName();
    private static final Logger log = Logger.getLogger(DefaultStylerFactory.class.getName());
    private Map<String, Object> cache = new HashMap<String, Object>(100);
-   @Settings
+   @SettingsField
    private EnhancedMap settings;
    private Document document;
    private PdfWriter writer;
@@ -94,7 +94,7 @@ public class DefaultStylerFactory implements StylerFactory {
     * name of the boolean setting use {@link #DEFAULTSTYLERSFIRST} and {@link #DEFAULTSTYLERSLAST} or not
     */
    public static final String DOFIRSTLAST = "dofirstlast";
-   @Setting(key = DOFIRSTLAST)
+   @Setting(keys = DOFIRSTLAST)
    private boolean doFirstLast = true;
 
    private ObjectParser getParser(StringReader sr) {

@@ -34,7 +34,7 @@ import com.vectorprint.VectorPrintException;
 import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.certificates.CertificateHelper;
 import com.vectorprint.configuration.EnhancedMap;
-import com.vectorprint.configuration.VectorPrintProperties;
+import com.vectorprint.configuration.Settings;
 import com.vectorprint.configuration.decoration.CachingProperties;
 import com.vectorprint.configuration.decoration.FindableProperties;
 import com.vectorprint.configuration.decoration.ParsingProperties;
@@ -197,13 +197,13 @@ public class ConfigurableReportBuilderTest {
 
    @Test
    public void testImportPdf() throws Exception {
-      new ReportRunner(new ParsingProperties(new CachingProperties(new VectorPrintProperties()),"src/test/resources/config/stylingImportPdf.properties"))
+      new ReportRunner(new ParsingProperties(new CachingProperties(new Settings()),"src/test/resources/config/stylingImportPdf.properties"))
           .buildReport(new String[]{"-output", TARGET + "importPdf.pdf", "-dataclass", "com.vectorprint.report.running.ImportingDataCollector", "-debug", "false"});
    }
 
    @Test
    public void testImportTiff() throws Exception {
-      new ReportRunner(new ParsingProperties(new CachingProperties(new VectorPrintProperties()),"src/test/resources/config/stylingImportTiff.properties"))
+      new ReportRunner(new ParsingProperties(new CachingProperties(new Settings()),"src/test/resources/config/stylingImportTiff.properties"))
           .buildReport(new String[]{"-output", TARGET + "importTiff.pdf", "-dataclass", "com.vectorprint.report.running.ImportingDataCollector", "-debug", "false"});
    }
 
@@ -221,7 +221,7 @@ public class ConfigurableReportBuilderTest {
 
    @Test
    public void testToXmlConfig() throws Exception {
-      new ReportRunner(new ParsingProperties(new CachingProperties(new VectorPrintProperties()),"src/test/resources/config/styling.properties")).buildReport(new String[]{'-' + ReportConstants.DATAMAPPINGXML, "file:src/test/resources/DataMapping.xml", "-dataclass", "com.vectorprint.report.running.NonQueueingTestableDataCollector"}, new FileOutputStream(TARGET + "testToXmlConfig.pdf"));
+      new ReportRunner(new ParsingProperties(new CachingProperties(new Settings()),"src/test/resources/config/styling.properties")).buildReport(new String[]{'-' + ReportConstants.DATAMAPPINGXML, "file:src/test/resources/DataMapping.xml", "-dataclass", "com.vectorprint.report.running.NonQueueingTestableDataCollector"}, new FileOutputStream(TARGET + "testToXmlConfig.pdf"));
    }
 
    @Test
@@ -241,7 +241,7 @@ public class ConfigurableReportBuilderTest {
 
    @Test
    public void testAnnotations() throws Exception {
-      new ReportRunner(new ParsingProperties(new CachingProperties(new VectorPrintProperties()),"src/test/resources/config/styling.properties")).buildReport(new String[]{"-output", TARGET + "testAnnotations.pdf", "-dataclass", "com.vectorprint.report.running.TestableDataCollector", "-debug", "true", "-queuetimeout", "20000"});
+      new ReportRunner(new ParsingProperties(new CachingProperties(new Settings()),"src/test/resources/config/styling.properties")).buildReport(new String[]{"-output", TARGET + "testAnnotations.pdf", "-dataclass", "com.vectorprint.report.running.TestableDataCollector", "-debug", "true", "-queuetimeout", "20000"});
    }
    @Rule
    public final ExpectedSystemExit exit = ExpectedSystemExit.none();

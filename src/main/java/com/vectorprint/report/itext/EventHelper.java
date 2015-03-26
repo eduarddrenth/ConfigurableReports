@@ -518,7 +518,7 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
              rect.getTop() + Y_POSITION_FIX);
    }
    
-   @Setting(key = "yPositionImageFix")
+   @Setting(keys = "yPositionImageFix")
    private Integer Y_POSITION_FIX = 2;
 
    /**
