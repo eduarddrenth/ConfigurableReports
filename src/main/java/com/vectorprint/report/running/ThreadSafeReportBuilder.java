@@ -46,6 +46,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 //~--- JDK imports ------------------------------------------------------------
 /**
@@ -60,6 +62,7 @@ import java.util.List;
  */
 public class ThreadSafeReportBuilder<RD extends ReportDataHolder> extends ReportRunner<RD> {
 
+   private static final Logger log = Logger.getLogger(ThreadSafeReportBuilder.class.getName());
    /**
     * the default config base url, also used as key to store the actual baseurl
     */
@@ -208,7 +211,7 @@ public class ThreadSafeReportBuilder<RD extends ReportDataHolder> extends Report
          if (pp == null) {
             pp = new ParsingProperties(new PreparingProperties(new Settings(), observers), configUrl + "/" + name);
          } else {
-            pp.addFromURL(configUrl + "/" + name);
+            pp.addFromURL(configUrl + File.separator + name);
          }
       }
       pp.put(CONFIG_URL, configUrl);
@@ -218,16 +221,26 @@ public class ThreadSafeReportBuilder<RD extends ReportDataHolder> extends Report
 
    /**
     * called from the constructor, wraps properties in
-    * {@link ThreadSafeProperties}, {@link HelpSupportedProperties} and
+    * {@link ThreadSafeProperties}, {@link CachingProperties}, {@link HelpSupportedProperties} and
     * {@link FindableProperties}.
     *
     * @param mp
     * @return
     */
    public static EnhancedMap wrapProperties(EnhancedMap mp) throws VectorPrintException {
-      return new ThreadSafeProperties(new CachingProperties(new HelpSupportedProperties(new FindableProperties(mp),
-          MultipleValueParser.URL_PARSER.parseString(mp.getProperty(CONFIG_URL)))
-      ));
+      if (new File(mp.getProperty(CONFIG_URL) + File.separator + HelpSupportedProperties.HELPFILE).exists()) {
+         try {
+            return new ThreadSafeProperties(new CachingProperties(new HelpSupportedProperties(new FindableProperties(mp),
+                new File(mp.getProperty(CONFIG_URL) + File.separator + HelpSupportedProperties.HELPFILE).toURI().toURL())
+            ));
+         } catch (MalformedURLException ex) {
+            throw new VectorPrintException(ex);
+         }
+      } else {
+         log.warning(String.format("%s does not exist, no help available for settings (format <key>=<type>;<help text>)", 
+             new File(mp.getProperty(CONFIG_URL) + File.separator + HelpSupportedProperties.HELPFILE).getPath()));
+            return new ThreadSafeProperties(new CachingProperties(new FindableProperties(mp)));
+      }
    }
 
    /**

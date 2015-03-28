@@ -466,57 +466,6 @@ public class ConfigurableReportBuilderTest {
    }
 
    @Test
-   public void testParameters() throws Exception {
-      String[] testStrings = new String[]{"lt", "ean8", "Helvetica", "overlay", "enc128", "bold", "combo", "pkcs12", "top", "rectangle"};
-      new FloatArrayParameter("k", "h").setValue(new Float[]{50f, 50f});
-      for (Class c : ClassHelper.fromPackage(AlignParameter.class.getPackage())) {
-         if (!Modifier.isAbstract(c.getModifiers())) {
-            if (ParameterImpl.class.isAssignableFrom(c)) {
-               Constructor con = c.getConstructor(String.class, String.class);
-               Parameter p = (Parameter) con.newInstance(c.getSimpleName(), "some help");
-               for (String init : testStrings) {
-                  try {
-                     p.setValue(p.convert(init));
-                     if (p.getValue() == null) {
-                        fail(p.toString());
-                     }
-                     assertNotNull(p.getValue());
-                     if (PasswordParameter.class.isAssignableFrom(c) || CharPasswordParameter.class.isAssignableFrom(c)) {
-                        assertNull(p.getValue());
-                        continue;
-                     }
-                     String conf = ParameterHelper.toConfig(p, true).toString();
-                     if (null != conf && !"".equals(conf)) {
-                        if (p.getValue().getClass().isArray()) {
-                           Object[] orig = (Object[]) p.getValue();
-                           Object[] neww = (Object[]) p.convert(conf.substring(conf.indexOf('=') + 1));
-                           Assert.assertArrayEquals(orig, neww);
-                        } else {
-                           assertEquals(p.serializeValue(p.getValue()), conf.substring(conf.indexOf('=') + 1));
-                        }
-                     }
-                  } catch (NumberFormatException runtimeException) {
-                     runtimeException.printStackTrace();
-                  } catch (IllegalArgumentException runtimeException) {
-                     if (runtimeException.getMessage().contains("No enum const")) {
-                        runtimeException.printStackTrace();
-                     } else {
-                        throw runtimeException;
-                     }
-                  } catch (VectorPrintRuntimeException runtimeException) {
-                     if (runtimeException.getMessage().contains("No basefont for")) {
-                        runtimeException.printStackTrace();
-                     } else {
-                        throw runtimeException;
-                     }
-                  }
-               }
-            }
-         }
-      }
-   }
-   
-   @Test
    public void testHelp() throws Exception {
       Set<Parameterizable> stylersAndConditions = Help.getStylersAndConditions();
       assertFalse(stylersAndConditions.isEmpty());

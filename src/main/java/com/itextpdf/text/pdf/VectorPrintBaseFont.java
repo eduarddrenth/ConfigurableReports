@@ -29,80 +29,22 @@ package com.itextpdf.text.pdf;
 import com.itextpdf.text.DocumentException;
 import static com.itextpdf.text.pdf.BaseFont.fontCache;
 import com.vectorprint.VectorPrintException;
+import com.vectorprint.report.itext.style.stylers.DocumentSettings;
 import java.io.IOException;
 
 /**
- *
+ * 
  * @author Eduard Drenth at VectorPrint.nl
  */
-public class VectorPrintBaseFont extends BaseFont {
-
-   @Override
-   int getRawWidth(int c, String name) {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   public int getKerning(int char1, int char2) {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   public boolean setKerning(int char1, int char2, int kern) {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   void writeFont(PdfWriter writer, PdfIndirectReference ref, Object[] params) throws DocumentException, IOException {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   PdfStream getFullFontStream() throws IOException, DocumentException {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   public float getFontDescriptor(int key, float fontSize) {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   public String getPostscriptFontName() {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   public void setPostscriptFontName(String name) {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   public String[][] getFullFontName() {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   public String[][] getAllNameEntries() {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   public String[][] getFamilyFontName() {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   public boolean hasKernPairs() {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   protected int[] getRawCharBBox(int c, String name) {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
-
-    
+public abstract class VectorPrintBaseFont extends BaseFont {
+    /**
+     * @see DocumentSettings#builtInFontHack() 
+     * @param name
+     * @param pfb
+     * @throws DocumentException
+     * @throws IOException
+     * @throws VectorPrintException 
+     */
     public static void cacheAndEmbedBuiltInFont(String name, byte[] pfb) throws DocumentException, IOException, VectorPrintException {
        if (!BuiltinFonts14.containsKey(name)) {
           throw new VectorPrintException(name + " is not a builtin font");

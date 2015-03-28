@@ -43,10 +43,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class StylerFactoryHelper {
    public static final SettingsAnnotationProcessor SETTINGS_ANNOTATION_PROCESSOR = new SettingsAnnotationProcessorImpl();
+   static {
+      Logger.getLogger(SettingsAnnotationProcessorImpl.class.getName()).setLevel(Level.SEVERE);
+   }
        
    public static final Logger LOGGER = Logger.getLogger(StylerFactoryHelper.class.getName());
    /**
