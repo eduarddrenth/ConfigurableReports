@@ -26,15 +26,12 @@ package com.vectorprint.report.itext.style.stylers;
  */
 import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.pdf.BaseField;
-import com.itextpdf.text.pdf.RadioCheckField;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.parameters.ColorParameter;
 import com.vectorprint.configuration.parameters.StringParameter;
-import com.vectorprint.report.itext.ItextHelper;
 import static com.vectorprint.report.itext.style.BaseStyler.COLOR_PARAM;
 import static com.vectorprint.report.itext.style.BaseStyler.SIZE_PARAM;
-import com.vectorprint.report.itext.style.parameters.FloatParameter;
 import com.vectorprint.report.itext.style.parameters.FontStyleParameter;
 import static com.vectorprint.report.itext.style.stylers.Font.FAMILY_PARAM;
 import static com.vectorprint.report.itext.style.stylers.Font.STYLE_PARAM;
@@ -49,10 +46,10 @@ public class FieldFont extends AbstractFieldStyler {
 
 
    public FieldFont() {
-      addParameter(new FloatParameter(SIZE_PARAM, "fontsize",false).setDefault((float)com.itextpdf.text.Font.DEFAULTSIZE));
-      addParameter(new ColorParameter(COLOR_PARAM, "#rgb").setDefault(Color.BLACK));
-      addParameter(new StringParameter(FAMILY_PARAM, "alias for based on which a font is retrieved (preferred over style)").setDefault(FontFactory.HELVETICA));
-      addParameter(new FontStyleParameter(STYLE_PARAM, "style for a font" + Arrays.asList(Font.STYLE.values()).toString()).setDefault(Font.STYLE.normal));
+      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(SIZE_PARAM, "fontsize").setDefault((float)com.itextpdf.text.Font.DEFAULTSIZE),FieldFont.class);
+      addParameter(new ColorParameter(COLOR_PARAM, "#rgb").setDefault(Color.BLACK),FieldFont.class);
+      addParameter(new StringParameter(FAMILY_PARAM, "alias for based on which a font is retrieved (preferred over style)").setDefault(FontFactory.HELVETICA),FieldFont.class);
+      addParameter(new FontStyleParameter(STYLE_PARAM, "style for a font" + Arrays.asList(Font.STYLE.values()).toString()).setDefault(Font.STYLE.normal),FieldFont.class);
    }
 
    @Override

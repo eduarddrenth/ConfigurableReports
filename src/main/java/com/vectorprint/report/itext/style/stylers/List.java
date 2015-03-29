@@ -28,7 +28,6 @@ package com.vectorprint.report.itext.style.stylers;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.itextpdf.text.Element;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.parameters.StringParameter;
@@ -59,9 +58,9 @@ public class List extends ListItem  {
    public static final String LISTTYPE_PARAM = "listtype";
    
    private void initParams() {
-      addParameter(new StringParameter(POSTSYMBOL_PARAM, "String to use as postfix for list items").setDefault(""));
-      addParameter(new StringParameter(PRESYMBOL_PARAM, "String to use as prefix for list items").setDefault(""));
-      addParameter(new StringParameter(LISTTYPE_PARAM, "type of list: " + Arrays.asList(LISTTYPE.values())).setDefault(LISTTYPE.NUMERIC.name()));
+      addParameter(new StringParameter(POSTSYMBOL_PARAM, "String to use as postfix for list items").setDefault(""),List.class);
+      addParameter(new StringParameter(PRESYMBOL_PARAM, "String to use as prefix for list items").setDefault(""),List.class);
+      addParameter(new StringParameter(LISTTYPE_PARAM, "type of list: " + Arrays.asList(LISTTYPE.values())).setDefault(LISTTYPE.NUMERIC.name()),List.class);
    }
 
    public List() {

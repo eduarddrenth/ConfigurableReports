@@ -28,7 +28,6 @@ package com.vectorprint.report.itext.style.stylers;
 import com.itextpdf.text.pdf.BaseField;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.parameters.ColorParameter;
-import com.vectorprint.report.itext.ItextHelper;
 import static com.vectorprint.report.itext.style.BaseStyler.COLOR_PARAM;
 import java.awt.Color;
 
@@ -40,7 +39,7 @@ public class FieldBackground extends AbstractFieldStyler {
    
 
    public FieldBackground() {
-      addParameter(new ColorParameter(COLOR_PARAM, "#rgb"));
+      addParameter(new ColorParameter(COLOR_PARAM, "#rgb"),FieldBackground.class);
    }   
 
    @Override

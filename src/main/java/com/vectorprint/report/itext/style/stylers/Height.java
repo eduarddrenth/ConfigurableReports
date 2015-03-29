@@ -50,7 +50,7 @@ public class Height extends AbstractStyler  {
 
    public Height() {
 
-      addParameter(new FloatParameter(HEIGHT, "leading for text, set fixed height for cells"));
+      addParameter(new FloatParameter(HEIGHT, "leading for text, set fixed height for cells"),Height.class);
    }
 
    @Override

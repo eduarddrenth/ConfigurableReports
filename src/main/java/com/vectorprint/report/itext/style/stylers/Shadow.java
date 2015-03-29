@@ -112,7 +112,7 @@ public class Shadow<DATATYPE> extends AdvancedImpl<DATATYPE> {
    }
 
    private void initParam() {
-      addParameter(new ColorParameter(COLOR_PARAM, "#rgb: shadow color (default is font color)"));
+      addParameter(new ColorParameter(COLOR_PARAM, "#rgb: shadow color (default is font color)"),Shadow.class);
    }
 
    public Shadow(Document document, PdfWriter writer, EnhancedMap settings) throws VectorPrintException {

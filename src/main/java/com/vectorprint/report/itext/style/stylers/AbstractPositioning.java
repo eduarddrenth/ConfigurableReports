@@ -57,11 +57,11 @@ public abstract class AbstractPositioning<DATATYPE> extends AdvancedImpl<DATATYP
    }
 
    private void initParams() {
-      addParameter(new BooleanParameter(SHADOW, "do we draw a dropshadow"));
-      addParameter(new ColorParameter(SHADOWCOLOR, "color of the dropshadow, default black").setDefault(Color.BLACK));
-      addParameter(new FloatParameter(SHADOWX, "x offset of the shadow, default 2mm").setDefault(ItextHelper.mmToPts(2f)));
-      addParameter(new FloatParameter(SHADOWY, "y offset of the shadow, default -2mm").setDefault(ItextHelper.mmToPts(-2f)));
-      addParameter(new FloatParameter(SHADOWOPACITY, "opacity for the shadow, defaullt 0.3", false).setDefault(0.3f));
+      addParameter(new BooleanParameter(SHADOW, "do we draw a dropshadow"),AbstractPositioning.class);
+      addParameter(new ColorParameter(SHADOWCOLOR, "color of the dropshadow, default black").setDefault(Color.BLACK),AbstractPositioning.class);
+      addParameter(new FloatParameter(SHADOWX, "x offset of the shadow, default 2mm").setDefault(ItextHelper.mmToPts(2f)),AbstractPositioning.class);
+      addParameter(new FloatParameter(SHADOWY, "y offset of the shadow, default -2mm").setDefault(ItextHelper.mmToPts(-2f)),AbstractPositioning.class);
+      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(SHADOWOPACITY, "opacity for the shadow, defaullt 0.3").setDefault(0.3f),AbstractPositioning.class);
    }
 
    public AbstractPositioning(Document document, PdfWriter writer, EnhancedMap settings) throws VectorPrintException {

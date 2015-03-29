@@ -36,11 +36,9 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.parameters.ColorParameter;
-import com.vectorprint.report.ReportConstants;
 import com.vectorprint.report.itext.ImageLoader;
 import com.vectorprint.report.itext.ItextHelper;
 import com.vectorprint.report.itext.LayerManager;
-import com.vectorprint.report.itext.debug.DebugHelper;
 import com.vectorprint.report.itext.style.parameters.BarcodeParameter;
 import com.vectorprint.report.itext.style.parameters.BaseFontWrapper;
 import com.vectorprint.report.itext.style.parameters.BasefontParameter;
@@ -68,13 +66,13 @@ public class Barcode extends com.vectorprint.report.itext.style.stylers.Image<St
    }
 
    private void initParams() {
-      addParameter(new BarcodeParameter(CODETYPE, "type of the barcode: " + Arrays.asList(BARCODE.values()).toString()).setDefault(BARCODE.EAN13));
-      addParameter(new FloatParameter(FONTSIZE, "size of text",false).setDefault(8f));
-      addParameter(new BasefontParameter(Font.FAMILY_PARAM, "alias of text font"));
-      addParameter(new ColorParameter(BARCOLOR, "color of bars").setDefault(Color.BLACK));
-      addParameter(new ColorParameter(TXTCOLOR, "color of text").setDefault(Color.BLACK));
-      addParameter(new FloatParameter(BARHEIGHT, "height of bars").setDefault(ItextHelper.mmToPts(10)));
-      addParameter(new FloatParameter(MINBARWIDTH, "minimal width of bars").setDefault(ItextHelper.mmToPts(1)));
+      addParameter(new BarcodeParameter(CODETYPE, "type of the barcode: " + Arrays.asList(BARCODE.values()).toString()).setDefault(BARCODE.EAN13),Barcode.class);
+      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(FONTSIZE, "size of text").setDefault(8f),Barcode.class);
+      addParameter(new BasefontParameter(Font.FAMILY_PARAM, "alias of text font"),Barcode.class);
+      addParameter(new ColorParameter(BARCOLOR, "color of bars").setDefault(Color.BLACK),Barcode.class);
+      addParameter(new ColorParameter(TXTCOLOR, "color of text").setDefault(Color.BLACK),Barcode.class);
+      addParameter(new FloatParameter(BARHEIGHT, "height of bars").setDefault(ItextHelper.mmToPts(10)),Barcode.class);
+      addParameter(new FloatParameter(MINBARWIDTH, "minimal width of bars").setDefault(ItextHelper.mmToPts(1)),Barcode.class);
    }
 
    public Barcode(ImageLoader imageLoader, LayerManager layerManager, Document document, PdfWriter writer, EnhancedMap settings) throws VectorPrintException {

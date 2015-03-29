@@ -24,7 +24,6 @@ package com.vectorprint.report.itext.style.stylers;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-import com.itextpdf.text.Element;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.vectorprint.VectorPrintException;
@@ -43,14 +42,14 @@ import java.awt.Color;
 public class Page extends AdvancedImpl<Object> {
 
    public Page() {
-      addParameter(new ColorParameter(COLOR_PARAM, "#rgb (background of page MAY HIDE CONTENT!)"));
+      addParameter(new ColorParameter(COLOR_PARAM, "#rgb (background of page MAY HIDE CONTENT!)"),Page.class);
 
-      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_top.name(), "float"));
-      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_right.name(), "float "));
-      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_bottom.name(), "float "));
-      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_left.name(), "float "));
-      addParameter(new FloatParameter(DocumentSettings.WIDTH, "float ").setDefault(ItextHelper.mmToPts(210f)));
-      addParameter(new FloatParameter(DocumentSettings.HEIGHT, "float ").setDefault(ItextHelper.mmToPts(297f)));
+      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_top.name(), "float"),Page.class);
+      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_right.name(), "float "),Page.class);
+      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_bottom.name(), "float "),Page.class);
+      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_left.name(), "float "),Page.class);
+      addParameter(new FloatParameter(DocumentSettings.WIDTH, "float ").setDefault(ItextHelper.mmToPts(210f)),Page.class);
+      addParameter(new FloatParameter(DocumentSettings.HEIGHT, "float ").setDefault(ItextHelper.mmToPts(297f)),Page.class);
 
    }
 

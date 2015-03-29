@@ -50,7 +50,7 @@ public class Leading extends AbstractStyler  {
 
    public Leading() {
 
-      addParameter(new FloatParameter(LEADINGPARAM, "the leading (height) of text"));
+      addParameter(new FloatParameter(LEADINGPARAM, "the leading (height) of text"),Leading.class);
    }
 
    @Override

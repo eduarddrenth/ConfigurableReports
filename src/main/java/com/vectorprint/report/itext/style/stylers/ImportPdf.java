@@ -72,8 +72,8 @@ public class ImportPdf extends ImportTiff {
    public static final String SECURITYPROVIDER = "securityprovider";
    
    public ImportPdf() {
-      addParameter(new KeyStoreParameter(KEYSTORETYPE_PARAM, "the type of the signing certificate: " + Arrays.asList(DocumentSettings.KEYSTORETYPE.values()).toString()).setDefault(DocumentSettings.KEYSTORETYPE.pkcs12));
-      addParameter(new CharPasswordParameter( DocumentSettings.KEYSTORE_PASSWORD, "a password for the keystore", false));
+      addParameter(new KeyStoreParameter(KEYSTORETYPE_PARAM, "the type of the signing certificate: " + Arrays.asList(DocumentSettings.KEYSTORETYPE.values()).toString()).setDefault(DocumentSettings.KEYSTORETYPE.pkcs12),ImportPdf.class);
+      addParameter(new CharPasswordParameter( DocumentSettings.KEYSTORE_PASSWORD, "a password for the keystore", false),ImportPdf.class);
    }
 
    /**

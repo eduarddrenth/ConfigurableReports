@@ -53,8 +53,8 @@ public class Spacing extends AbstractStyler  {
 
    public Spacing() {
 
-      addParameter(new FloatParameter(SPACEAFTERPARAM, "float"));
-      addParameter(new FloatParameter(SPACEBEFOREPARAM, "float"));
+      addParameter(new FloatParameter(SPACEAFTERPARAM, "float"),Spacing.class);
+      addParameter(new FloatParameter(SPACEBEFOREPARAM, "float"),Spacing.class);
    }
 
    @Override

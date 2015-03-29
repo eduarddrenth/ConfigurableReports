@@ -88,8 +88,8 @@ public class Underline<DATATYPE> extends AdvancedImpl<DATATYPE> {
    }
 
    private void initParam() {
-      addParameter(new FloatParameter(LINEWIDTH, "float").setDefault(ItextHelper.mmToPts(1)));
-      addParameter(new ColorParameter(COLOR_PARAM, "#rgb: underline color (default is font color)"));
+      addParameter(new FloatParameter(LINEWIDTH, "float").setDefault(ItextHelper.mmToPts(1)),Underline.class);
+      addParameter(new ColorParameter(COLOR_PARAM, "#rgb: underline color (default is font color)"),Underline.class);
    }
 
    public Underline(Document document, PdfWriter writer, EnhancedMap settings) throws VectorPrintException {

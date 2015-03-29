@@ -28,7 +28,6 @@ import com.itextpdf.text.pdf.BaseField;
 import com.itextpdf.text.pdf.PdfBorderDictionary;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.parameters.ColorParameter;
-import com.vectorprint.report.itext.ItextHelper;
 import static com.vectorprint.report.itext.style.BaseStyler.COLOR_PARAM;
 import static com.vectorprint.report.itext.style.BaseStyler.TOPRIGTHBOTTOMLEFT_PARAM;
 import com.vectorprint.report.itext.style.parameters.BorderStyleParameter;
@@ -37,7 +36,6 @@ import com.vectorprint.report.itext.style.parameters.PositionParameter;
 import static com.vectorprint.report.itext.style.stylers.Border.BORDERWIDTH;
 import java.awt.Color;
 import java.util.Arrays;
-import java.util.Map;
 
 /**
  *
@@ -67,10 +65,10 @@ public class FieldBorder extends AbstractFieldStyler {
    }
 
    public FieldBorder() {
-      addParameter(new PositionParameter(TOPRIGTHBOTTOMLEFT_PARAM, Arrays.asList(POSITION.values()).toString()).setDefault(POSITION.NONE));
-      addParameter(new FloatParameter(BORDERWIDTH, "borderwidth"));
-      addParameter(new ColorParameter(COLOR_PARAM, "#rgb"));
-      addParameter(new BorderStyleParameter(BORDERSTYLEPARAM, "style of the field border").setDefault(BORDERSTYLE.SOLID));
+      addParameter(new PositionParameter(TOPRIGTHBOTTOMLEFT_PARAM, Arrays.asList(POSITION.values()).toString()).setDefault(POSITION.NONE),FieldBorder.class);
+      addParameter(new FloatParameter(BORDERWIDTH, "borderwidth"),FieldBorder.class);
+      addParameter(new ColorParameter(COLOR_PARAM, "#rgb"),FieldBorder.class);
+      addParameter(new BorderStyleParameter(BORDERSTYLEPARAM, "style of the field border").setDefault(BORDERSTYLE.SOLID),FieldBorder.class);
    }
 
    @Override

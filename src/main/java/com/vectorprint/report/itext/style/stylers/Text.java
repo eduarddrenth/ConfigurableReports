@@ -37,9 +37,7 @@ import com.vectorprint.configuration.parameters.ColorParameter;
 import com.vectorprint.configuration.parameters.IntParameter;
 import com.vectorprint.configuration.parameters.StringParameter;
 import com.vectorprint.report.ReportConstants;
-import com.vectorprint.report.itext.ItextHelper;
 import com.vectorprint.report.itext.debug.DebugHelper;
-import com.vectorprint.report.itext.style.parameters.FloatParameter;
 import static com.vectorprint.report.itext.style.stylers.Image.ROTATE;
 import java.awt.Color;
 
@@ -55,10 +53,10 @@ public class Text extends AbstractPositioning<String> {
    }
 
    private void initParams() {
-      addParameter(new IntParameter(SIZE_PARAM, "fontsize").setDefault(com.itextpdf.text.Font.DEFAULTSIZE));
-      addParameter(new ColorParameter(COLOR_PARAM, "#rgb").setDefault(Color.BLACK));
-      addParameter(new StringParameter(Font.FAMILY_PARAM, "string").setDefault(FontFactory.HELVETICA));
-      addParameter(new FloatParameter(ROTATE, "float", false));
+      addParameter(new IntParameter(SIZE_PARAM, "fontsize").setDefault(com.itextpdf.text.Font.DEFAULTSIZE),Text.class);
+      addParameter(new ColorParameter(COLOR_PARAM, "#rgb").setDefault(Color.BLACK),Text.class);
+      addParameter(new StringParameter(Font.FAMILY_PARAM, "string").setDefault(FontFactory.HELVETICA),Text.class);
+      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(ROTATE, "float"),Text.class);
    }
 
    public Text(Document document, PdfWriter writer, EnhancedMap settings) throws VectorPrintException {

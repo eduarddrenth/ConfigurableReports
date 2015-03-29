@@ -31,7 +31,6 @@ package com.vectorprint.report.itext.style.stylers;
 import com.itextpdf.text.Rectangle;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.parameters.ColorParameter;
-import com.vectorprint.report.itext.ItextHelper;
 import static com.vectorprint.report.itext.style.BaseStyler.COLOR_PARAM;
 
 import com.vectorprint.report.itext.style.parameters.FloatParameter;
@@ -54,9 +53,9 @@ public class Border extends AbstractStyler  {
 
    public Border() {
 
-      addParameter(new PositionParameter(TOPRIGTHBOTTOMLEFT_PARAM, Arrays.asList(POSITION.values()).toString()).setDefault(POSITION.TRBL));
-      addParameter(new FloatParameter(BORDERWIDTH, "borderwidth"));
-      addParameter(new ColorParameter(COLOR_PARAM, "#rgb"));
+      addParameter(new PositionParameter(TOPRIGTHBOTTOMLEFT_PARAM, Arrays.asList(POSITION.values()).toString()).setDefault(POSITION.TRBL),Border.class);
+      addParameter(new FloatParameter(BORDERWIDTH, "borderwidth"),Border.class);
+      addParameter(new ColorParameter(COLOR_PARAM, "#rgb"),Border.class);
    }
 
    @Override

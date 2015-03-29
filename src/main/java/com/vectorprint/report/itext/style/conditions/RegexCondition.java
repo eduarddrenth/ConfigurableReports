@@ -38,7 +38,7 @@ public class RegexCondition extends AbstractCondition {
    public static final String REGEX = "regex";
 
    public RegexCondition() {
-      addParameter(new RegexParameter(REGEX, "regex, must be present in the data"));
+      addParameter(new RegexParameter(REGEX, "regex, must be present in the data"),RegexCondition.class);
    }
 
    /**

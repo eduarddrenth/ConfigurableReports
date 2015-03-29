@@ -51,8 +51,8 @@ public class ImageAlign extends AbstractStyler  {
 
    public ImageAlign() {
 
-      addParameter(new FloatParameter(WIDTH, "width of cell").setDefault(-1f));
-      addParameter(new AlignParameter(ALIGNPARAM, Arrays.asList(ALIGN.values()).toString()).setDefault(ALIGN.CENTER_MIDDLE));
+      addParameter(new FloatParameter(WIDTH, "width of cell").setDefault(-1f),ImageAlign.class);
+      addParameter(new AlignParameter(ALIGNPARAM, Arrays.asList(ALIGN.values()).toString()).setDefault(ALIGN.CENTER_MIDDLE),ImageAlign.class);
    }
 
    public PdfPCell style(PdfPCell cell, Object data) throws VectorPrintException {

@@ -36,7 +36,6 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.ColumnText;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.vectorprint.VectorPrintException;
-import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.parameters.IntParameter;
 import com.vectorprint.report.ReportConstants;
 import com.vectorprint.report.itext.ElementProducer;
@@ -103,16 +102,16 @@ public class SimpleColumns extends AdvancedImpl<Object> implements ElementProduc
 
    public SimpleColumns() {
 
-      addParameter(new IntParameter(WRITECOUNT, "after how many pieces of content added to the columns should we write to the document").setDefault(-1));
-      addParameter(new FloatParameter(LEFT, "left of first column defaults to left margin"));
-      addParameter(new FloatParameter(RIGHT, "right of last column defaults to right margin"));
-      addParameter(new FloatParameter(TOP, "top of the columns defaults to top margin"));
-      addParameter(new FloatParameter(BOTTOM, "bottom columns defaults to bottom margin"));
-      addParameter(new FloatParameter(SPACING, "space between columns").setDefault(ItextHelper.mmToPts(2.5f)));
-      addParameter(new FloatParameter(Spacing.SPACEBEFOREPARAM, "space before columns"));
-      addParameter(new FloatParameter(Spacing.SPACEAFTERPARAM, "space after columns"));
-      addParameter(new IntParameter(NUMCOLUMNS, "number of columns").setDefault(2));
-      addParameter(new ModeParameter(MODEPARAM, "text mode supports Chunk and Phrase, composite also supports PdfPTable, List, Paragraph and Image").setDefault(MODE.TEXT));
+      addParameter(new IntParameter(WRITECOUNT, "after how many pieces of content added to the columns should we write to the document").setDefault(-1),SimpleColumns.class);
+      addParameter(new FloatParameter(LEFT, "left of first column defaults to left margin"),SimpleColumns.class);
+      addParameter(new FloatParameter(RIGHT, "right of last column defaults to right margin"),SimpleColumns.class);
+      addParameter(new FloatParameter(TOP, "top of the columns defaults to top margin"),SimpleColumns.class);
+      addParameter(new FloatParameter(BOTTOM, "bottom columns defaults to bottom margin"),SimpleColumns.class);
+      addParameter(new FloatParameter(SPACING, "space between columns").setDefault(ItextHelper.mmToPts(2.5f)),SimpleColumns.class);
+      addParameter(new FloatParameter(Spacing.SPACEBEFOREPARAM, "space before columns"),SimpleColumns.class);
+      addParameter(new FloatParameter(Spacing.SPACEAFTERPARAM, "space after columns"),SimpleColumns.class);
+      addParameter(new IntParameter(NUMCOLUMNS, "number of columns").setDefault(2),SimpleColumns.class);
+      addParameter(new ModeParameter(MODEPARAM, "text mode supports Chunk and Phrase, composite also supports PdfPTable, List, Paragraph and Image").setDefault(MODE.TEXT),SimpleColumns.class);
    }
 
    @Override

@@ -37,7 +37,7 @@ public class StyleCountCondition extends AbstractCondition {
    private int actualNumber = -1;
 
    public StyleCountCondition() {
-      addParameter(new IntParameter(NUMBER, "number of executions"));
+      addParameter(new IntParameter(NUMBER, "number of executions"),StyleCountCondition.class);
    }
 
    /**

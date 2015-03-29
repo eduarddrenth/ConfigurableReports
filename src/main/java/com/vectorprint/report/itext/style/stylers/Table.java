@@ -29,7 +29,6 @@ package com.vectorprint.report.itext.style.stylers;
 //~--- non-JDK imports --------------------------------------------------------
 
 import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Element;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.vectorprint.ArrayHelper;
 import com.vectorprint.VectorPrintException;
@@ -57,12 +56,12 @@ public class Table extends Spacing {
    public static final String RELATIVEWIDTHPARAM = "relativewidth";
 
    public Table() {
-      addParameter(new IntParameter(NUMCOLPARAM, "integer").setDefault(2));
-      addParameter(new IntParameter(NUMFOOTERROWS, "integer"));
-      addParameter(new IntParameter(NUMHEADERROWS, "integer"));
+      addParameter(new IntParameter(NUMCOLPARAM, "integer").setDefault(2),Table.class);
+      addParameter(new IntParameter(NUMFOOTERROWS, "integer"),Table.class);
+      addParameter(new IntParameter(NUMHEADERROWS, "integer"),Table.class);
       Parameter<Float[]> p = new FloatArrayParameter(WIDTHSPARAM, "float / float[] (1.2|1.3|...)").setDefault(new Float[] {50f,50f});
-      addParameter(p);
-      addParameter(new IntParameter(RELATIVEWIDTHPARAM, "integer").setDefault(100));
+      addParameter(p,Table.class);
+      addParameter(new IntParameter(RELATIVEWIDTHPARAM, "integer").setDefault(100),Table.class);
    }
 
    private PdfPTable style(PdfPTable t) throws VectorPrintException {

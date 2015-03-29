@@ -418,38 +418,38 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
    }
 
    private void initParams() {
-      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_top.name(), "float"));
-      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_right.name(), "float "));
-      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_bottom.name(), "float "));
-      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_left.name(), "float "));
-      addParameter(new EncryptionParameter(ENCRYPTION_PARAM, "type of encryption to use when protecting with a password or a certificate: " + Arrays.asList(ENCRYPTION.values()).toString()));
-      addParameter(new FloatParameter(WIDTH, "float ").setDefault(ItextHelper.mmToPts(210)));
-      addParameter(new FloatParameter(HEIGHT, "float ").setDefault(ItextHelper.mmToPts(297)));
-      addParameter(new BooleanParameter(PDFA, "wordt dit een pdf die voldoet aan de PDF/X-1a standaard"));
-      addParameter(new PasswordParameter(USER_PASSWORD, "a user password for the document and permissions"));
-      addParameter(new PasswordParameter(PASSWORD, "a password for the document and permissions"));
-      addParameter(new PasswordParameter(OWNER_PASSWORD, "an owner password for the owner of document and permissions"));
-      addParameter(new URLParameter(CERTIFICATE, "the certificate to use for document encryption and permissions"));
-      addParameter(new URLParameter(KEYSTORE, "the keystore (.p12, .pfx, .jks) to use for document signing"));
-      addParameter(new CharPasswordParameter(KEYSTORE_PASSWORD, "the password for the signing keystore and key", false));
-      addParameter(new KeyStoreParameter(KEYSTORETYPE_PARAM, "the type of the signing certificate: " + Arrays.asList(KEYSTORETYPE.values()).toString()).setDefault(KEYSTORETYPE.pkcs12));
-      addParameter(new DigestParameter(DIGESTPARAM, "the alorithm for a signature: " + Arrays.asList(DIGESTALGORITHM.values()).toString()).setDefault(DIGESTALGORITHM.SHA1));
+      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_top.name(), "float"),DocumentSettings.class);
+      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_right.name(), "float "),DocumentSettings.class);
+      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_bottom.name(), "float "),DocumentSettings.class);
+      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_left.name(), "float "),DocumentSettings.class);
+      addParameter(new EncryptionParameter(ENCRYPTION_PARAM, "type of encryption to use when protecting with a password or a certificate: " + Arrays.asList(ENCRYPTION.values()).toString()),DocumentSettings.class);
+      addParameter(new FloatParameter(WIDTH, "float ").setDefault(ItextHelper.mmToPts(210)),DocumentSettings.class);
+      addParameter(new FloatParameter(HEIGHT, "float ").setDefault(ItextHelper.mmToPts(297)),DocumentSettings.class);
+      addParameter(new BooleanParameter(PDFA, "wordt dit een pdf die voldoet aan de PDF/X-1a standaard"),DocumentSettings.class);
+      addParameter(new PasswordParameter(USER_PASSWORD, "a user password for the document and permissions"),DocumentSettings.class);
+      addParameter(new PasswordParameter(PASSWORD, "a password for the document and permissions"),DocumentSettings.class);
+      addParameter(new PasswordParameter(OWNER_PASSWORD, "an owner password for the owner of document and permissions"),DocumentSettings.class);
+      addParameter(new URLParameter(CERTIFICATE, "the certificate to use for document encryption and permissions"),DocumentSettings.class);
+      addParameter(new URLParameter(KEYSTORE, "the keystore (.p12, .pfx, .jks) to use for document signing"),DocumentSettings.class);
+      addParameter(new CharPasswordParameter(KEYSTORE_PASSWORD, "the password for the signing keystore and key", false),DocumentSettings.class);
+      addParameter(new KeyStoreParameter(KEYSTORETYPE_PARAM, "the type of the signing certificate: " + Arrays.asList(KEYSTORETYPE.values()).toString()).setDefault(KEYSTORETYPE.pkcs12),DocumentSettings.class);
+      addParameter(new DigestParameter(DIGESTPARAM, "the alorithm for a signature: " + Arrays.asList(DIGESTALGORITHM.values()).toString()).setDefault(DIGESTALGORITHM.SHA1),DocumentSettings.class);
       addParameter(new PermissionsParameter(PERMISSIONS, "permissions for the pdf, use in conjunction with password / encryption: "
-          + Arrays.asList(PERMISSION.values()).toString()));
-      addParameter(new StringParameter(TITLE, "a title for the document").setDefault(""));
-      addParameter(new StringParameter(SUBJECT, "a subject for the document").setDefault(""));
-      addParameter(new StringParameter(KEYWORDS, "comma separated keywords for the document").setDefault(""));
-      addParameter(new StringParameter(CREATOR, "creator").setDefault("VectorPrint"));
-      addParameter(new StringParameter(AUTHOR, "author").setDefault(""));
+          + Arrays.asList(PERMISSION.values()).toString()),DocumentSettings.class);
+      addParameter(new StringParameter(TITLE, "a title for the document").setDefault(""),DocumentSettings.class);
+      addParameter(new StringParameter(SUBJECT, "a subject for the document").setDefault(""),DocumentSettings.class);
+      addParameter(new StringParameter(KEYWORDS, "comma separated keywords for the document").setDefault(""),DocumentSettings.class);
+      addParameter(new StringParameter(CREATOR, "creator").setDefault("VectorPrint"),DocumentSettings.class);
+      addParameter(new StringParameter(AUTHOR, "author").setDefault(""),DocumentSettings.class);
       for (PDFBOX b : PDFBOX.values()) {
-         addParameter(new FloatArrayParameter(b.name(), "llx, lly, urx, ury for this pdf box"));
+         addParameter(new FloatArrayParameter(b.name(), "llx, lly, urx, ury for this pdf box"),DocumentSettings.class);
       }
-      addParameter(new BooleanParameter(TOC, "print table of contents"));
-      addParameter(new FloatParameter(TOCLEFTWIDTH, "width percentage of the left column in table of contents", false).setDefault(0.9f));
-      addParameter(new FloatParameter(TOCRIGHTWIDTH, "width percentage of the right column in table of contents", false).setDefault(0.1f));
-      addParameter(new BooleanParameter(TOCAPPEND, "print table of contents at the end of the document"));
-      addParameter(new BooleanParameter(TOCDOTS, "print dots between titles and page numbers in the table of contents").setDefault(Boolean.TRUE));
-      addParameter(new IntParameter(TOCMAXDEPTH, "the maximum depth to show in the table of contents"));
+      addParameter(new BooleanParameter(TOC, "print table of contents"),DocumentSettings.class);
+      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(TOCLEFTWIDTH, "width percentage of the left column in table of contents").setDefault(0.9f),DocumentSettings.class);
+      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(TOCRIGHTWIDTH, "width percentage of the right column in table of contents").setDefault(0.1f),DocumentSettings.class);
+      addParameter(new BooleanParameter(TOCAPPEND, "print table of contents at the end of the document"),DocumentSettings.class);
+      addParameter(new BooleanParameter(TOCDOTS, "print dots between titles and page numbers in the table of contents").setDefault(Boolean.TRUE),DocumentSettings.class);
+      addParameter(new IntParameter(TOCMAXDEPTH, "the maximum depth to show in the table of contents"),DocumentSettings.class);
    }
 
    public DocumentSettings() {

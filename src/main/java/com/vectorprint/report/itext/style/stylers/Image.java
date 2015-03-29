@@ -45,7 +45,6 @@ import com.vectorprint.report.itext.ImageLoaderAware;
 import com.vectorprint.report.itext.VectorPrintDocument;
 import com.vectorprint.report.itext.style.StylerFactoryHelper;
 import com.vectorprint.report.itext.style.StylingCondition;
-import com.vectorprint.report.itext.style.parameters.FloatParameter;
 import static com.vectorprint.report.itext.style.stylers.AbstractStyler.log;
 import java.awt.Color;
 import java.net.MalformedURLException;
@@ -77,13 +76,13 @@ public class Image<DATATYPE> extends AbstractPositioning<DATATYPE> implements Im
    }
 
    private void initParams() {
-      addParameter(new BooleanParameter(PDF, "is image a pdf"));
-      addParameter(new BooleanParameter(TIFF, "is image a tiff"));
-      addParameter(new URLParameter(URLPARAM, "url"));
-      addParameter(new FloatParameter(SCALE, "scales your image (percentage)", false).setDefault(100f));
-      addParameter(new FloatParameter(ROTATE, "rotates your image (degrees)", false));
-      addParameter(new PasswordParameter(DocumentSettings.PASSWORD, "password for a pdf"));
-      addParameter(new BooleanParameter(DOSTYLE, "when true be part of regular styling"));
+      addParameter(new BooleanParameter(PDF, "is image a pdf"),Image.class);
+      addParameter(new BooleanParameter(TIFF, "is image a tiff"),Image.class);
+      addParameter(new URLParameter(URLPARAM, "url"),Image.class);
+      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(SCALE, "scales your image (percentage)").setDefault(100f),Image.class);
+      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(ROTATE, "rotates your image (degrees)"),Image.class);
+      addParameter(new PasswordParameter(DocumentSettings.PASSWORD, "password for a pdf"),Image.class);
+      addParameter(new BooleanParameter(DOSTYLE, "when true be part of regular styling"),Image.class);
    }
 
    public Image() {

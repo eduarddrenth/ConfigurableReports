@@ -49,7 +49,6 @@ import com.vectorprint.report.itext.style.StylerFactoryHelper;
 import com.vectorprint.report.itext.style.StylingCondition;
 import com.vectorprint.report.itext.style.parameters.BlendParameter;
 import com.vectorprint.report.itext.style.parameters.EventModeParameter;
-import com.vectorprint.report.itext.style.parameters.FloatArrayParameter;
 import com.vectorprint.report.itext.style.parameters.FloatParameter;
 import java.awt.geom.AffineTransform;
 import java.util.Arrays;
@@ -98,19 +97,19 @@ public class AdvancedImpl<DATATYPE> extends AbstractStyler implements Advanced<D
    }
 
    private void initParams() {
-      addParameter(new BooleanParameter(BACKGROUND, "draw on background"));
+      addParameter(new BooleanParameter(BACKGROUND, "draw on background"),AdvancedImpl.class);
       addParameter(new BlendParameter(BLEND, "how to blend layers: " + Arrays.asList(BLENDMODE.values()))
-          .setDefault(BLENDMODE.NORMAL));
-      addParameter(new FloatParameter(OPACITY, "0 for fully transparent, 1 for fully opace", false).setDefault(1f));
-      addParameter(new FloatArrayParameter(TRANSFORM, "transformation matrix (6 values: "
-          + Arrays.asList(TRANSFORMMATRIX.values()).toString() + ")", false));
-      addParameter(new FloatParameter(SHIFTX, "how much do we shift x from a known position"));
-      addParameter(new FloatParameter(SHIFTY, "how much do we shift y from a known position"));
-      addParameter(new StringParameter(LAYERNAME, "name of the layer to use"));
-      addParameter(new StringParameter(DATA, "Textual data, input for conversion to: " + AdvancedImpl.class.getTypeParameters()[0].getName()));
-      addParameter(new BooleanParameter(DYNAMICDATA, "when true override (static) DATA with (dynamic) data added to the report"));
-      addParameter(new EventModeParameter(WHICHEVENT, "which event to use this styler for " + Arrays.asList(EVENTMODE.values())).setDefault(EVENTMODE.TEXT));
-      addParameter(new BooleanParameter(USEPADDING, "when true take padding of a cell into account"));
+          .setDefault(BLENDMODE.NORMAL),AdvancedImpl.class);
+      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(OPACITY, "0 for fully transparent, 1 for fully opace").setDefault(1f),AdvancedImpl.class);
+      addParameter(new com.vectorprint.configuration.parameters.FloatArrayParameter(TRANSFORM, "transformation matrix (6 values: "
+          + Arrays.asList(TRANSFORMMATRIX.values()).toString() + ")"),AdvancedImpl.class);
+      addParameter(new FloatParameter(SHIFTX, "how much do we shift x from a known position"),AdvancedImpl.class);
+      addParameter(new FloatParameter(SHIFTY, "how much do we shift y from a known position"),AdvancedImpl.class);
+      addParameter(new StringParameter(LAYERNAME, "name of the layer to use"),AdvancedImpl.class);
+      addParameter(new StringParameter(DATA, "Textual data, input for conversion to: " + AdvancedImpl.class.getTypeParameters()[0].getName()),AdvancedImpl.class);
+      addParameter(new BooleanParameter(DYNAMICDATA, "when true override (static) DATA with (dynamic) data added to the report"),AdvancedImpl.class);
+      addParameter(new EventModeParameter(WHICHEVENT, "which event to use this styler for " + Arrays.asList(EVENTMODE.values())).setDefault(EVENTMODE.TEXT),AdvancedImpl.class);
+      addParameter(new BooleanParameter(USEPADDING, "when true take padding of a cell into account"),AdvancedImpl.class);
    }
 
    public AdvancedImpl(Document document, PdfWriter writer, EnhancedMap settings) throws VectorPrintException {

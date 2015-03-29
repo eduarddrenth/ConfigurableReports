@@ -66,8 +66,8 @@ public class Padding extends AbstractStyler  {
 
    public Padding() {
 
-      addParameter(new FloatParameter(PADDING, "padding").setDefault(1f));
-      addParameter(new PositionParameter(TOPRIGTHBOTTOMLEFT_PARAM, Arrays.asList(POSITION.values()).toString()).setDefault(TRBL));
+      addParameter(new FloatParameter(PADDING, "padding").setDefault(1f),Padding.class);
+      addParameter(new PositionParameter(TOPRIGTHBOTTOMLEFT_PARAM, Arrays.asList(POSITION.values()).toString()).setDefault(TRBL),Padding.class);
    }
 
    public PdfPCell style(PdfPCell cell, Object data) {

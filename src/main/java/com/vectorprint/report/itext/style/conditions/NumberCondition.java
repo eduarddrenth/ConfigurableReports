@@ -44,12 +44,12 @@ public class NumberCondition extends AbstractCondition {
    public static final String BETWEEN = "between";
 
    public NumberCondition() {
-      addParameter(new DoubleArrayParameter(NUMBERS,"the numbers to compare to"));
-      addParameter(new BooleanParameter(GREATER,"number should be greater than the first one provided"));
-      addParameter(new BooleanParameter(LESSER,"number should be lesser than the first one provided"));
-      addParameter(new BooleanParameter(EVEN,"number should be even"));
-      addParameter(new BooleanParameter(ODD, "number should be odd"));
-      addParameter(new BooleanParameter(BETWEEN, "number should be between the first and the second one provided"));
+      addParameter(new DoubleArrayParameter(NUMBERS,"the numbers to compare to"),NumberCondition.class);
+      addParameter(new BooleanParameter(GREATER,"number should be greater than the first one provided"),NumberCondition.class);
+      addParameter(new BooleanParameter(LESSER,"number should be lesser than the first one provided"),NumberCondition.class);
+      addParameter(new BooleanParameter(EVEN,"number should be even"),NumberCondition.class);
+      addParameter(new BooleanParameter(ODD, "number should be odd"),NumberCondition.class);
+      addParameter(new BooleanParameter(BETWEEN, "number should be between the first and the second one provided"),NumberCondition.class);
    }
 
    /**

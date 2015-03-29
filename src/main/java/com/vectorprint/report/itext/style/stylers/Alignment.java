@@ -28,7 +28,6 @@ package com.vectorprint.report.itext.style.stylers;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.itextpdf.text.Element;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.vectorprint.VectorPrintException;
@@ -48,7 +47,7 @@ import java.util.Set;
 public class Alignment extends AbstractStyler {
 
    public Alignment() {
-      addParameter(new AlignParameter(ALIGNPARAM, Arrays.asList(ALIGN.values()).toString()));
+      addParameter(new AlignParameter(ALIGNPARAM, Arrays.asList(ALIGN.values()).toString()),Alignment.class);
    }
 
    @Override

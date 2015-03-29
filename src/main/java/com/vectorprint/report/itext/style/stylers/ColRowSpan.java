@@ -28,7 +28,6 @@ package com.vectorprint.report.itext.style.stylers;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.itextpdf.text.Element;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.parameters.IntParameter;
@@ -51,8 +50,8 @@ public class ColRowSpan extends AbstractStyler  {
 
    public ColRowSpan() {
 
-      addParameter(new IntParameter(COLSPAN_PARAM, "how many columns to span").setDefault(1));
-      addParameter(new IntParameter(ROWSPAN_PARAM, "how many rows to span").setDefault(1));
+      addParameter(new IntParameter(COLSPAN_PARAM, "how many columns to span").setDefault(1),ColRowSpan.class);
+      addParameter(new IntParameter(ROWSPAN_PARAM, "how many rows to span").setDefault(1),ColRowSpan.class);
    }
 
    @Override

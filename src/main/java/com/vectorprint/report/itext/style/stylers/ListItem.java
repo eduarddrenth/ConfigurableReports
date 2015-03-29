@@ -66,8 +66,8 @@ public class ListItem extends Font implements ImageLoaderAware {
    public static final String SYMBOLIMAGE_PARAM = "symbolimage";
    
    private void initParams() {
-      addParameter(new StringParameter(SYMBOL_PARAM, String.format("text to use as symbol for a list with symbols")).setDefault("- "));
-      addParameter(new URLParameter(SYMBOLIMAGE_PARAM, String.format("image to use as symbol for a list with symbols")));
+      addParameter(new StringParameter(SYMBOL_PARAM, String.format("text to use as symbol for a list with symbols")).setDefault("- "),ListItem.class);
+      addParameter(new URLParameter(SYMBOLIMAGE_PARAM, String.format("image to use as symbol for a list with symbols")),ListItem.class);
    }
 
    public ListItem() {

@@ -58,10 +58,10 @@ public class Zebra extends AbstractStyler implements LayerManagerAware {
 
    public Zebra() {
 
-      addParameter(new ColorParameter(ODDCOLOR, "#rgb"));
-      addParameter(new ColorParameter(EVENCOLOR, "#rgb"));
-      addParameter(new IntParameter(ALTERNATE, "integer").setDefault(1));
-      addParameter(new ClassParameter(TABLEEVENTCLASS, "The class (subclass of ZebraStripes) that wil handle table events").setDefault(ZebraStripes.class));
+      addParameter(new ColorParameter(ODDCOLOR, "#rgb"),Zebra.class);
+      addParameter(new ColorParameter(EVENCOLOR, "#rgb"),Zebra.class);
+      addParameter(new IntParameter(ALTERNATE, "integer").setDefault(1),Zebra.class);
+      addParameter(new ClassParameter(TABLEEVENTCLASS, "The class (subclass of ZebraStripes) that wil handle table events").setDefault(ZebraStripes.class),Zebra.class);
    }
 
    private PdfPTable style(PdfPTable t) throws VectorPrintException {

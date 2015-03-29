@@ -50,7 +50,7 @@ public class Rotation extends AbstractStyler  {
 
    public Rotation() {
 
-      addParameter(new IntParameter(ROTATION, "0, 90, 180 or 270"));
+      addParameter(new IntParameter(ROTATION, "0, 90, 180 or 270"),Rotation.class);
    }
 
    @Override

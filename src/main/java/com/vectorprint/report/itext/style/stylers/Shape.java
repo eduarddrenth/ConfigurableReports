@@ -34,7 +34,6 @@ import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.parameters.BooleanParameter;
 import com.vectorprint.configuration.parameters.ColorParameter;
 import com.vectorprint.report.ReportConstants;
-import com.vectorprint.report.itext.ItextHelper;
 import com.vectorprint.report.itext.debug.DebugHelper;
 import com.vectorprint.report.itext.style.BaseStyler;
 import static com.vectorprint.report.itext.style.BaseStyler.COLOR_PARAM;
@@ -70,19 +69,19 @@ public class Shape<DATATYPE> extends AbstractPositioning<DATATYPE> {
    }
 
    private void initParams() {
-      addParameter(new ShapeParameter(SHAPE.class.getSimpleName(), Arrays.asList(SHAPE.values()).toString()));
-      addParameter(new FloatParameter(DocumentSettings.WIDTH, "float"));
-      addParameter(new FloatParameter(DocumentSettings.HEIGHT, "float"));
-      addParameter(new FloatParameter(RADIUS, "for rounded corners",false).setDefault(2f));
-      addParameter(new BooleanParameter(FILL, "fill shapes or not").setDefault(Boolean.TRUE));
-      addParameter(new BooleanParameter(ENCLOSING, "enclosing shape rectangle, ellipse"));
-      addParameter(new BooleanParameter(CLOSE, "connect first and last point").setDefault(Boolean.TRUE));
-      addParameter(new BooleanParameter(ROUNDED, "rounded line connections").setDefault(Boolean.TRUE));
-      addParameter(new ColorParameter(BaseStyler.COLOR_PARAM, "color").setDefault(Color.BLACK));
-      addParameter(new ColorParameter(BORDERCOLOR, "color").setDefault(Color.BLACK));
-      addParameter(new FloatParameter(BORDERWIDTH, "float"));
-      addParameter(new FloatParameter(PADDING, "padding for enclosing shape"));
-      addParameter(new FloatArrayParameter(POINTS, "line and free shapes"));
+      addParameter(new ShapeParameter(SHAPE.class.getSimpleName(), Arrays.asList(SHAPE.values()).toString()),Shape.class);
+      addParameter(new FloatParameter(DocumentSettings.WIDTH, "float"),Shape.class);
+      addParameter(new FloatParameter(DocumentSettings.HEIGHT, "float"),Shape.class);
+      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(RADIUS, "for rounded corners").setDefault(2f),Shape.class);
+      addParameter(new BooleanParameter(FILL, "fill shapes or not").setDefault(Boolean.TRUE),Shape.class);
+      addParameter(new BooleanParameter(ENCLOSING, "enclosing shape rectangle, ellipse"),Shape.class);
+      addParameter(new BooleanParameter(CLOSE, "connect first and last point").setDefault(Boolean.TRUE),Shape.class);
+      addParameter(new BooleanParameter(ROUNDED, "rounded line connections").setDefault(Boolean.TRUE),Shape.class);
+      addParameter(new ColorParameter(BaseStyler.COLOR_PARAM, "color").setDefault(Color.BLACK),Shape.class);
+      addParameter(new ColorParameter(BORDERCOLOR, "color").setDefault(Color.BLACK),Shape.class);
+      addParameter(new FloatParameter(BORDERWIDTH, "float"),Shape.class);
+      addParameter(new FloatParameter(PADDING, "padding for enclosing shape"),Shape.class);
+      addParameter(new FloatArrayParameter(POINTS, "line and free shapes"),Shape.class);
 
    }
 

@@ -54,9 +54,9 @@ public class Indent extends AbstractStyler  {
    public static final String INDENT_RIGHT_PARAM = "indentright";
 
    public Indent() {
-      addParameter(new FloatParameter(INDENT_PARAM, "float"));
-      addParameter(new FloatParameter(INDENT_LEFT_PARAM, "float"));
-      addParameter(new FloatParameter(INDENT_RIGHT_PARAM, "float"));
+      addParameter(new FloatParameter(INDENT_PARAM, "float"),Indent.class);
+      addParameter(new FloatParameter(INDENT_LEFT_PARAM, "float"),Indent.class);
+      addParameter(new FloatParameter(INDENT_RIGHT_PARAM, "float"),Indent.class);
    }
 
    @Override

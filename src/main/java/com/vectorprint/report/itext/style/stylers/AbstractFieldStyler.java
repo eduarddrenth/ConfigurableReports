@@ -76,12 +76,12 @@ public abstract class AbstractFieldStyler extends AbstractPositioning<Object> im
    private BaseField bf = null;
 
    public AbstractFieldStyler() {
-      addParameter(new FieldTypeParameter(FIELDTYPE_PARAM, Arrays.asList(FIELDTYPE.values()).toString()).setDefault(FIELDTYPE.TEXT));
-      addParameter(new FloatParameter(DocumentSettings.HEIGHT, "the height of the field"));
-      addParameter(new FloatParameter(DocumentSettings.WIDTH, "the width of the field"));
-      addParameter(new StringArrayParameter(VALUES_PARAM, "the value(s) for the form field"));
-      addParameter(new StringParameter(NAME_PARAM, "the name of the form field"));
-      addParameter(new URLParameter(Image.URLPARAM, "the url for posting"));
+      addParameter(new FieldTypeParameter(FIELDTYPE_PARAM, Arrays.asList(FIELDTYPE.values()).toString()).setDefault(FIELDTYPE.TEXT),AbstractFieldStyler.class);
+      addParameter(new FloatParameter(DocumentSettings.HEIGHT, "the height of the field"),AbstractFieldStyler.class);
+      addParameter(new FloatParameter(DocumentSettings.WIDTH, "the width of the field"),AbstractFieldStyler.class);
+      addParameter(new StringArrayParameter(VALUES_PARAM, "the value(s) for the form field"),AbstractFieldStyler.class);
+      addParameter(new StringParameter(NAME_PARAM, "the name of the form field"),AbstractFieldStyler.class);
+      addParameter(new URLParameter(Image.URLPARAM, "the url for posting"),AbstractFieldStyler.class);
       getParameter(USEPADDING, Boolean.class).setDefault(Boolean.TRUE);
    }
 

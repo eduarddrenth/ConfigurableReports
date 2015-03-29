@@ -28,11 +28,9 @@ package com.vectorprint.report.itext.style.stylers;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.itextpdf.text.Element;
 import com.itextpdf.text.Rectangle;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.parameters.ColorParameter;
-import com.vectorprint.report.itext.ItextHelper;
 
 import java.awt.Color;
 import java.util.Arrays;
@@ -51,7 +49,7 @@ public class Background extends AbstractStyler  {
 
    public Background() {
 
-      addParameter(new ColorParameter(COLOR_PARAM, "#rgb"));
+      addParameter(new ColorParameter(COLOR_PARAM, "#rgb"),Background.class);
    }
 
    @Override

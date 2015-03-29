@@ -38,7 +38,6 @@ import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.parameters.ColorParameter;
 import com.vectorprint.configuration.parameters.StringParameter;
 
-import com.vectorprint.report.itext.style.parameters.FloatParameter;
 import com.vectorprint.report.itext.style.parameters.FontEncodingParameter;
 import com.vectorprint.report.itext.style.parameters.FontStyleParameter;
 import java.awt.Color;
@@ -91,11 +90,11 @@ public class Font extends AbstractStyler {
    public Font() {
       super();
 
-      addParameter(new FloatParameter(SIZE_PARAM, "fontsize",false).setDefault((float)com.itextpdf.text.Font.DEFAULTSIZE));
-      addParameter(new ColorParameter(COLOR_PARAM, "#rgb").setDefault(Color.BLACK));
-      addParameter(new FontStyleParameter(STYLE_PARAM, "style for a retrieved font" + Arrays.asList(STYLE.values()).toString()).setDefault(STYLE.normal));
-      addParameter(new FontEncodingParameter(FONTENCODING, "encoding for a retrieved font" + Arrays.asList(ENCODING.values()).toString()).setDefault(ENCODING.WINANSI));
-      addParameter(new StringParameter(FAMILY_PARAM, "alias for based on which a font is retrieved (preferred over style)").setDefault(FontFactory.HELVETICA));
+      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(SIZE_PARAM, "fontsize").setDefault((float)com.itextpdf.text.Font.DEFAULTSIZE),Font.class);
+      addParameter(new ColorParameter(COLOR_PARAM, "#rgb").setDefault(Color.BLACK),Font.class);
+      addParameter(new FontStyleParameter(STYLE_PARAM, "style for a retrieved font" + Arrays.asList(STYLE.values()).toString()).setDefault(STYLE.normal),Font.class);
+      addParameter(new FontEncodingParameter(FONTENCODING, "encoding for a retrieved font" + Arrays.asList(ENCODING.values()).toString()).setDefault(ENCODING.WINANSI),Font.class);
+      addParameter(new StringParameter(FAMILY_PARAM, "alias for based on which a font is retrieved (preferred over style)").setDefault(FontFactory.HELVETICA),Font.class);
    }
    
    public com.itextpdf.text.Font getFont() {
