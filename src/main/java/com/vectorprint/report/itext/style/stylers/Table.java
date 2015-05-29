@@ -59,7 +59,7 @@ public class Table extends Spacing {
       addParameter(new IntParameter(NUMCOLPARAM, "integer").setDefault(2),Table.class);
       addParameter(new IntParameter(NUMFOOTERROWS, "integer"),Table.class);
       addParameter(new IntParameter(NUMHEADERROWS, "integer"),Table.class);
-      Parameter<Float[]> p = new FloatArrayParameter(WIDTHSPARAM, "float / float[] (1.2|1.3|...)").setDefault(new Float[] {50f,50f});
+      Parameter<float[]> p = new FloatArrayParameter(WIDTHSPARAM, "float / float[] (1.2|1.3|...)").setDefault(new float[] {50f,50f});
       addParameter(p,Table.class);
       addParameter(new IntParameter(RELATIVEWIDTHPARAM, "integer").setDefault(100),Table.class);
    }
@@ -69,7 +69,7 @@ public class Table extends Spacing {
       t.setWidthPercentage(getRelwidth());
 
       try {
-         float[] w = ArrayHelper.unWrap(getWidths());
+         float[] w = getWidths();
 
          t.setWidths(w);
          t.setTotalWidth(w);
@@ -128,11 +128,11 @@ public class Table extends Spacing {
       setValue(NUMFOOTERROWS, footerrows);
    }
 
-   public Float[] getWidths() {
-      return getValue(WIDTHSPARAM,Float[].class);
+   public float[] getWidths() {
+      return getValue(WIDTHSPARAM,float[].class);
    }
 
-   public void setWidths(Float[] widths) {
+   public void setWidths(float[] widths) {
       setValue(WIDTHSPARAM, widths);
    }
    private static final Class<Object>[] classes = new Class[]{PdfPTable.class};

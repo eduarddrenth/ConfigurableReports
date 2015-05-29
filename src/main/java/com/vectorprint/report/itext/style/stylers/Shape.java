@@ -108,7 +108,7 @@ public class Shape<DATATYPE> extends AbstractPositioning<DATATYPE> {
          canvas.setLineJoin(PdfContentByte.LINE_JOIN_ROUND);
       }
       float xx = x, yy = y;
-      float[] points = ArrayHelper.unWrap(getPoints());
+      float[] points = getPoints();
       float padding = getPadding();
       switch (getShape()) {
          case free:
@@ -168,7 +168,7 @@ public class Shape<DATATYPE> extends AbstractPositioning<DATATYPE> {
       } else {
          canvas.stroke();
       }
-      if (getSettings().getBooleanProperty(ReportConstants.DEBUG, Boolean.FALSE)) {
+      if (getSettings().getBooleanProperty(Boolean.FALSE, ReportConstants.DEBUG)) {
          DebugHelper.styleLink(canvas, getStyleClass(), 
              " (styling)",
              xx, yy, getSettings(), getLayerManager());
@@ -214,11 +214,11 @@ public class Shape<DATATYPE> extends AbstractPositioning<DATATYPE> {
    public void setPadding(float padding) {
       setValue(PADDING, padding);
    }
-   public Float[] getPoints() {
-      return getValue(POINTS,Float[].class);
+   public float[] getPoints() {
+      return getValue(POINTS,float[].class);
    }
 
-   public void setPoints(Float[] points) {
+   public void setPoints(float[] points) {
       setValue(POINTS, points);
    }
 

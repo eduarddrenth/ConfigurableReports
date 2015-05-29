@@ -21,7 +21,6 @@ package com.vectorprint.report.itext.style.parameters;
  * #L%
  */
 
-import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.parameters.ParameterImpl;
 import com.vectorprint.report.itext.style.stylers.Advanced;
 
@@ -33,11 +32,6 @@ public class EventModeParameter extends ParameterImpl<Advanced.EVENTMODE>{
 
    public EventModeParameter(String key, String help) {
       super(key, help);
-   }
-
-   @Override
-   public Advanced.EVENTMODE convert(String value) throws VectorPrintRuntimeException {
-      return Advanced.EVENTMODE.valueOf(value.toUpperCase());
    }
 
 }

@@ -42,7 +42,7 @@ public abstract class AbstractCondition extends ParameterizableImpl implements S
    private static final Logger log = Logger.getLogger(AbstractCondition.class.getName());
    private String key;
    @SettingsField
-   private EnhancedMap settings;
+   private static EnhancedMap settings;
 
    @Override
    public EnhancedMap getSettings() {

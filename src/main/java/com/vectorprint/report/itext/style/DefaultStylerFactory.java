@@ -28,9 +28,10 @@ import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.annotation.Setting;
 import com.vectorprint.configuration.annotation.SettingsField;
-import com.vectorprint.configuration.parser.ObjectParser;
-import com.vectorprint.configuration.parser.ParseException;
-import com.vectorprint.configuration.parser.TokenMgrError;
+import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactory;
+import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactoryImpl;
+import com.vectorprint.configuration.binding.parameters.ParameterizableParser;
+import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactoryImpl;
 import com.vectorprint.report.ReportConstants;
 import static com.vectorprint.report.ReportConstants.DEBUG;
 import com.vectorprint.report.itext.ElementProducer;
@@ -89,7 +90,7 @@ public class DefaultStylerFactory implements StylerFactory {
    private PdfWriter writer;
    private ImageLoader imageLoader;
    private LayerManager layerManager;
-   private ObjectParser sp = null;
+   private static final ParameterizableBindingFactory BINDING_FACTORY = ParameterizableBindingFactoryImpl.getDefaultFactory();
    /**
     * name of the boolean setting use {@link #DEFAULTSTYLERSFIRST} and {@link #DEFAULTSTYLERSLAST} or not
     */
@@ -97,46 +98,29 @@ public class DefaultStylerFactory implements StylerFactory {
    @Setting(keys = DOFIRSTLAST)
    private boolean doFirstLast = true;
 
-   private ObjectParser getParser(StringReader sr) {
-      if (sp == null) {
-         sp = new ObjectParser(sr);
-      } else {
-         sp.ReInit(sr);
-      }
-      return sp;
+   private ParameterizableParser getParser(StringReader sr) {
+      return BINDING_FACTORY.getParser(sr);
    }
 
    @Override
    public DocumentStyler getDocumentStyler() throws VectorPrintException {
-      String className = settings.getProperty(ReportConstants.DOCUMENTSETTINGS, DEFAULTDOCUMENTSETTINGS);
-      try {
-         if (settings.getBooleanProperty(DEBUG, Boolean.FALSE)) {
-            styleSetup.put(ReportConstants.DOCUMENTSETTINGS, className);
-            DocumentStyler ds = (DocumentStyler) getParser(new StringReader(className)).
-                parseAsObject(STYLERPACKAGENAME, settings);
-            StylerFactoryHelper.initStylingObject(ds, writer, document, imageLoader, layerManager, settings);
-            Collection<BaseStyler> c = new ArrayList<BaseStyler>(1);
-            c.add((BaseStyler) ds);
-            cache.put(ReportConstants.DOCUMENTSETTINGS, c);
-            return ds;
-         } else {
-            DocumentStyler ds = (DocumentStyler) getParser(new StringReader(className)).
-                parseAsObject(STYLERPACKAGENAME, settings);
-            StylerFactoryHelper.initStylingObject(ds, writer, document, imageLoader, layerManager, settings);
-            return ds;
-         }
-      } catch (ClassNotFoundException ex) {
-         throw new VectorPrintException("cannot get document styler : " + STYLERPACKAGENAME + "." + className + " (" + ex.getMessage() + ")", ex);
-      } catch (InstantiationException ex) {
-         throw new VectorPrintException("cannot get document styler : " + STYLERPACKAGENAME + "." + className + " (" + ex.getMessage() + ")", ex);
-      } catch (IllegalAccessException ex) {
-         throw new VectorPrintException("cannot get document styler : " + STYLERPACKAGENAME + "." + className + " (" + ex.getMessage() + ")", ex);
-      } catch (NoSuchFieldException ex) {
-         throw new VectorPrintException("cannot get document styler : " + STYLERPACKAGENAME + "." + className + " (" + ex.getMessage() + ")", ex);
-      } catch (TokenMgrError ex) {
-         throw new VectorPrintException("cannot get document styler : " + STYLERPACKAGENAME + "." + className + " (" + ex.getMessage() + ")", ex);
-      } catch (ParseException ex) {
-         throw new VectorPrintException("cannot get document styler : " + STYLERPACKAGENAME + "." + className + " (" + ex.getMessage() + ")", ex);
+      String className = settings.getProperty(DEFAULTDOCUMENTSETTINGS, ReportConstants.DOCUMENTSETTINGS);
+      if (settings.getBooleanProperty(Boolean.FALSE, DEBUG)) {
+         styleSetup.put(ReportConstants.DOCUMENTSETTINGS, className);
+         DocumentStyler ds = (DocumentStyler) getParser(new StringReader(className))
+             .setSettings(settings).setPackageName(STYLERPACKAGENAME)
+             .parseParameterizable();
+         StylerFactoryHelper.initStylingObject(ds, writer, document, imageLoader, layerManager, settings);
+         Collection<BaseStyler> c = new ArrayList<BaseStyler>(1);
+         c.add((BaseStyler) ds);
+         cache.put(ReportConstants.DOCUMENTSETTINGS, c);
+         return ds;
+      } else {
+         DocumentStyler ds = (DocumentStyler) getParser(new StringReader(className))
+             .setSettings(settings).setPackageName(STYLERPACKAGENAME)
+             .parseParameterizable();
+         StylerFactoryHelper.initStylingObject(ds, writer, document, imageLoader, layerManager, settings);
+         return ds;
       }
    }
 
@@ -149,7 +133,7 @@ public class DefaultStylerFactory implements StylerFactory {
 
       if (!cache.containsKey(styleClass)) {
 
-         String[] classNames = settings.getStringProperties(styleClass, null);
+         String[] classNames = settings.getStringProperties(null, styleClass);
          if (classNames == null) {
             classNames = new String[0];
          }
@@ -182,22 +166,9 @@ public class DefaultStylerFactory implements StylerFactory {
     * @throws VectorPrintException
     */
    private <S extends BaseStyler> S getStyler(String classNameWithParams, Class<S> clazz, String pkg) throws VectorPrintException {
-      S st = null;
-      try {
-         st = getParser(new StringReader(classNameWithParams)).parse(pkg, settings, clazz);
-      } catch (TokenMgrError ex) {
-         throw new VectorPrintException("cannot create styler: " + pkg + "." + classNameWithParams + " (" + ex.getMessage() + ")", ex);
-      } catch (ParseException ex) {
-         throw new VectorPrintException("cannot create styler: " + pkg + "." + classNameWithParams + " (" + ex.getMessage() + ")", ex);
-      } catch (ClassNotFoundException ex) {
-         throw new VectorPrintException("cannot create styler: " + pkg + "." + classNameWithParams + " (" + ex.getMessage() + ")", ex);
-      } catch (InstantiationException ex) {
-         throw new VectorPrintException("cannot create styler: " + pkg + "." + classNameWithParams + " (" + ex.getMessage() + ")", ex);
-      } catch (NoSuchFieldException ex) {
-         throw new VectorPrintException("cannot create styler: " + pkg + "." + classNameWithParams + " (" + ex.getMessage() + ")", ex);
-      } catch (IllegalAccessException ex) {
-         throw new VectorPrintException("cannot create styler: " + pkg + "." + classNameWithParams + " (" + ex.getMessage() + ")", ex);
-      }
+      S st = (S) getParser(new StringReader(classNameWithParams))
+             .setSettings(settings).setPackageName(pkg)
+             .parseParameterizable();
       StylerFactoryHelper.initStylingObject(st, writer, document, imageLoader, layerManager, settings, (ElementProducer) imageLoader, this);
       if (st instanceof ImportPdf) {
          impdf.add((ImportPdf) st);
@@ -230,12 +201,12 @@ public class DefaultStylerFactory implements StylerFactory {
     * @return
     */
    private DebugStyler debugStylers(String... names) throws VectorPrintException {
-      if (settings.getBooleanProperty(DEBUG, false)) {
+      if (settings.getBooleanProperty(false, DEBUG)) {
          DebugStyler dst = new DebugStyler();
          StylerFactoryHelper.initStylingObject(dst, writer, document, null, layerManager, settings);
          for (String n : names) {
             dst.getStyleSetup().add(n);
-            styleSetup.put(n, settings.get(n));
+            styleSetup.put(n, EnhancedMapBindingFactoryImpl.getDefaultFactory().getBindingHelper().serializeValue(settings.getStringProperties(null,n)));
          }
 
          return dst;
@@ -263,7 +234,7 @@ public class DefaultStylerFactory implements StylerFactory {
    }
 
    private <B extends BaseStyler> void debug(List<B> stylers, String... styleClasses) throws VectorPrintException {
-      if (settings.getBooleanProperty(DEBUG, false)) {
+      if (settings.getBooleanProperty(false, DEBUG)) {
          for (String clazz : styleClasses) {
             if (!cache.containsKey(clazz)) {
                cache.put(clazz, stylers);
@@ -309,7 +280,7 @@ public class DefaultStylerFactory implements StylerFactory {
                   log.warning(s.getClass().getSimpleName() + " is not an advanced styler, cannot be used for each page");
                }
             }
-            styleSetup.put(PAGESTYLERS, settings.get(PAGESTYLERS));
+            styleSetup.put(PAGESTYLERS, BINDING_FACTORY.getBindingHelper().serializeValue(settings.getStringProperties(null,PAGESTYLERS)));
          } catch (VectorPrintException ex) {
             throw new VectorPrintRuntimeException(ex);
          }

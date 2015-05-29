@@ -26,7 +26,6 @@ package com.vectorprint.report.itext.style.parameters;
  * #L%
  */
 
-import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.parameters.ParameterImpl;
 import com.vectorprint.report.itext.style.stylers.DocumentSettings;
 
@@ -39,11 +38,5 @@ public class KeyStoreParameter extends ParameterImpl<DocumentSettings.KEYSTORETY
    public KeyStoreParameter(String key, String help) {
       super(key, help);
    }
-
-   @Override
-   public DocumentSettings.KEYSTORETYPE convert(String value) throws VectorPrintRuntimeException {
-      return DocumentSettings.KEYSTORETYPE.valueOf(value.toLowerCase());
-   }
-   
 
 }

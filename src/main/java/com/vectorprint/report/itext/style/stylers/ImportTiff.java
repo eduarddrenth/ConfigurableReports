@@ -199,7 +199,7 @@ public class ImportTiff extends Image<Object> implements ImageProcessor {
          return imageBeingProcessed;
       }
       this.data = data;
-      boolean doFooter = getSettings().getBooleanProperty(ReportConstants.PRINTFOOTER, Boolean.FALSE);
+      boolean doFooter = getSettings().getBooleanProperty(Boolean.FALSE, ReportConstants.PRINTFOOTER);
 
       // remember page size
       Rectangle r = getDocument().getPageSize();

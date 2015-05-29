@@ -115,7 +115,7 @@ public class VectorPrintDocument extends Document {
          }
 
          hook = find(element, AddElementHook.INTENTION.DEBUGIMAGE);
-         if (hook != null && ((EnhancedMap) factory.getSettings()).getBooleanProperty(ReportConstants.DEBUG, false)) {
+         if (hook != null && ((EnhancedMap) factory.getSettings()).getBooleanProperty(false, ReportConstants.DEBUG)) {
             rv = tracePosition(image, hook, IMG_DEBUG,true);
          }
          hook = find(element, AddElementHook.INTENTION.DRAWNEARIMAGE);

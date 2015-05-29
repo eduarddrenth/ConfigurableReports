@@ -183,7 +183,7 @@ public class SimpleColumns extends AdvancedImpl<Object> implements ElementProduc
          ct.setYLine(currentY);
       }
       while (ColumnText.hasMoreText(status)) {
-         if (getSettings().getBooleanProperty(ReportConstants.DEBUG, Boolean.FALSE)) {
+         if (getSettings().getBooleanProperty(Boolean.FALSE, ReportConstants.DEBUG)) {
             Rectangle rect = new Rectangle(columns.get(column));
             rect.setTop(ct.getYLine());
             DebugHelper.debugRect(ct.getCanvas(), rect, new float[]{2, 2}, 0.3f, getSettings(), elementProducer);

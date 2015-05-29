@@ -39,12 +39,6 @@ public class BarcodeParameter extends ParameterImpl<Barcode.BARCODE>{
    public BarcodeParameter(String key, String help) {
       super(key, help);
    }
-
-   @Override
-   public Barcode.BARCODE convert(String value) throws VectorPrintRuntimeException {
-      return Barcode.BARCODE.valueOf(value.toUpperCase());
-   }
-   
    
 
 }

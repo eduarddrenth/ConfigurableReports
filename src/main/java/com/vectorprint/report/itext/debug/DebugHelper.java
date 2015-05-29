@@ -139,14 +139,14 @@ public class DebugHelper {
    public static BaseFont debugFont(PdfContentByte canvas, EnhancedMap settings) {
       BaseFont bf = FontFactory.getFont(FontFactory.HELVETICA).getBaseFont();
       canvas.setFontAndSize(bf, 8);
-      canvas.setColorFill(itextHelper.fromColor(settings.getColorProperty(ReportConstants.DEBUGCOLOR, Color.MAGENTA)));
-      canvas.setColorStroke(itextHelper.fromColor(settings.getColorProperty(ReportConstants.DEBUGCOLOR, Color.MAGENTA)));
+      canvas.setColorFill(itextHelper.fromColor(settings.getColorProperty(Color.MAGENTA, ReportConstants.DEBUGCOLOR)));
+      canvas.setColorStroke(itextHelper.fromColor(settings.getColorProperty(Color.MAGENTA, ReportConstants.DEBUGCOLOR)));
       return bf;
    }
 
    public static Font debugFontLink(PdfContentByte canvas, EnhancedMap settings) {
       BaseFont bf = debugFont(canvas, settings);
-      return new Font(bf, 8, Font.UNDERLINE, itextHelper.fromColor(settings.getColorProperty(ReportConstants.DEBUGCOLOR, Color.MAGENTA)));
+      return new Font(bf, 8, Font.UNDERLINE, itextHelper.fromColor(settings.getColorProperty(Color.MAGENTA, ReportConstants.DEBUGCOLOR)));
    }
 
    public static void debugRect(PdfContentByte canvas, Rectangle rect, float[] dash, float borderWidth, EnhancedMap settings, LayerManager layerAware) {
@@ -202,12 +202,12 @@ public class DebugHelper {
 
       PdfContentByte canvas = writer.getDirectContent();
       canvas.setFontAndSize(FontFactory.getFont(FontFactory.COURIER).getBaseFont(), 8);
-      canvas.setColorFill(itextHelper.fromColor(settings.getColorProperty(ReportConstants.DEBUGCOLOR, Color.MAGENTA)));
-      canvas.setColorStroke(itextHelper.fromColor(settings.getColorProperty(ReportConstants.DEBUGCOLOR, Color.MAGENTA)));
+      canvas.setColorFill(itextHelper.fromColor(settings.getColorProperty(Color.MAGENTA, ReportConstants.DEBUGCOLOR)));
+      canvas.setColorStroke(itextHelper.fromColor(settings.getColorProperty(Color.MAGENTA, ReportConstants.DEBUGCOLOR)));
 
       Font f = FontFactory.getFont(FontFactory.COURIER,8);
 
-      f.setColor(itextHelper.fromColor(settings.getColorProperty(ReportConstants.DEBUGCOLOR, Color.MAGENTA)));
+      f.setColor(itextHelper.fromColor(settings.getColorProperty(Color.MAGENTA, ReportConstants.DEBUGCOLOR)));
 
       float top = document.getPageSize().getTop();
 
@@ -242,7 +242,7 @@ public class DebugHelper {
 
       document.add(Chunk.NEWLINE);
 
-      if (settings.getBooleanProperty(DEBUG, false)) {
+      if (settings.getBooleanProperty(false, DEBUG)) {
          document.add(new Phrase("OVERVIEW OF STYLES FOR THIS REPORT", f));
          document.add(Chunk.NEWLINE);
          document.add(Chunk.NEWLINE);

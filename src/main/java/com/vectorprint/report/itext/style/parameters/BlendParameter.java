@@ -26,7 +26,6 @@ package com.vectorprint.report.itext.style.parameters;
  * #L%
  */
 
-import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.parameters.ParameterImpl;
 import com.vectorprint.report.itext.style.stylers.Advanced;
 
@@ -39,15 +38,5 @@ public class BlendParameter extends ParameterImpl<Advanced.BLENDMODE> {
    public BlendParameter(String key, String help) {
       super(key, help);
    }
-
-   /**
-    *
-    * @throws VectorPrintRuntimeException
-    */
-   @Override
-   public Advanced.BLENDMODE convert(String value) throws VectorPrintRuntimeException {
-      return Advanced.BLENDMODE.valueOf(value.toUpperCase());
-   }
-   
 
 }

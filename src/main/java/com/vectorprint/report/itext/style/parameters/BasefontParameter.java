@@ -26,9 +26,6 @@ package com.vectorprint.report.itext.style.parameters;
  * #L%
  */
 
-import com.itextpdf.text.Font;
-import com.itextpdf.text.FontFactory;
-import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.parameters.ParameterImpl;
 
 /**
@@ -42,16 +39,7 @@ public class BasefontParameter extends ParameterImpl<BaseFontWrapper>{
    }
 
    @Override
-   public BaseFontWrapper convert(String value) throws VectorPrintRuntimeException {
-      Font f = FontFactory.getFont(value);
-      if (f.getBaseFont()==null) {
-         throw new VectorPrintRuntimeException("No basefont for: " +value);
-      }
-      return new BaseFontWrapper(f.getBaseFont());
-   }
-
-   @Override
-   protected String valueToString(Object value) {
+   protected String valueToString(BaseFontWrapper value) {
       return (value!=null)?((BaseFontWrapper)value).getFontName():"";
    }
 

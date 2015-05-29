@@ -22,8 +22,9 @@ package com.vectorprint.report.itext.style.css;
  */
 
 import com.vectorprint.configuration.EnhancedMap;
+import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactory;
+import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactory;
 import com.vectorprint.configuration.parameters.Parameter;
-import com.vectorprint.configuration.parameters.ParameterHelper;
 import com.vectorprint.report.itext.style.BaseStyler;
 import com.vectorprint.report.itext.style.StylerFactory;
 import java.io.IOException;
@@ -60,7 +61,8 @@ public interface CssToBaseStylers extends DocumentHandler{
    
    /**
     * Print the BaseStylers to a stylesheet for use by a {@link StylerFactory} after conversion of a css stylesheet to a collection of BaseStylers.
-    * @see ParameterHelper#toConfig(com.vectorprint.configuration.parameters.Parameterizable, boolean) 
+    * @see EnhancedMapBindingFactory
+    * @see ParameterizableBindingFactory
     * @param os
     * @throws IOException 
     */

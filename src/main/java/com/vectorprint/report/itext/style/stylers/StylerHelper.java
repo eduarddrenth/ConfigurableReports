@@ -61,8 +61,8 @@ public class StylerHelper {
       return false;
    }
    
-   public static final java.util.List<PrepareKeyValue<String,String>> toList(PrepareKeyValue<String,String> prepareKeyValue) {
-      java.util.List<PrepareKeyValue<String,String>> l = new ArrayList<PrepareKeyValue<String,String>>(1);
+   public static final java.util.List<PrepareKeyValue<String,String[]>> toList(PrepareKeyValue<String,String[]> prepareKeyValue) {
+      java.util.List<PrepareKeyValue<String,String[]>> l = new ArrayList<PrepareKeyValue<String,String[]>>(1);
       l.add(prepareKeyValue);
       return l;
    }

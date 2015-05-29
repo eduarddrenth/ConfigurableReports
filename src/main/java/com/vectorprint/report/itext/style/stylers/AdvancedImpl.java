@@ -191,14 +191,6 @@ public class AdvancedImpl<DATATYPE> extends AbstractStyler implements Advanced<D
       }
    }
 
-   @Override
-   public void setup(Map<String, String> args, Map<String, String> settings) {
-      super.setup(args, settings);
-      if (args.containsKey(DATA)) {
-         data = convert(getValue(DATA, String.class));
-      }
-   }
-
    /**
     * when {@link #DYNAMICDATA} is true call {@link #setData(java.lang.Object) } with {@link #convert(java.lang.Object)
     * }.
@@ -265,10 +257,10 @@ public class AdvancedImpl<DATATYPE> extends AbstractStyler implements Advanced<D
    }
 
    public float[] getTransform() {
-      return ArrayHelper.unWrap(getValue(TRANSFORM, Float[].class));
+      return getValue(TRANSFORM, float[].class);
    }
 
-   public void setTransform(Float[] transform) {
+   public void setTransform(float[] transform) {
       setValue(TRANSFORM, transform);
    }
    private static final Class<Object>[] classes = new Class[]{Element.class};

@@ -92,7 +92,7 @@ public class Image<DATATYPE> extends AbstractPositioning<DATATYPE> implements Im
    /**
     * Calls {@link #createImage(com.itextpdf.text.pdf.PdfContentByte, java.lang.Object, float) }, {@link #applySettings(com.itextpdf.text.Image) },
     * {@link com.itextpdf.text.Image#setAbsolutePosition(float, float) } and 
-    * {@link #addToCanvas(java.lang.Float[], com.itextpdf.text.Image, com.itextpdf.text.pdf.PdfContentByte) }.
+    * {@link #addToCanvas(java.lang.float[], com.itextpdf.text.Image, com.itextpdf.text.pdf.PdfContentByte) }.
     *
     * @param canvas
     * @param x
@@ -114,7 +114,7 @@ public class Image<DATATYPE> extends AbstractPositioning<DATATYPE> implements Im
       img.setAbsolutePosition(x, y);
       try {
 
-         addToCanvas(getValue(TRANSFORM, Float[].class), img, canvas);
+         addToCanvas(getValue(TRANSFORM, float[].class), img, canvas);
 
       } catch (DocumentException ex) {
          throw new VectorPrintRuntimeException(ex);
@@ -130,7 +130,7 @@ public class Image<DATATYPE> extends AbstractPositioning<DATATYPE> implements Im
     * @param canvas
     * @throws DocumentException
     */
-   public void addToCanvas(Float[] tf, com.itextpdf.text.Image img, PdfContentByte canvas) throws DocumentException {
+   public void addToCanvas(float[] tf, com.itextpdf.text.Image img, PdfContentByte canvas) throws DocumentException {
       if (tf == null) {
          canvas.addImage(img);
       } else {
@@ -142,7 +142,7 @@ public class Image<DATATYPE> extends AbstractPositioning<DATATYPE> implements Im
              img.getAbsoluteX() + tf[TRANSFORMMATRIX.TRANSLATEX.getIndex()],
              img.getAbsoluteY() + tf[TRANSFORMMATRIX.TRANSLATEY.getIndex()]);
       }
-      if (getSettings().getBooleanProperty(ReportConstants.DEBUG, Boolean.FALSE) && !isDrawShadow()) {
+      if (getSettings().getBooleanProperty(Boolean.FALSE, ReportConstants.DEBUG) && !isDrawShadow()) {
          if (tf == null) {
             DebugHelper.debugAnnotation(
                 new Rectangle(img.getAbsoluteX(), img.getAbsoluteY(), img.getAbsoluteX() + img.getWidth(), img.getAbsoluteY() + img.getHeight()), getStyleClass(), getWriter());
@@ -265,8 +265,8 @@ public class Image<DATATYPE> extends AbstractPositioning<DATATYPE> implements Im
       }
       img.scalePercent(getScale());
       img.setRotationDegrees(getValue(Image.ROTATE, Float.class));
-      if (getSettings().getBooleanProperty(ReportConstants.DEBUG, Boolean.FALSE)) {
-         DebugHelper.debugImage(getWriter().getDirectContent(), img, getSettings().getColorProperty("debugcolor", Color.MAGENTA), getStyleClass(),
+      if (getSettings().getBooleanProperty(Boolean.FALSE, ReportConstants.DEBUG)) {
+         DebugHelper.debugImage(getWriter().getDirectContent(), img, getSettings().getColorProperty(Color.MAGENTA, "debugcolor"), getStyleClass(),
              " (" + Image.class.getSimpleName() + " init)",
              getSettings(), getLayerManager(), (VectorPrintDocument) getDocument());
       }

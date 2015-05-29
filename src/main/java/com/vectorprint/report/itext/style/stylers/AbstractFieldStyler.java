@@ -274,7 +274,7 @@ public abstract class AbstractFieldStyler extends AbstractPositioning<Object> im
          throw new VectorPrintRuntimeException(ex);
       }
       getWriter().addAnnotation(pff);
-      if (stylerFactory.getSettings().getBooleanProperty(DEBUG, false)) {
+      if (stylerFactory.getSettings().getBooleanProperty(false, DEBUG)) {
          DebugHelper.debugRect(canvas, box, new float[]{2, 2}, 0.7f,
              stylerFactory.getSettings(), elementProducer);
          DebugHelper.styleLink(canvas, getStyleClass(), "", box.getLeft(), box.getTop(),

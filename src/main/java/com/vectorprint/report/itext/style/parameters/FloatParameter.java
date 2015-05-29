@@ -26,11 +26,12 @@ package com.vectorprint.report.itext.style.parameters;
  * #L%
  */
 
-import com.vectorprint.VectorPrintRuntimeException;
-import com.vectorprint.report.itext.ItextHelper;
+import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactory;
 
 /**
- * A Parameter converting from millimeters in configuration to points in iText
+ * A Parameter for converting from millimeters in configuration to points in iText. Actual conversion
+ * is done through {@link ParameterizableBindingFactory binding}
+ * 
  * @author Eduard Drenth at VectorPrint.nl
  */
 public class FloatParameter extends com.vectorprint.configuration.parameters.FloatParameter{
@@ -39,16 +40,5 @@ public class FloatParameter extends com.vectorprint.configuration.parameters.Flo
    public FloatParameter(String key, String help) {
       super(key, help);
    }
-
-   @Override
-   public Float convert(String value) throws VectorPrintRuntimeException {
-         return ItextHelper.mmToPts(Float.parseFloat(value));
-   }
-   
-   @Override
-   protected String valueToString(Object value) {
-      return super.valueToString(ItextHelper.ptsToMm((Float)value));
-   }
-
 
 }

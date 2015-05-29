@@ -79,7 +79,7 @@ public class DebuggablePdfPCell extends PdfPCell {
 
    @Override
    public void setBackgroundColor(BaseColor backgroundColor) {
-      if (settings.getBooleanProperty(ReportConstants.DEBUG, false)) {
+      if (settings.getBooleanProperty(false, ReportConstants.DEBUG)) {
          bg = backgroundColor;
       } else {
          super.setBackgroundColor(backgroundColor);

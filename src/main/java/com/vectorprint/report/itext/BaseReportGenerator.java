@@ -76,6 +76,7 @@ import com.vectorprint.report.itext.style.StylerFactory;
 import com.vectorprint.report.itext.style.StylerFactoryHelper;
 import com.vectorprint.report.itext.style.stylers.SimpleColumns;
 import com.vectorprint.report.itext.style.stylers.DocumentSettings;
+import com.vectorprint.report.itext.style.stylers.StylerHelper;
 import com.vectorprint.report.running.ReportRunner;
 import java.awt.Color;
 import java.io.BufferedOutputStream;
@@ -94,6 +95,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Deque;
@@ -219,7 +221,7 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
 
          out = (out instanceof BufferedOutputStream) ? outputStream : new BufferedOutputStream(outputStream, bufferSize);
 
-         wasDebug = getSettings().getBooleanProperty(DEBUG, Boolean.FALSE);
+         wasDebug = getSettings().getBooleanProperty(Boolean.FALSE, DEBUG);
          if (ds.getValue(DocumentSettings.TOC, Boolean.class)) {
             out = new TocOutputStream(out);
             getSettings().put(DEBUG, Boolean.FALSE.toString());
@@ -264,7 +266,7 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
          }
          eventHelper.setLastPage(writer.getCurrentPageNumber());
 
-         if (getSettings().getBooleanProperty(DEBUG, false)) {
+         if (getSettings().getBooleanProperty(false, DEBUG)) {
             eventHelper.setLastPage(writer.getCurrentPageNumber());
             document.setPageSize(new Rectangle(ItextHelper.mmToPts(297), ItextHelper.mmToPts(210)));
             document.setMargins(5, 5, 5, 5);
@@ -301,7 +303,7 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
     * @return 1
     */
    protected int handleException(Exception ex, OutputStream output) throws VectorPrintRuntimeException {
-      if (getSettings().getBooleanProperty("stoponerror", Boolean.TRUE)) {
+      if (getSettings().getBooleanProperty(Boolean.TRUE, "stoponerror")) {
          throw (ex instanceof VectorPrintRuntimeException)
              ? (VectorPrintRuntimeException) ex
              : new VectorPrintRuntimeException("failed to generate the report: " + ex.getMessage(), ex);
@@ -318,9 +320,9 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
             try {
                Font f = FontFactory.getFont(FontFactory.COURIER, 8);
 
-               f.setColor(itextHelper.fromColor(getSettings().getColorProperty("debugcolor", Color.MAGENTA)));
+               f.setColor(itextHelper.fromColor(getSettings().getColorProperty(Color.MAGENTA, "debugcolor")));
 
-               String s = getSettings().getProperty("renderfault", bo.toString("UTF-8"));
+               String s = getSettings().getProperty(bo.toString("UTF-8"), "renderfault");
                eventHelper.setLastPage(writer.getCurrentPageNumber());
                document.setPageSize(new Rectangle(ItextHelper.mmToPts(297), ItextHelper.mmToPts(210)));
                document.setMargins(5, 5, 5, 5);
@@ -503,12 +505,13 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
    }
 
    public void setSettings(EnhancedMap settings) {
-      bufferSize = settings.getIntegerProperty(ReportConstants.BUFFERSIZE, ReportConstants.DEFAULTBUFFERSIZE);
+      bufferSize = settings.getIntegerProperty(ReportConstants.DEFAULTBUFFERSIZE, ReportConstants.BUFFERSIZE);
       this.settings = settings;
       StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(elementProducer, settings);
       StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(stylerFactory, settings);
       StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(eventHelper, settings);
       itextHelper=new ItextHelper();
+      StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(itextHelper, settings);
    }
 
    @Override
@@ -712,11 +715,12 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
 
       if (!settings.containsKey(DocumentSettings.TOCTABLEKEY)) {
          float tot = ItextHelper.ptsToMm(document.getPageSize().getWidth() - document.leftMargin() - document.rightMargin());
-         settings.put(DocumentSettings.TOCTABLEKEY, new StringBuilder("Table(columns=2,widths=")
-             .append(Math.round(tot * ds.getValue(DocumentSettings.TOCLEFTWIDTH, Float.class))).append('|')
-             .append(Math.round(tot * ds.getValue(DocumentSettings.TOCRIGHTWIDTH, Float.class))).append(')')
-             .append(";AddCell(data=Table of Contents,styleclass=toccaption);AddCell(data=title,styleclass=tocheader);AddCell(data=page,styleclass=tocheader)")
-             .toString()
+         settings.put(DocumentSettings.TOCTABLEKEY, new String[] {"Table(columns=2,widths="+
+             (Math.round(tot * ds.getValue(DocumentSettings.TOCLEFTWIDTH, Float.class)))+'|'+
+             (Math.round(tot * ds.getValue(DocumentSettings.TOCRIGHTWIDTH, Float.class)))+')',
+             "AddCell(data=Table of Contents,styleclass=toccaption)",
+             "AddCell(data=title,styleclass=tocheader)",
+             "AddCell(data=page,styleclass=tocheader)"}
          );
       }
    }
@@ -820,6 +824,16 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
 
    public <E extends Element> E createAndAddElement(Object data, List<? extends BaseStyler> stylers, Class<E> elementClass) throws VectorPrintException, InstantiationException, IllegalAccessException, DocumentException {
       E e = createElement(data, elementClass, stylers);
+      if (e==null) {
+         if (stylers!=null&&!stylers.isEmpty()) {
+            if (!(stylers.get(0) instanceof com.vectorprint.report.itext.style.stylers.Image) && stylers.get(0).creates()) {
+               throw new VectorPrintRuntimeException(String.format("this styler did not create an element: %s.", stylers.get(0)));
+            } else {
+               List<com.vectorprint.report.itext.style.stylers.Image> stylers1 = StyleHelper.getStylers(stylers, com.vectorprint.report.itext.style.stylers.Image.class);
+               throw new VectorPrintRuntimeException(String.format("Perhaps set Image.%s to true, stylers did not create an element: %s.", com.vectorprint.report.itext.style.stylers.Image.DOSTYLE, stylers1));
+            }
+         }
+      }
       document.add(e);
       return e;
    }
@@ -946,7 +960,7 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
          if (settings.containsKey(ReportConstants.DATAMAPPINGXML)) {
             dmt = DatamappingHelper.fromXML(
                 new InputStreamReader(
-                    settings.getURLProperty(ReportConstants.DATAMAPPINGXML, null).openStream()
+                    settings.getURLProperty(null, ReportConstants.DATAMAPPINGXML).openStream()
                 )
             );
          }

@@ -26,7 +26,6 @@ package com.vectorprint.report.itext.style.parameters;
  * #L%
  */
 
-import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.parameters.ParameterImpl;
 import com.vectorprint.report.itext.style.BaseStyler;
 
@@ -40,10 +39,5 @@ public class PositionParameter extends ParameterImpl<BaseStyler.POSITION>{
       super(key, help);
    }
 
-   @Override
-   public BaseStyler.POSITION convert(String value) throws VectorPrintRuntimeException {
-      return BaseStyler.POSITION.valueOf(value.toUpperCase());
-   }
-   
 
 }

@@ -32,7 +32,6 @@ import com.itextpdf.text.pdf.PdfPCellEvent;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfPTableEvent;
 import com.vectorprint.VectorPrintException;
-import com.vectorprint.configuration.parameters.ParameterHelper;
 import com.vectorprint.report.itext.BaseReportGenerator;
 import com.vectorprint.report.itext.EventHelper;
 import com.vectorprint.report.itext.debug.DebugStyler;
@@ -104,7 +103,7 @@ public class StyleHelper {
                   if (styler.styleAfterAdding()) {
                      if (log.isLoggable(Level.FINE)) {
                         log.log(Level.FINE, "schedule styling {0} after adding to document: {1}",
-                            new Object[]{e, ParameterHelper.toConfig(styler, true)});
+                            new Object[]{e, styler.toString()});
                      }
                      vpd.addHook(new VectorPrintDocument.AddElementHook(VectorPrintDocument.AddElementHook.INTENTION.STYLELATER,(Element) e, styler,styler.getStyleClass()));
                   } else {

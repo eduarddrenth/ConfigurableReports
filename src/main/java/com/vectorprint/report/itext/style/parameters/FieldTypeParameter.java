@@ -26,7 +26,6 @@ package com.vectorprint.report.itext.style.parameters;
  * #L%
  */
 
-import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.parameters.ParameterImpl;
 import com.vectorprint.report.itext.style.FormFieldStyler;
 
@@ -40,10 +39,5 @@ public class FieldTypeParameter extends ParameterImpl<FormFieldStyler.FIELDTYPE>
       super(key, help);
    }
 
-   @Override
-   public FormFieldStyler.FIELDTYPE convert(String value) throws VectorPrintRuntimeException {
-      return FormFieldStyler.FIELDTYPE.valueOf(value.toUpperCase());
-   }
-   
 
 }

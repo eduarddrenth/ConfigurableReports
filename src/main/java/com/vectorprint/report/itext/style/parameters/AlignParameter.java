@@ -26,7 +26,6 @@ package com.vectorprint.report.itext.style.parameters;
  * #L%
  */
 
-import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.parameters.ParameterImpl;
 import com.vectorprint.report.itext.style.BaseStyler;
 
@@ -38,12 +37,6 @@ public class AlignParameter extends ParameterImpl<BaseStyler.ALIGN>{
 
    public AlignParameter(String key, String help) {
       super(key, help);
-   }
-
-   @Override
-   public BaseStyler.ALIGN convert(String value) throws VectorPrintRuntimeException {
-      return BaseStyler.ALIGN.valueOf(value.toUpperCase());
-   }
-   
+   }   
 
 }

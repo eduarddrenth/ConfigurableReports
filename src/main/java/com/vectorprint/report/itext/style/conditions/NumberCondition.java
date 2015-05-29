@@ -27,7 +27,6 @@ package com.vectorprint.report.itext.style.conditions;
 
 import com.vectorprint.configuration.parameters.BooleanParameter;
 import com.vectorprint.configuration.parameters.DoubleArrayParameter;
-import com.vectorprint.configuration.parameters.IntArrayParameter;
 import java.util.Arrays;
 
 /**
@@ -68,13 +67,13 @@ public class NumberCondition extends AbstractCondition {
          return nr % 2 == 0;
       }
       if (getValue(BETWEEN, Boolean.class)) {
-         return getValue(NUMBERS, Double[].class)[0] < nr && nr < getValue(NUMBERS, Double[].class)[1];
+         return getValue(NUMBERS, double[].class)[0] < nr && nr < getValue(NUMBERS, double[].class)[1];
       }
       return (getValue(GREATER, Boolean.class) || getValue(LESSER, Boolean.class))
           ? (getValue(GREATER, Boolean.class))
-            ? getValue(NUMBERS, Double[].class)[0] > nr
-            : getValue(NUMBERS, Double[].class)[0] < nr
-          : Arrays.binarySearch(getValue(NUMBERS, Double[].class), nr) >= 0;
+            ? getValue(NUMBERS, double[].class)[0] > nr
+            : getValue(NUMBERS, double[].class)[0] < nr
+          : Arrays.binarySearch(getValue(NUMBERS, double[].class), nr) >= 0;
    }
 
    @Override

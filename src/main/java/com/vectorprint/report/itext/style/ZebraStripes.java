@@ -135,7 +135,7 @@ public class ZebraStripes implements PdfPTableEvent, LayerManagerAware {
    }
 
    protected void paintRow(int row, Rectangle rect, PdfContentByte[] canvases, boolean last, boolean first) {
-      if (settings.getBooleanProperty(DEBUG, false)) {
+      if (settings.getBooleanProperty(false, DEBUG)) {
          DebugHelper.debugBackground(canvases[PdfPTable.BACKGROUNDCANVAS], rect, itextHelper.fromColor(rowBackgroundColor), "zebra", settings, layerManager);
          return;
       }

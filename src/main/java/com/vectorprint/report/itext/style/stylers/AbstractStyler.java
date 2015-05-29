@@ -38,14 +38,13 @@ import com.vectorprint.configuration.decoration.PreparingProperties;
 import com.vectorprint.configuration.observing.TrimKeyValue;
 import com.vectorprint.configuration.parameters.BooleanParameter;
 import com.vectorprint.configuration.parameters.Parameter;
-import com.vectorprint.configuration.parameters.ParameterHelper;
+import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactory;
+import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactoryImpl;
+import com.vectorprint.configuration.binding.parameters.ParameterizableParser;
 import com.vectorprint.configuration.parameters.ParameterizableImpl;
 import com.vectorprint.configuration.parameters.StringParameter;
 import com.vectorprint.configuration.parameters.annotation.Param;
 import com.vectorprint.configuration.parameters.annotation.Parameters;
-import com.vectorprint.configuration.parser.ObjectParser;
-import com.vectorprint.configuration.parser.ParseException;
-import com.vectorprint.configuration.parser.TokenMgrError;
 import com.vectorprint.report.itext.style.BaseStyler;
 import com.vectorprint.report.itext.DocumentAware;
 import com.vectorprint.report.itext.ItextHelper;
@@ -58,6 +57,7 @@ import static com.vectorprint.report.itext.style.stylers.StylerHelper.supported;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -94,7 +94,7 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
     */
    public static final String NOT_FROM_CONFIGURATION = "not from configuration";
    @SettingsField
-   private EnhancedMap settings;
+   private static EnhancedMap settings;
    public static final String CONDITONS = "conditions";
    private java.util.List<StylingCondition> conditions = new ArrayList<StylingCondition>(1);
    private Document document;
@@ -118,9 +118,13 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
 
    public AbstractStyler(Document document, PdfWriter writer, EnhancedMap settings) throws VectorPrintException {
       StylerFactoryHelper.initStylingObject(this, writer, document, null, null, settings);
+      itextHelper = new ItextHelper();
+      StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(itextHelper, this.settings);
    }
 
    public AbstractStyler() {
+      itextHelper = new ItextHelper();
+      StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(itextHelper, settings);
    }
 
    /**
@@ -165,19 +169,27 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
    @Override
    public void addCondition(StylingCondition condition) {
       conditions.add(condition);
+      if (condition.getSettings() == null) {
+         StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(condition, this.settings);
+      }
+      if (condition.getConfigKey() == null) {
+         condition.setConfigKey(NOT_FROM_CONFIGURATION);
+      }
    }
    
-   private void initConditions() throws ClassNotFoundException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException, InstantiationException, VectorPrintException, ClassNotFoundException, ParseException {
-      String[] conditions = settings.getStringProperties(getValue(CONDITONS, String.class), new String[]{});
-      if (conditions.length == 0) {
+   private static final ParameterizableBindingFactory BINDING_FACTORY = ParameterizableBindingFactoryImpl.getDefaultFactory();
+   
+   private void initConditions() throws VectorPrintException  {
+      String[] _conditions = settings.getStringProperties(new String[]{}, getValue(CONDITONS, String.class));
+      if (_conditions.length == 0) {
          throw new VectorPrintException("looked for condition definitions but none found in the settings");
       } else {
-         for (String sc : conditions) {
-            StylingCondition scn = new ObjectParser(new StringReader(sc)).
-                parse(
-                    PageNumberCondition.class.getPackage().getName(),
-                    settings,
-                    StylingCondition.class).setConfigKey(getValue(CONDITONS, String.class));
+         for (String sc : _conditions) {
+            ParameterizableParser parser = BINDING_FACTORY.getParser(new StringReader(sc))
+                .setPackageName(PageNumberCondition.class.getPackage().getName())
+                .setSettings(settings);
+            StylingCondition scn = (StylingCondition) parser.parseParameterizable();
+                scn.setConfigKey(getValue(CONDITONS, String.class));
             StylerFactoryHelper.initStylingObject(
                 scn,
                 writer,
@@ -223,61 +235,33 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
       return conditions;
    }
 
-   /**
-    * initialize a styler from defaults or arguments. Defaults are searched in {@link EnhancedMap properties} using the
-    * concatenation of {@link Class#getSimpleName() }, a "." and the {@link #getParameterInfo() name of a setting} for
-    * the styler. Subclasses of {@link AbstractStyler} will be searched starting with the actual class, ending with the
-    * direct subclass of {@link AbstractStyler}.
-    *
-    * @param args
-    */
    @Override
-   public void setup(Map<String, String> args, Map<String, String> settings) {
-      itextHelper = new ItextHelper();
-      StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(itextHelper, this.settings);
-      super.setup(args, settings);
-      if (getParameter(CONDITONS, String.class) != null && getParameter(CONDITONS, String.class).getValue() != null) {
+   protected void parameterChanged(Parameter o) {
+      if (CONDITONS.equals(o.getKey()) && o.getValue() != null) {
          try {
             initConditions();
-         } catch (TokenMgrError ex) {
-            throw new VectorPrintRuntimeException(ex);
-         } catch (ClassNotFoundException ex) {
-            throw new VectorPrintRuntimeException(ex);
-         } catch (NoSuchFieldException ex) {
-            throw new VectorPrintRuntimeException(ex);
-         } catch (IllegalArgumentException ex) {
-            throw new VectorPrintRuntimeException(ex);
-         } catch (IllegalAccessException ex) {
-            throw new VectorPrintRuntimeException(ex);
-         } catch (InstantiationException ex) {
-            throw new VectorPrintRuntimeException(ex);
          } catch (VectorPrintException ex) {
-            throw new VectorPrintRuntimeException(ex);
-         } catch (ParseException ex) {
             throw new VectorPrintRuntimeException(ex);
          } catch (RuntimeException ex) {
             throw new VectorPrintRuntimeException(ex);
          }
       }
-      // fix programmatically added conditions
-      for (StylingCondition condition : this.conditions) {
-         if (condition.getSettings() == null) {
-            StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(condition, this.settings);
-         }
-         if (condition.getConfigKey() == null) {
-            condition.setConfigKey(NOT_FROM_CONFIGURATION);
-         }
-      }
    }
-
+   
    @Override
    public String toConfig() {
-      return ParameterHelper.toConfig(this, true);
+      StringWriter sw = new StringWriter();
+      try {
+         BINDING_FACTORY.getSerializer().serialize(this, sw);
+         return sw.toString();
+      } catch (IOException ex) {
+         throw new VectorPrintRuntimeException(ex);
+      }
    }
 
    private static volatile EnhancedMap cssNames;
 
-   public static Map<String, String> loadCssNames() {
+   public static EnhancedMap loadCssNames() {
       EnhancedMap em = cssNames;
       if (em == null) {
          synchronized (AbstractStyler.class) {
@@ -288,19 +272,17 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
                       new InputStreamReader(AbstractStyler.class.getResourceAsStream(CSS_NAMESPROPERTIES) ));
                } catch (IOException ex) {
                   throw new VectorPrintRuntimeException(ex);
-               } catch (ParseException ex) {
-                  throw new VectorPrintRuntimeException(ex);
                }
             }
          }
       }
       return em;
    }
-
+   
    @Override
-   public String getCssEquivalent(Parameter parameter) {
+   public String[] getCssEquivalent(Parameter parameter) {
       loadCssNames();
-      return cssNames.get(getClass().getSimpleName() + '.' + parameter.getKey());
+      return cssNames.getStringProperties(EMPTY,getClass().getSimpleName() + '.' + parameter.getKey());
    }
    public static final String CSS_NAMESPROPERTIES = "/cssNames.properties";
 
@@ -310,9 +292,9 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
    public Collection<Parameter> findForCssProperty(String cssProperty) {
       loadCssNames();
       Collection<Parameter> parameters = new HashSet<Parameter>(1);
-      for (Map.Entry<String, String> e : cssNames.entrySet()) {
-         if (!e.getValue().isEmpty() && getClass().getSimpleName().equals(e.getKey().substring(0, e.getKey().indexOf('.')))) {
-            for (String p : cssNames.getStringProperties(e.getKey(), EMPTY)) {
+      for (Map.Entry<String, String[]> e : cssNames.entrySet()) {
+         if (!e.getValue()[0].isEmpty() && getClass().getSimpleName().equals(e.getKey().substring(0, e.getKey().indexOf('.')))) {
+            for (String p : cssNames.getStringProperties(EMPTY, e.getKey())) {
                if (p.equals(cssProperty)) {
                   String paramKey = e.getKey().substring(e.getKey().indexOf('.') + 1);
                   parameters.add(getParameters().get(paramKey));

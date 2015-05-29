@@ -21,7 +21,6 @@ package com.vectorprint.report.itext.style.parameters;
  * #L%
  */
 
-import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.parameters.ParameterImpl;
 import com.vectorprint.report.itext.style.stylers.FieldBorder;
 
@@ -33,11 +32,6 @@ public class BorderStyleParameter extends ParameterImpl<FieldBorder.BORDERSTYLE>
 
    public BorderStyleParameter(String key, String help) {
       super(key, help);
-   }
-
-   @Override
-   public FieldBorder.BORDERSTYLE convert(String value) throws VectorPrintRuntimeException {
-      return FieldBorder.BORDERSTYLE.valueOf(value.toUpperCase());
    }
 
 }

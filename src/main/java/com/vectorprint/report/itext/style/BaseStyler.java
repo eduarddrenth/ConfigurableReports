@@ -27,7 +27,6 @@ import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.parameters.Parameter;
 import com.vectorprint.configuration.parameters.Parameterizable;
-import com.vectorprint.configuration.parser.ObjectParser;
 import com.vectorprint.report.itext.BaseReportGenerator;
 import com.vectorprint.report.itext.DocumentAware;
 import com.vectorprint.report.itext.ElementProducer;
@@ -281,9 +280,9 @@ public interface BaseStyler extends Parameterizable, DocumentAware {
     * Get the css equivalent for a parameter.
     *
     * @param parameter
-    * @return a css equivalent for a parameter or null
+    * @return the css equivalent for a parameter or null
     */
-   String getCssEquivalent(Parameter parameter);
+   String[] getCssEquivalent(Parameter parameter);
 
    /**
     * find one or more parameters that implement a css property, this is configured in a file

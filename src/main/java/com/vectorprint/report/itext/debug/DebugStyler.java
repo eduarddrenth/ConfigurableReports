@@ -79,7 +79,7 @@ public class DebugStyler<DATATYPE> extends AdvancedImpl<DATATYPE> {
 
    @Override
    public void draw(Rectangle rect, String genericTag) throws VectorPrintException {
-      if (getSettings().getBooleanProperty(DEBUG, Boolean.FALSE)) {
+      if (getSettings().getBooleanProperty(Boolean.FALSE, DEBUG)) {
          PdfContentByte canvas = getWriter().getDirectContent();
 
          DebugHelper.debugRect(canvas, rect, new float[]{1, 3}, 0.3f, getSettings(), getLayerManager());

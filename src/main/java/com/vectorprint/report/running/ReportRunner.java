@@ -30,6 +30,9 @@ import com.vectorprint.VectorPrintException;
 import com.vectorprint.VersionInfo;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.Settings;
+import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactoryImpl;
+import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactory;
+import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactoryImpl;
 import com.vectorprint.configuration.decoration.ParsingProperties;
 import static com.vectorprint.report.ReportConstants.DATACLASS;
 import static com.vectorprint.report.ReportConstants.HELP;
@@ -51,11 +54,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactoryImpl.*;
+import static com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactoryImpl.*;
+import com.vectorprint.report.itext.style.parameters.ReportBindingHelper;
 
 /**
  * This implementation does not depend on iText and may be subclassed to generate reports of other tastes. It overrides
@@ -96,8 +103,8 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
    public final int buildReport(String[] args) throws Exception {
 
       try {
-         if (args != null) {
-            settings.addFromArguments(args);
+         if (args != null && args.length > 0) {
+            bindingFactory.getParser(new StringReader(args[0])).parse(settings);
          }
 
          if (settings.containsKey(VERSION)) {
@@ -117,7 +124,7 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
          if (STREAM.equals(settings.getProperty(OUTPUT))) {
             OutputStream o = System.out;
 
-            System.setOut(new PrintStream(settings.getProperty(SYSOUT, getClass().getSimpleName() + ".out"),
+            System.setOut(new PrintStream(settings.getProperty(getClass().getSimpleName() + ".out", SYSOUT),
                 "UTF-8"));
             log.info("printing report to standard output");
 
@@ -184,9 +191,7 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
          }
          Class dataClass = Class.forName(getSettings().getProperty(DATACLASS));
 
-         Object newInstance = dataClass.newInstance();
-         StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(newInstance, settings);
-         return (DataCollector<RD>) newInstance;
+         return (DataCollector<RD>) dataClass.newInstance();
       } catch (ClassNotFoundException ex) {
          throw new VectorPrintException(ex);
       } catch (InstantiationException ex) {
@@ -205,11 +210,9 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
    @Override
    public ReportGenerator<RD> getReportGenerator() throws VectorPrintException {
       try {
-         Class reportClass = Class.forName(getSettings().getProperty(REPORTCLASS, BaseReportGenerator.class.getName()));
+         Class reportClass = getSettings().getClassProperty(BaseReportGenerator.class, REPORTCLASS);
 
-         Object newInstance = reportClass.newInstance();
-         StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(newInstance, settings);
-         return (ReportGenerator<RD>) newInstance;
+         return (ReportGenerator<RD>) reportClass.newInstance();
       } catch (InstantiationException ex) {
          throw new VectorPrintException(ex);
       } catch (IllegalAccessException ex) {
@@ -242,14 +245,32 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
     */
    public static int findSettingsAndBuild() throws Exception {
       if (new File(CONFIG_FILE).canRead()) {
-         return new ReportRunner(new ParsingProperties(new Settings(),CONFIG_FILE)).buildReport(null);
+         return new ReportRunner(new ParsingProperties(new Settings(), CONFIG_FILE)).buildReport(null);
       } else {
          InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream('/' + CONFIG_FILE);
          if (in != null) {
-            return new ReportRunner(new ParsingProperties(new Settings(),CONFIG_FILE)).buildReport(null);
+            return new ReportRunner(new ParsingProperties(new Settings(), CONFIG_FILE)).buildReport(null);
          }
       }
       return EXITNOSETTINGS;
+   }
+
+   private static <T> Class<T> findClass(String systemProperty, Class<T> clazz) throws ClassNotFoundException {
+      if (System.getProperty(systemProperty) != null) {
+         return (Class<T>) Class.forName(System.getProperty(systemProperty));
+      } else {
+         return clazz;
+      }
+   }
+
+   protected static void initSyntaxFactories() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+      ParameterizableBindingFactoryImpl.getFactory(findClass(PARAMPARSER, PARAMPARSERCLASS),
+          findClass(PARAMSERIALIZER, PARAMSERIALIZERCLASS),
+          findClass(PARAMHELPER, ReportBindingHelper.class).newInstance(), true);
+      EnhancedMapBindingFactoryImpl.getFactory(findClass(SETTINGSPARSER, SETTINGSPARSERCLASS),
+          findClass(SETTINGSSERIALIZER, SETTINGSSERIALIZERCLASS),
+          findClass(SETTINGSHELPER, SETTINGSHELPERCLASS).newInstance(), true);
+      bindingFactory = EnhancedMapBindingFactoryImpl.getDefaultFactory();
    }
 
    /**
@@ -267,7 +288,18 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
             if (shiftArgs.length > 0) {
                System.arraycopy(args, 1, shiftArgs, 0, shiftArgs.length);
             }
-            System.exit(new ReportRunner(new ParsingProperties(new Settings(),args[0])).buildReport(shiftArgs));
+            /*
+             before anything (also before parsing properties) we need to init the factories dealing with syntax:
+            
+             ParameterizableBindingFactory and EnhancedMapBindingFactory
+            
+             we need to know 6 classes:
+            
+             2 parser classes, 2 serializer classes and 2 bindinghelper class
+            
+             */
+            initSyntaxFactories();
+            System.exit(new ReportRunner(new ParsingProperties(new Settings(), args[0])).buildReport(shiftArgs));
          }
       }
       if (EXITNOSETTINGS == findSettingsAndBuild()) {
@@ -276,6 +308,8 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
          System.exit(EXITNOSETTINGS);
       }
    }
+
+   private static EnhancedMapBindingFactory bindingFactory;
 
    /**
     * Bottleneck method, writes report to stream argument, calls {@link BaseReportGenerator#generate(com.vectorprint.report.data.ReportDataHolder, java.io.OutputStream)
@@ -292,14 +326,13 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
     */
    @Override
    public int buildReport(String[] args, final OutputStream out) throws Exception {
-      EnhancedMap properties = getSettings();
 
       try {
-         if (args != null) {
-            properties.addFromArguments(args);
+         if (args != null && args.length > 0) {
+            bindingFactory.getParser(new StringReader(args[0])).parse(settings);
          }
 
-         if (properties.containsKey(VERSION)) {
+         if (settings.containsKey(VERSION)) {
             for (VersionInfo.VersionInformation mi : VersionInfo.getVersionInfo().values()) {
                System.out.println(mi);
             }
@@ -307,8 +340,8 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
             return EXITFROMPROPERTYCODE;
          }
 
-         if (properties.containsKey(HELP)) {
-            showHelp(properties);
+         if (settings.containsKey(HELP)) {
+            showHelp(settings);
 
             return EXITFROMPROPERTYCODE;
          }

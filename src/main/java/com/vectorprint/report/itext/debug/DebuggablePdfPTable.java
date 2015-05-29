@@ -30,8 +30,10 @@ import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfPTableEvent;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  *
@@ -50,7 +52,7 @@ public class DebuggablePdfPTable extends PdfPTable {
       super(numColumns);
    }
 
-   private Collection<NestedTableEvent> childEvents = new HashSet<NestedTableEvent>(1);
+   private List<NestedTableEvent> childEvents = new ArrayList<NestedTableEvent>(1);
    private boolean nestingAdded = false;
 
    @Override

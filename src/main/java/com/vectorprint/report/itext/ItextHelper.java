@@ -132,7 +132,7 @@ public class ItextHelper {
          if (icc==null) {
             synchronized(this) {
                try {
-                  ICC_Profile p = ICC_Profile.getInstance(settings.getURLProperty(ReportConstants.ICCCOLORPROFILE, null).openStream());
+                  ICC_Profile p = ICC_Profile.getInstance(settings.getURLProperty(null, ReportConstants.ICCCOLORPROFILE).openStream());
                   icc =  new ICC_ColorSpace(p);
                } catch (IOException ex) {
                   throw new VectorPrintRuntimeException(ex);

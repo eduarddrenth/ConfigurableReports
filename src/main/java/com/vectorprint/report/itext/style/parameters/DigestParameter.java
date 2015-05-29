@@ -6,7 +6,6 @@
 
 package com.vectorprint.report.itext.style.parameters;
 
-import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.parameters.ParameterImpl;
 import com.vectorprint.report.itext.style.stylers.DocumentSettings;
 
@@ -19,12 +18,5 @@ public class DigestParameter extends ParameterImpl<DocumentSettings.DIGESTALGORI
    public DigestParameter(String key, String help) {
       super(key, help);
    }
-
-   @Override
-   public DocumentSettings.DIGESTALGORITHM convert(String value) throws VectorPrintRuntimeException {
-      return DocumentSettings.DIGESTALGORITHM.valueOf(value.toUpperCase());
-   }
-   
-   
 
 }

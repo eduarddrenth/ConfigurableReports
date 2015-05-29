@@ -26,7 +26,6 @@ package com.vectorprint.report.itext.style.parameters;
  * #L%
  */
 
-import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.parameters.ParameterImpl;
 import com.vectorprint.report.itext.style.stylers.Shape;
 
@@ -40,11 +39,5 @@ public class ShapeParameter extends ParameterImpl<Shape.SHAPE>{
       super(key, help);
    }
 
-   @Override
-   public Shape.SHAPE convert(String value) throws VectorPrintRuntimeException {
-      return Shape.SHAPE.valueOf(value.toLowerCase());
-   }
-   
-   
 
 }

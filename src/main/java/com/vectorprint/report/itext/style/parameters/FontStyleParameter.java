@@ -26,7 +26,6 @@ package com.vectorprint.report.itext.style.parameters;
  * #L%
  */
 
-import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.parameters.ParameterImpl;
 import com.vectorprint.report.itext.style.stylers.Font;
 
@@ -40,10 +39,5 @@ public class FontStyleParameter extends ParameterImpl<Font.STYLE>{
       super(key, help);
    }
 
-   @Override
-   public Font.STYLE convert(String value) throws VectorPrintRuntimeException {
-      return Font.STYLE.valueOf(value.toLowerCase());
-   }
-   
 
 }

@@ -95,7 +95,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
    /**
     * the default stylers used for styling the titles of the table of contents
     */
-   public static final String TOCTITLESTYLE = "Font(size=12);Padding(padding=0);Border(position=none)";
+   public static final String[] TOCTITLESTYLE = new String[] {"Font(size=12)","Padding(padding=0)","Border(position=none)"};
    /**
     * key for looking up stylers in the settings that will be used for styling the page numbers of the table of contents
     */
@@ -103,7 +103,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
    /**
     * the default stylers used for styling the page numbers of the table of contents
     */
-   public static final String TOCNRSTYLE = "Font(size=12);Alignment(align=RIGHT);Border(position=none)";
+   public static final String[] TOCNRSTYLE = new String[] {"Font(size=12)","Alignment(align=RIGHT)","Border(position=none)"};
    /**
     * key for looking up stylers in the settings that will be used for styling the table of contents table. The default
     * value for this will be calculated based on document measures
@@ -131,7 +131,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
    /**
     * default style for the header in the table of contents table.
     */
-   public static final String TOCHEADER = "Font(style=bold);Padding(position=bottom,padding=3);Padding(position=top,padding=5);Border(position=none)";
+   public static final String[] TOCHEADER = new String[] {"Font(style=bold)","Padding(position=bottom,padding=3)","Padding(position=top,padding=5)","Border(position=none)"};
    /**
     * key for looking up stylers in the settings that will be used for the caption of the table of contents.
     */
@@ -139,7 +139,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
    /**
     * default style for the caption of the table of contents.
     */
-   public static final String TOCCAPTION = "Font(style=bold,size=14);Padding(position=bottom,padding=3);Border(position=none);Alignment(align=center_middle);ColRowSpan(colspan=2)";
+   public static final String[] TOCCAPTION = new String[] {"Font(style=bold,size=14)","Padding(position=bottom,padding=3)","Border(position=none)","Alignment(align=center_middle)","ColRowSpan(colspan=2)"};
    /**
     * parameter to print a table of contents or not
     */
@@ -239,8 +239,8 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
          if (getValue(PDFA, Boolean.class)) {
             FontFactory.defaultEmbedding = true;
          }
-         log.info("loading fonts from " + Arrays.asList(getSettings().getStringProperties(FONTS,null)));
-         for (String dir : getSettings().getStringProperties(FONTS, null)) {
+         log.info("loading fonts from " + Arrays.asList(getSettings().getStringProperties(null, FONTS)));
+         for (String dir : getSettings().getStringProperties(null, FONTS)) {
             int i = FontFactory.registerDirectory(dir);
             log.fine(String.format("%s fonts loaded from %s", i, dir));
          }
@@ -272,7 +272,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
       if (ownerpassword == null) {
          ownerpassword = password;
       }
-      int permissions = getValue(PERMISSIONS, Integer.class);
+      int permissions = ((PermissionsParameter)getParameter(PERMISSIONS, PERMISSION[].class)).getPermission();
       ENCRYPTION encryption = getValue(ENCRYPTION_PARAM, ENCRYPTION.class);
       if (userpassword != null) {
          int enc = encryption != null ? encryption.encryption : PdfWriter.ENCRYPTION_AES_128;
@@ -294,8 +294,8 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
       }
 
       for (PDFBOX b : PDFBOX.values()) {
-         if (getValue(b.name(), Float[].class) != null) {
-            Float[] size = getValue(b.name(), Float[].class);
+         if (getValue(b.name(), float[].class) != null) {
+            float[] size = getValue(b.name(), float[].class);
             writer.setBoxSize(b.name(), new Rectangle(size[0], size[1], size[2], size[3]));
          }
       }
@@ -525,7 +525,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
    protected void builtInFontHack() throws IOException, DocumentException, VectorPrintException {
       ByteArrayOutputStream out = new ByteArrayOutputStream(30720);
       InputStream in = DocumentSettings.class.getResourceAsStream("/" + BaseFont.HELVETICA + ".pfb");
-      IOHelper.load(in, out, getSettings().getIntegerProperty(ReportConstants.BUFFERSIZE, ReportConstants.DEFAULTBUFFERSIZE), true);
+      IOHelper.load(in, out, getSettings().getIntegerProperty(ReportConstants.DEFAULTBUFFERSIZE, ReportConstants.BUFFERSIZE), true);
       VectorPrintBaseFont.cacheAndEmbedBuiltInFont(BaseFont.HELVETICA, out.toByteArray());
    }
 
@@ -666,7 +666,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
    }
 
    public int getPermissions() {
-      return getValue(PERMISSIONS, Integer.class);
+      return ((PermissionsParameter)getParameters().get(PERMISSIONS)).getPermission();
    }
 
    public void setPermissions(int permissions) {
@@ -694,35 +694,35 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
    }
 
    public float[] getArt() {
-      return ArrayHelper.unWrap(getValue(PDFBOX.art.name(), Float[].class));
+      return getValue(PDFBOX.art.name(), float[].class);
    }
 
    public void setArt(float[] art) {
-      setValue(PDFBOX.art.name(), ArrayHelper.wrap(art));
+      setValue(PDFBOX.art.name(), art);
    }
 
    public float[] getBleed() {
-      return ArrayHelper.unWrap(getValue(PDFBOX.bleed.name(), Float[].class));
+      return getValue(PDFBOX.bleed.name(), float[].class);
    }
 
    public void setBleed(float[] bleed) {
-      setValue(PDFBOX.bleed.name(), ArrayHelper.wrap(bleed));
+      setValue(PDFBOX.bleed.name(), bleed);
    }
 
    public float[] getCrop() {
-      return ArrayHelper.unWrap(getValue(PDFBOX.crop.name(), Float[].class));
+      return getValue(PDFBOX.crop.name(), float[].class);
    }
 
    public void setCrop(float[] crop) {
-      setValue(PDFBOX.crop.name(), ArrayHelper.wrap(crop));
+      setValue(PDFBOX.crop.name(), crop);
    }
 
    public float[] getTrim() {
-      return ArrayHelper.unWrap(getValue(PDFBOX.trim.name(), Float[].class));
+      return getValue(PDFBOX.trim.name(), float[].class);
    }
 
    public void setTrim(float[] trim) {
-      setValue(PDFBOX.trim.name(), ArrayHelper.wrap(trim));
+      setValue(PDFBOX.trim.name(), trim);
    }
    private static final Class<Object>[] classes = new Class[]{Document.class};
    private static final Set<Class> c = Collections.unmodifiableSet(new HashSet<Class>(Arrays.asList(classes)));

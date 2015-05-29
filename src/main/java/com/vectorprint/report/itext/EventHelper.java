@@ -44,6 +44,7 @@ import com.vectorprint.VectorPrintException;
 import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.annotation.Setting;
+import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactoryImpl;
 import com.vectorprint.report.ReportConstants;
 import static com.vectorprint.report.ReportConstants.DEBUG;
 import com.vectorprint.report.data.ReportDataAware;
@@ -57,6 +58,7 @@ import com.vectorprint.report.itext.style.DocumentStyler;
 import com.vectorprint.report.itext.style.StylerFactory;
 import com.vectorprint.report.itext.style.stylers.Advanced;
 import java.awt.Color;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -109,7 +111,7 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
    /**
     * the default stylers used to style the footer
     */
-   public static final String PAGEFOOTERSTYLE = "Font(size=12);Border(position=top,borderwidth=1);Padding(padding=0)";
+   public static final String[] PAGEFOOTERSTYLE = new String[]{"Font(size=12)","Border(position=top,borderwidth=1)","Padding(padding=0)"};
    /**
     * key for looking up stylers in the settings that will be used for styling the footer table. The default value for
     * this will be calculated based on document measures
@@ -137,9 +139,9 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
       if (!getSettings().containsKey(PAGEFOOTERTABLEKEY)) {
          float tot = ItextHelper.ptsToMm(document.getPageSize().getWidth() - document.leftMargin() - document.rightMargin());
          getSettings().put(PAGEFOOTERTABLEKEY, new StringBuilder("Table(columns=3,widths=")
-             .append(Math.round(tot * getSettings().getFloatProperty("footerleftwidthpercentage", 0.85f))).append('|')
-             .append(Math.round(tot * getSettings().getFloatProperty("footermiddlewidthpercentage", 0.14f))).append('|')
-             .append(Math.round(tot * getSettings().getFloatProperty("footerrightwidthpercentage", 0.01f))).append(')').toString()
+             .append(Math.round(tot * getSettings().getFloatProperty(0.85f, "footerleftwidthpercentage"))).append('|')
+             .append(Math.round(tot * getSettings().getFloatProperty(0.14f, "footermiddlewidthpercentage"))).append('|')
+             .append(Math.round(tot * getSettings().getFloatProperty(0.01f, "footerrightwidthpercentage"))).append(')').toString()
          );
       }
    }
@@ -160,7 +162,7 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
          if (failuresHereAfter || debugHereAfter) {
             PdfContentByte bg = writer.getDirectContentUnder();
             Rectangle rect = writer.getPageSize();
-            rect.setBackgroundColor(itextHelper.fromColor(getSettings().getColorProperty("legendbackground", new Color(240, 240, 240))));
+            rect.setBackgroundColor(itextHelper.fromColor(getSettings().getColorProperty(new Color(240, 240, 240), "legendbackground")));
             bg.rectangle(rect);
             bg.closePathFillStroke();
          } else {
@@ -174,7 +176,7 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
                }
             }
          }
-         if (!debugHereAfter && getSettings().getBooleanProperty(DEBUG, false)) {
+         if (!debugHereAfter && getSettings().getBooleanProperty(false, DEBUG)) {
             
             PdfContentByte canvas = writer.getDirectContent();
             
@@ -189,7 +191,7 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
          
          renderHeader(writer, document);
          maxTagForGenericTagOnPage = ((DefaultElementProducer) elementProducer).getAdvancedTag();
-         if (getSettings().getBooleanProperty(ReportConstants.PRINTFOOTER, Boolean.FALSE)) {
+         if (getSettings().getBooleanProperty(Boolean.FALSE, ReportConstants.PRINTFOOTER)) {
             renderFooter(writer, document);
          } else {
             log.warning("not printing footer, if you want page footers set " + ReportConstants.PRINTFOOTER + " to true");
@@ -247,7 +249,7 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
     */
    protected void printFailureHeader(PdfTemplate template, float x, float y) {
       Font f = DebugHelper.debugFontLink(template, getSettings());
-      Chunk c = new Chunk(getSettings().getProperty("failureheader", "failures in report, see end of report"), f);
+      Chunk c = new Chunk(getSettings().getProperty("failures in report, see end of report", "failureheader"), f);
       ColumnText.showTextAligned(template, Element.ALIGN_LEFT, new Phrase(c), x, y, 0);
    }
 
@@ -262,7 +264,7 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
     * @param y
     */
    protected void printTotalPages(PdfTemplate template, float x, float y) throws VectorPrintException, InstantiationException, IllegalAccessException {
-      if (getSettings().getBooleanProperty(ReportConstants.PRINTFOOTER, Boolean.FALSE)) {
+      if (getSettings().getBooleanProperty(Boolean.FALSE, ReportConstants.PRINTFOOTER)) {
          Phrase p = elementProducer.createElement(String.valueOf(lastPage), Phrase.class, stylerFactory.getStylers(PAGEFOOTERSTYLEKEY));
          ColumnText.showTextAligned(template, Element.ALIGN_LEFT, p, x, y, 0);
       }
@@ -278,12 +280,12 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
     * @throws VectorPrintException
     */
    private final void renderHeader(PdfWriter writer, Document document) throws DocumentException, VectorPrintException {
-      if ((!debugHereAfter && getSettings().getBooleanProperty(DEBUG, false))
-          || (!failuresHereAfter && !getSettings().getBooleanProperty(DEBUG, false))) {
+      if ((!debugHereAfter && getSettings().getBooleanProperty(false, DEBUG))
+          || (!failuresHereAfter && !getSettings().getBooleanProperty(false, DEBUG))) {
          
          writer.getDirectContent().addImage(getTemplateImage(template));
          
-         if (getSettings().getBooleanProperty(DEBUG, false)) {
+         if (getSettings().getBooleanProperty(false, DEBUG)) {
             ArrayList a = new ArrayList(2);
             a.add(PdfName.TOGGLE);
             a.add(elementProducer.initLayerGroup(DEBUG, writer.getDirectContent()));
@@ -296,7 +298,7 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
 
             elementProducer.startLayerInGroup(DEBUG, writer.getDirectContent());
             
-            h = new Chunk(getSettings().getProperty("debugheader", "go to debug legend"), f).setLocalGoto(BaseReportGenerator.DEBUGPAGE);
+            h = new Chunk(getSettings().getProperty("go to debug legend", "debugheader"), f).setLocalGoto(BaseReportGenerator.DEBUGPAGE);
             ColumnText.showTextAligned(writer.getDirectContent(), Element.ALIGN_LEFT, new Phrase(h), 10, document.top() - 3, 0);
             
             writer.getDirectContent().endLayer();
@@ -317,7 +319,7 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
    @Override
    public void onCloseDocument(PdfWriter writer, Document document) {
       super.onCloseDocument(writer, document);
-      if (getSettings().getBooleanProperty(ReportConstants.PRINTFOOTER, Boolean.FALSE)) {
+      if (getSettings().getBooleanProperty(Boolean.FALSE, ReportConstants.PRINTFOOTER)) {
          try {
             printTotalPages(template, document.right(), footerBottom);
          } catch (VectorPrintException ex) {
@@ -370,7 +372,7 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
          
          footerTable.addCell(createFooterCell(ValueHelper.createDate(new Date())));
          
-         String pageText = writer.getPageNumber() + getSettings().getProperty(UPTO, " of ");
+         String pageText = writer.getPageNumber() + getSettings().getProperty(" of ", UPTO);
          
          PdfPCell c = createFooterCell(pageText);
          c.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -470,7 +472,7 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
          }
       }
       // images
-      if (genericTag.startsWith(VectorPrintDocument.IMG_DEBUG) && getSettings().getBooleanProperty(DEBUG, false)) {
+      if (genericTag.startsWith(VectorPrintDocument.IMG_DEBUG) && getSettings().getBooleanProperty(false, DEBUG)) {
          // only now we can define a goto action, we know the position of the image
          if (rectangles.containsKey(genericTag)) {
             Rectangle rectangle = imageRectFromChunk(genericTag, rect);
@@ -487,7 +489,7 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
          for (Advanced a : doOnGenericTag.get(genericTag)) {
             try {
                if (++i > 0 && a.shouldDraw(a.getDelayed(genericTag).getData())) {
-                  if (getSettings().getBooleanProperty(DEBUG, false)) {
+                  if (getSettings().getBooleanProperty(false, DEBUG)) {
                      DebugHelper.styleLink(writer.getDirectContent(), a.getStyleClass(), "draw near", rectangle.getLeft(), rectangle.getTop(), getSettings(), elementProducer);
                   }
                   a.draw(rectangle, genericTag);

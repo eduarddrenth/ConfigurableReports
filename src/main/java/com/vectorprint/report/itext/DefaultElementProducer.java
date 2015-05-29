@@ -424,7 +424,7 @@ public class DefaultElementProducer implements ElementProducer, LayerManager {
    public void loadPdf(InputStream pdf, PdfWriter writer, byte[] password, ImageProcessor imageProcessor, int... pages) throws VectorPrintException {
       BufferedInputStream in = null;
       try {
-         in = new BufferedInputStream(pdf, settings.getIntegerProperty(ReportConstants.BUFFERSIZE, ReportConstants.DEFAULTBUFFERSIZE));
+         in = new BufferedInputStream(pdf, settings.getIntegerProperty(ReportConstants.DEFAULTBUFFERSIZE, ReportConstants.BUFFERSIZE));
          PdfReader reader = new PdfReader(in, password);
          if (pages == null) {
             for (int i = 0; i < reader.getNumberOfPages();) {

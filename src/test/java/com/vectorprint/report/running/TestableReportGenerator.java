@@ -36,12 +36,13 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.vectorprint.VectorPrintException;
-import com.vectorprint.configuration.parameters.MultipleValueParser;
+import com.vectorprint.configuration.binding.BindingHelperImpl;
 import com.vectorprint.report.data.DataCollectionMessages;
 import com.vectorprint.report.data.ReportDataHolder;
 import com.vectorprint.report.itext.BaseReportGenerator;
 import com.vectorprint.report.itext.DefaultElementProducer;
 import com.vectorprint.report.itext.EventHelper;
+import java.net.URL;
 import java.util.Date;
 
 /**
@@ -59,6 +60,8 @@ public class TestableReportGenerator extends BaseReportGenerator<ReportDataHolde
       super(new EventHelper<ReportDataHolder>(), new DefaultElementProducer());
       didCreate = false;
    }
+   
+   private static BindingHelperImpl conversion = new BindingHelperImpl();
 
    @Override
    protected void createReportBody(Document document, ReportDataHolder data, com.itextpdf.text.pdf.PdfWriter writer) throws DocumentException, VectorPrintException {
@@ -239,11 +242,11 @@ public class TestableReportGenerator extends BaseReportGenerator<ReportDataHolde
          com.vectorprint.report.itext.style.stylers.Image ims
              = new com.vectorprint.report.itext.style.stylers.Image(this, this, document, writer, getSettings());
          // the setters here could also be done from setup
-         ims.setUrl(MultipleValueParser.URL_PARSER.parseString(getSettings().getProperty(ThreadSafeReportBuilder.CONFIG_URL)
-             + "/" + "zon.pdf"));
+         ims.setUrl(conversion.convert(getSettings().getProperty(ThreadSafeReportBuilder.CONFIG_URL)
+             + "/" + "zon.pdf",URL.class));
          ims.setPdf(true);
          ims.setShifty(50);
-         ims.setTransform(new Float[]{2f, 25f, 2f, 2f, 0f, 0f});
+         ims.setTransform(new float[]{2f, 25f, 2f, 2f, 0f, 0f});
          ims.setShiftx(document.getPageSize().getLeft());
          if (writer.getPDFXConformance() != PdfWriter.PDFX1A2001) {
             ims.setOpacity(0.3f);
@@ -251,8 +254,8 @@ public class TestableReportGenerator extends BaseReportGenerator<ReportDataHolde
          ims.draw(new Rectangle(10, 10, 100, 100), "");
          newLine();
          if (writer.getPDFXConformance() != PdfWriter.PDFX1A2001) {
-            document.add(loadImage(MultipleValueParser.URL_PARSER.parseString(getSettings().getProperty(ThreadSafeReportBuilder.CONFIG_URL)
-                + "/" + "pointer.png"), 1));
+            document.add(loadImage(conversion.convert(getSettings().getProperty(ThreadSafeReportBuilder.CONFIG_URL)
+                + "/" + "pointer.png",URL.class), 1));
          }
          newLine();
 

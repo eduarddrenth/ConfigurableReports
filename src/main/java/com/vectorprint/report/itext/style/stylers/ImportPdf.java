@@ -91,7 +91,7 @@ public class ImportPdf extends ImportTiff {
          return getImageBeingProcessed();
       }
       this.data = data;
-      boolean doFooter = getSettings().getBooleanProperty(ReportConstants.PRINTFOOTER, Boolean.FALSE);
+      boolean doFooter = getSettings().getBooleanProperty(Boolean.FALSE, ReportConstants.PRINTFOOTER);
       
       if (doFooter && getValue(NOFOOTER, Boolean.class)) {
          getSettings().put(ReportConstants.PRINTFOOTER, "false");
@@ -106,8 +106,8 @@ public class ImportPdf extends ImportTiff {
          KeyStore ks = null;
          try {
             ks = CertificateHelper.loadKeyStore(getValue(DocumentSettings.KEYSTORE, URL.class).openStream(), getValue(KEYSTORETYPE_PARAM, DocumentSettings.KEYSTORETYPE.class).name(), pw.clone());
-            String alias = getSettings().getProperty(KEYSTOREALIAS, DEFAULTKEYSTORE_ALIAS);
-            String provider = getSettings().getProperty(SECURITYPROVIDER, DEFAULTSECURITYPROVIDER);
+            String alias = getSettings().getProperty(DEFAULTKEYSTORE_ALIAS, KEYSTOREALIAS);
+            String provider = getSettings().getProperty(DEFAULTSECURITYPROVIDER, SECURITYPROVIDER);
             getImageLoader().loadPdf(
                 getValue(Image.URLPARAM, URL.class).openStream(),
                 getWriter(), ks.getCertificate(alias), CertificateHelper.getKey(ks, alias, pw.clone()), provider, this,

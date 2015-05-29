@@ -26,7 +26,6 @@ package com.vectorprint.report.itext.style.parameters;
  * #L%
  */
 
-import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.parameters.ParameterImpl;
 import com.vectorprint.report.itext.style.stylers.DocumentSettings;
 
@@ -40,10 +39,5 @@ public class EncryptionParameter extends ParameterImpl<DocumentSettings.ENCRYPTI
       super(key, help);
    }
 
-   @Override
-   public DocumentSettings.ENCRYPTION convert(String value) throws VectorPrintRuntimeException {
-      return DocumentSettings.ENCRYPTION.valueOf(value.toUpperCase());
-   }
-   
 
 }

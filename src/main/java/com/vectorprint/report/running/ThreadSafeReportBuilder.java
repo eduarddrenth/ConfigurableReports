@@ -151,7 +151,7 @@ public class ThreadSafeReportBuilder<RD extends ReportDataHolder> extends Report
     * @throws IOException
     */
    public ThreadSafeReportBuilder(String configUrl, String[] propertyUrls,
-       List<PrepareKeyValue<String, String>> observers)
+       List<PrepareKeyValue<String, String[]>> observers)
        throws IOException, VectorPrintException, ParseException {
       this(initProperties(propertyUrls, configUrl, observers));
    }
@@ -173,8 +173,8 @@ public class ThreadSafeReportBuilder<RD extends ReportDataHolder> extends Report
     * @param trimKeyValues when true add a {@link TrimKeyValue}
     * @return
     */
-   public static List<PrepareKeyValue<String, String>> initObservers(boolean allowEmptyValues, boolean trimKeyValues) {
-      List<PrepareKeyValue<String, String>> observers = new LinkedList<PrepareKeyValue<String, String>>();
+   public static List<PrepareKeyValue<String, String[]>> initObservers(boolean allowEmptyValues, boolean trimKeyValues) {
+      List<PrepareKeyValue<String, String[]>> observers = new LinkedList<PrepareKeyValue<String, String[]>>();
       HandleEmptyValues emptiesNOTOK = new HandleEmptyValues(allowEmptyValues);
 
       emptiesNOTOK.addKeyToSkip(ReportConstants.VERSION);
@@ -199,10 +199,19 @@ public class ThreadSafeReportBuilder<RD extends ReportDataHolder> extends Report
     * @throws VectorPrintException
     */
    public static EnhancedMap initProperties(String[] propertyFileNames, String configUrl,
-       List<PrepareKeyValue<String, String>> observers)
-       throws IOException, VectorPrintException, ParseException {
+       List<PrepareKeyValue<String, String[]>> observers)
+       throws IOException, VectorPrintException {
       if (propertyFileNames == null || propertyFileNames.length == 0) {
          throw new VectorPrintException("we need at least one property file");
+      }
+      try {
+         initSyntaxFactories();
+      } catch (ClassNotFoundException ex) {
+         throw new VectorPrintException(ex);
+      } catch (InstantiationException ex) {
+         throw new VectorPrintException(ex);
+      } catch (IllegalAccessException ex) {
+         throw new VectorPrintException(ex);
       }
       ParsingProperties pp = null;
 

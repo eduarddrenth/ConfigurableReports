@@ -76,7 +76,7 @@ public class Text extends AbstractPositioning<String> {
       canvas.beginText();
       canvas.showTextAligned(Element.ALIGN_LEFT, getData(), x, y, getRotate());
       canvas.endText();
-      if (getSettings().getBooleanProperty(ReportConstants.DEBUG, Boolean.FALSE)) {
+      if (getSettings().getBooleanProperty(Boolean.FALSE, ReportConstants.DEBUG)) {
          DebugHelper.styleLink(canvas, getStyleClass(),
              " (styling)",
              x, y, getSettings(), getLayerManager());

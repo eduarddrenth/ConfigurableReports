@@ -4,6 +4,8 @@
  */
 package com.vectorprint.report.itext.style.parameters;
 
+import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactory;
+
 /*
  * #%L
  * VectorPrintReport
@@ -24,15 +26,10 @@ package com.vectorprint.report.itext.style.parameters;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-import com.vectorprint.ArrayHelper;
-import com.vectorprint.VectorPrintRuntimeException;
-import com.vectorprint.configuration.parameters.MultipleValueParser;
-import com.vectorprint.configuration.parameters.ValueParser;
-import com.vectorprint.configuration.parser.ParseException;
-import com.vectorprint.report.itext.ItextHelper;
 
 /**
- * A Parameter converting from millimeters in configuration to points in iText
+ * A Parameter for converting from millimeters in configuration to points in iText. Actual conversion
+ * is done through {@link ParameterizableBindingFactory binding}
  *
  * @author Eduard Drenth at VectorPrint.nl
  */
@@ -40,34 +37,6 @@ public class FloatArrayParameter extends com.vectorprint.configuration.parameter
 
    public FloatArrayParameter(String key, String help) {
       super(key, help);
-   }
-
-   private static final ToPtsFloatParser TO_PTS_FLOAT_PARSER = new ToPtsFloatParser();
-
-   public static class ToPtsFloatParser implements ValueParser<Float> {
-
-      @Override
-      public Float parseString(String val) {
-         return ItextHelper.mmToPts(Float.parseFloat(val));
-      }
-   }
-
-   /**
-    *
-    * @throws VectorPrintRuntimeException
-    */
-   @Override
-   public Float[] convert(String value) throws VectorPrintRuntimeException {
-      try {
-         return ArrayHelper.toArray(MultipleValueParser.getParamInstance().parseValues(value, TO_PTS_FLOAT_PARSER));
-      } catch (ParseException ex) {
-         throw new VectorPrintRuntimeException(ex);
-      }
-   }
-
-   @Override
-   protected String valueToString(Object value) {
-      return super.valueToString(ItextHelper.ptsToMm((Float) value));
    }
 
 }
