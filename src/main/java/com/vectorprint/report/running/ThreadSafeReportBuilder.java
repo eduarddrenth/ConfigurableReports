@@ -24,6 +24,7 @@ package com.vectorprint.report.running;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.Settings;
+import static com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactoryImpl.PARAMHELPER;
 import com.vectorprint.configuration.decoration.CachingProperties;
 import com.vectorprint.configuration.decoration.FindableProperties;
 import com.vectorprint.configuration.decoration.HelpSupportedProperties;
@@ -36,6 +37,7 @@ import com.vectorprint.configuration.observing.TrimKeyValue;
 import com.vectorprint.configuration.parser.ParseException;
 import com.vectorprint.report.ReportConstants;
 import com.vectorprint.report.data.ReportDataHolder;
+import com.vectorprint.report.itext.style.parameters.ReportBindingHelper;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -188,8 +190,8 @@ public class ThreadSafeReportBuilder<RD extends ReportDataHolder> extends Report
    }
 
    /**
-    * Initializes {@link ParsingProperties} from the arguments, adds a property
-    * {@link #CONFIG_URL} and calls {@link #wrapProperties(com.vectorprint.configuration.EnhancedMap)  }.
+    * Initializes {@link ParsingProperties} from the arguments, adds a property {@link #CONFIG_URL} and calls {@link #wrapProperties(com.vectorprint.configuration.EnhancedMap)
+    * }.
     *
     * @param propertyFileNames
     * @param configUrl
@@ -203,15 +205,6 @@ public class ThreadSafeReportBuilder<RD extends ReportDataHolder> extends Report
        throws IOException, VectorPrintException {
       if (propertyFileNames == null || propertyFileNames.length == 0) {
          throw new VectorPrintException("we need at least one property file");
-      }
-      try {
-         initSyntaxFactories();
-      } catch (ClassNotFoundException ex) {
-         throw new VectorPrintException(ex);
-      } catch (InstantiationException ex) {
-         throw new VectorPrintException(ex);
-      } catch (IllegalAccessException ex) {
-         throw new VectorPrintException(ex);
       }
       ParsingProperties pp = null;
 
@@ -245,9 +238,9 @@ public class ThreadSafeReportBuilder<RD extends ReportDataHolder> extends Report
             throw new VectorPrintException(ex);
          }
       } else {
-         log.warning(String.format("%s does not exist, no help available for settings (format <key>=<type>;<help text>)", 
+         log.warning(String.format("%s does not exist, no help available for settings (format <key>=<type>;<help text>)",
              new File(mp.getProperty(CONFIG_URL) + File.separator + HELPFILE).getPath()));
-            return new ThreadSafeProperties(new CachingProperties(new FindableProperties(mp)));
+         return new ThreadSafeProperties(new CachingProperties(new FindableProperties(mp)));
       }
    }
 

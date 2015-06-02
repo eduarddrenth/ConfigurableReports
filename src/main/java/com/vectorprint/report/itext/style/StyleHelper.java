@@ -39,6 +39,7 @@ import com.vectorprint.report.itext.VectorPrintDocument;
 import com.vectorprint.report.itext.style.stylers.AbstractStyler;
 import com.vectorprint.report.itext.style.stylers.Advanced;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
@@ -110,10 +111,17 @@ public class StyleHelper {
                      e = (E) styler.style(e, data);
                   }
                } else {
-                  log.log(Level.WARNING, "a condition ({2}) prevents {0} from styling {1}",
-                      new Object[]{styler.getClass().getSimpleName(), (null != e)
-                         ? e.getClass().getSimpleName()
-                         : "null", getConditionConfig(styler.getConditions())});
+                  if (styler.getConditions().isEmpty()) {
+                     log.log(Level.WARNING, "the implementation of shouldStyle in {0} prevents styling {1}",
+                         new Object[]{styler.getClass().getSimpleName(), (null != e)
+                            ? e.getClass().getSimpleName()
+                            : "null"});
+                  } else {
+                     log.log(Level.WARNING, "a condition ({2}) prevents {0} from styling {1}",
+                         new Object[]{styler.getClass().getSimpleName(), (null != e)
+                            ? e.getClass().getSimpleName()
+                            : "null", getConditionConfig(styler.getConditions())});
+                  }
                }
             } else {
                if (log.isLoggable(Level.FINE)) {
@@ -135,7 +143,7 @@ public class StyleHelper {
          if (AbstractStyler.NOT_FROM_CONFIGURATION.equals(sc.getConfigKey())) {
             sb.append(sc.getClass().getSimpleName()).append(": ").append(sc.getParameters());
          } else {
-            sb.append(sc.getSettings().get(sc.getConfigKey())).append(", ");
+            sb.append(Arrays.toString(sc.getSettings().get(sc.getConfigKey()))).append(", ");
          }
       }
       return sb.toString();

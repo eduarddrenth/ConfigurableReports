@@ -62,6 +62,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -298,7 +299,9 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
                if (p.equals(cssProperty)) {
                   String paramKey = e.getKey().substring(e.getKey().indexOf('.') + 1);
                   parameters.add(getParameters().get(paramKey));
-                  LOGGER.info(String.format("parameter %s in %s implements css property %s", getClass().getName(),getParameters().get(paramKey).toString(), cssProperty));
+                  if (LOGGER.isLoggable(Level.FINE)) {
+                     LOGGER.fine(String.format("parameter %s in %s implements css property %s", getClass().getName(),getParameters().get(paramKey).toString(), cssProperty));
+                  }
                }
             }
          }

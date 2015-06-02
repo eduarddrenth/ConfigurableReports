@@ -26,6 +26,7 @@ package com.vectorprint.report.data;
  */
 
 import com.vectorprint.report.data.ReportDataHolder.IdData;
+import com.vectorprint.report.itext.style.parameters.ReportBindingHelper;
 
 /**
  * Default implementation of a DataCollector, uses ReportDataHolderImpl as generic parameters
@@ -43,6 +44,11 @@ public abstract class DataCollectorImpl implements DataCollector<ReportDataHolde
    @Override
    public void add(Object data, String id) {
       getDataHolder().add(new IdData(data, id));
+   }
+
+   @Override
+   public Class<? extends ReportBindingHelper> getDefaultBindingHelperClass() {
+      return ReportBindingHelper.class;
    }
 
 }

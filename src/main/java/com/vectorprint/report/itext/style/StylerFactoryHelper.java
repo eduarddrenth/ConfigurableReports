@@ -113,7 +113,9 @@ public class StylerFactoryHelper {
             BaseStyler bs = (BaseStyler) c.newInstance();
             if (bs.findForCssProperty(cssName) != null && !bs.findForCssProperty(cssName).isEmpty()) {
                stylers.add(bs);
-               LOGGER.info(String.format("found %s supporting css property %s", cssName, bs.getClass().getName()));
+               if (LOGGER.isLoggable(Level.FINE)) {
+                  LOGGER.fine(String.format("found %s supporting css property %s", cssName, bs.getClass().getName()));
+               }
             }
          }
       }

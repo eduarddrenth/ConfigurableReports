@@ -30,6 +30,7 @@ import com.vectorprint.VectorPrintException;
 import com.vectorprint.VersionInfo;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.Settings;
+import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactory;
 import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactoryImpl;
 import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactory;
 import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactoryImpl;
@@ -60,8 +61,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactoryImpl.*;
-import static com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactoryImpl.*;
 import com.vectorprint.report.itext.style.parameters.ReportBindingHelper;
 
 /**
@@ -89,6 +88,7 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
          throw new IllegalArgumentException("properties may not be null");
       }
       this.settings = properties;
+      bindingFactory = EnhancedMapBindingFactoryImpl.getDefaultFactory();
    }
 
    /**
@@ -203,7 +203,8 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
 
    /**
     * Instantiates a report generator based on a property {@link #REPORTCLASS}, defaults to {@link
-    * BaseReportGenerator}
+    * BaseReportGenerator}. Sets the system property {@link ParameterizableBindingFactoryImpl#PARAMHELPER} to
+    * {@link #getBindingHelperClass() }.
     *
     * @return
     */
@@ -254,25 +255,7 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
       }
       return EXITNOSETTINGS;
    }
-
-   private static <T> Class<T> findClass(String systemProperty, Class<T> clazz) throws ClassNotFoundException {
-      if (System.getProperty(systemProperty) != null) {
-         return (Class<T>) Class.forName(System.getProperty(systemProperty));
-      } else {
-         return clazz;
-      }
-   }
-
-   protected static void initSyntaxFactories() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-      ParameterizableBindingFactoryImpl.getFactory(findClass(PARAMPARSER, PARAMPARSERCLASS),
-          findClass(PARAMSERIALIZER, PARAMSERIALIZERCLASS),
-          findClass(PARAMHELPER, ReportBindingHelper.class).newInstance(), true);
-      EnhancedMapBindingFactoryImpl.getFactory(findClass(SETTINGSPARSER, SETTINGSPARSERCLASS),
-          findClass(SETTINGSSERIALIZER, SETTINGSSERIALIZERCLASS),
-          findClass(SETTINGSHELPER, SETTINGSHELPERCLASS).newInstance(), true);
-      bindingFactory = EnhancedMapBindingFactoryImpl.getDefaultFactory();
-   }
-
+   
    /**
     * if the first argument is a file, this file is assumed to be the settings file, otherwise settings are searched
     * using {@link #CONFIG_FILE}. When no settings are found help will be printed to standard out.
@@ -298,7 +281,6 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
              2 parser classes, 2 serializer classes and 2 bindinghelper class
             
              */
-            initSyntaxFactories();
             System.exit(new ReportRunner(new ParsingProperties(new Settings(), args[0])).buildReport(shiftArgs));
          }
       }
@@ -309,7 +291,7 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
       }
    }
 
-   private static EnhancedMapBindingFactory bindingFactory;
+   private final EnhancedMapBindingFactory bindingFactory;
 
    /**
     * Bottleneck method, writes report to stream argument, calls {@link BaseReportGenerator#generate(com.vectorprint.report.data.ReportDataHolder, java.io.OutputStream)
@@ -347,6 +329,19 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
          }
 
          DataCollector<RD> dc = getDataCollector();
+         // init bindinghelper now
+         String clazz = System.getProperty(ParameterizableBindingFactoryImpl.PARAMHELPER);
+         if (clazz==null) {
+            System.setProperty(ParameterizableBindingFactoryImpl.PARAMHELPER,dc.getDefaultBindingHelperClass().getName());
+         } else {
+            Class<?> forName = Class.forName(clazz);
+            if (!ReportBindingHelper.class.isAssignableFrom(forName)) {
+               throw new VectorPrintException(String.format("%s, from system property %s is not a %s", clazz, ParameterizableBindingFactoryImpl.PARAMHELPER,
+                   ReportBindingHelper.class.getName()));
+            } else {
+            System.setProperty(ParameterizableBindingFactoryImpl.PARAMHELPER,clazz);
+            }
+         }
          ReportGenerator<RD> rg = getReportGenerator();
 
          StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(rg, settings);

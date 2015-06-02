@@ -21,7 +21,10 @@ package com.vectorprint.report.data;
  * #L%
  */
 //~--- non-JDK imports --------------------------------------------------------
+import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactory;
+import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactoryImpl;
 import com.vectorprint.report.itext.mappingconfig.model.DataMapping;
+import com.vectorprint.report.itext.style.parameters.ReportBindingHelper;
 import com.vectorprint.report.running.ReportBuilder;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -55,4 +58,14 @@ public interface DataCollector<RD extends ReportDataHolder> {
     * @param id the optional id of the data for {@link DataMapping}
     */
    void add(Object data, String id);
+   
+   /**
+    * return the class to be used as {@link ParameterizableBindingFactory#getBindingHelper() }, NOTE
+    * that this will not override the class indicated by {@link ParameterizableBindingFactoryImpl#PARAMHELPER}.
+    * 
+    * @see ParameterizableBindingFactoryImpl#PARAMHELPER
+    * @return 
+    */
+   Class<? extends ReportBindingHelper> getDefaultBindingHelperClass();
 }
+

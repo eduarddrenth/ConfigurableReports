@@ -136,6 +136,7 @@ public class ConfigurableReportBuilderTest {
    @Before
    public void setUp() throws IOException, VectorPrintException, ParseException {
       init(true);
+      System.getProperties().remove(ParameterizableBindingFactoryImpl.PARAMHELPER);
       TestableReportGenerator.setDidCreate(false);
       TestableReportGenerator.setForceException(false);
 
@@ -228,6 +229,16 @@ public class ConfigurableReportBuilderTest {
    public void testToStream() throws Exception {
       instance.buildReport(new String[]{}, new FileOutputStream(TARGET + "testToStream.pdf"));
       assertTrue(TestableReportGenerator.isDidCreate());
+   }
+
+   @Test
+   public void testBindingHelper() throws Exception {
+      System.setProperty(ParameterizableBindingFactoryImpl.PARAMHELPER, "java.lang.Long");
+      try {
+         instance.buildReport(new String[]{}, new FileOutputStream(TARGET + "testToStream.pdf"));
+      } catch (VectorPrintException vectorPrintException) {
+         assertTrue(vectorPrintException.getMessage().contains("is not a " + ReportBindingHelper.class.getName()));
+      }
    }
 
    @Test
@@ -530,10 +541,10 @@ public class ConfigurableReportBuilderTest {
                         ParameterizableBindingFactoryImpl.getDefaultFactory().getParser(new StringReader("")).parseAsParameterValue(stringConversion.serializeValue(p.getValue()), p);
                      }
                   } catch (NumberFormatException runtimeException) {
-                     runtimeException.printStackTrace();
+                        System.out.println(runtimeException.getMessage());
                   } catch (IllegalArgumentException runtimeException) {
                      if (runtimeException.getMessage().contains("No enum const")) {
-                        runtimeException.printStackTrace();
+                        System.out.println(runtimeException.getMessage());
                      } else {
                         throw runtimeException;
                      }
@@ -542,7 +553,7 @@ public class ConfigurableReportBuilderTest {
                          || runtimeException.getCause() instanceof NoSuchFieldException
                          || runtimeException.getCause() instanceof ClassNotFoundException
                          || runtimeException.getMessage().contains("No basefont for: ")) {
-                        runtimeException.printStackTrace();
+                        System.out.println(runtimeException.getMessage());
                      } else {
                         throw runtimeException;
                      }
