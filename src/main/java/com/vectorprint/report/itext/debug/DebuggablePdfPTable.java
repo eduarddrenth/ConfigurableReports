@@ -30,6 +30,7 @@ import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfPTableEvent;
+import com.vectorprint.VectorPrintRuntimeException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -88,7 +89,11 @@ public class DebuggablePdfPTable extends PdfPTable {
       }
 
       private void process() {
+         if (widths!=null) {
             orig.tableLayout(table, widths, heights, headerRows, rowStart, canvases);
+         } else {
+            throw new VectorPrintRuntimeException("table layout not called yet?");
+         }
       }
 
       @Override

@@ -36,7 +36,7 @@ import com.vectorprint.report.itext.style.stylers.Font;
 public class FontEncodingParameter extends ParameterImpl<Font.ENCODING>{
 
    public FontEncodingParameter(String key, String help) {
-      super(key, help);
+      super(key, help,Font.ENCODING.class);
    }
 
 }

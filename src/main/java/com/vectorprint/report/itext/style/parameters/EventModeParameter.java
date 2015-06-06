@@ -31,7 +31,7 @@ import com.vectorprint.report.itext.style.stylers.Advanced;
 public class EventModeParameter extends ParameterImpl<Advanced.EVENTMODE>{
 
    public EventModeParameter(String key, String help) {
-      super(key, help);
+      super(key, help, Advanced.EVENTMODE.class);
    }
 
 }

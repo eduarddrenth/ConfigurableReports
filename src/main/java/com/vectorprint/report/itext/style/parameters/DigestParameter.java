@@ -16,7 +16,7 @@ import com.vectorprint.report.itext.style.stylers.DocumentSettings;
 public class DigestParameter extends ParameterImpl<DocumentSettings.DIGESTALGORITHM> {
 
    public DigestParameter(String key, String help) {
-      super(key, help);
+      super(key, help,DocumentSettings.DIGESTALGORITHM.class);
    }
 
 }

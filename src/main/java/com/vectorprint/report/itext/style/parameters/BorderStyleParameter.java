@@ -31,7 +31,7 @@ import com.vectorprint.report.itext.style.stylers.FieldBorder;
 public class BorderStyleParameter extends ParameterImpl<FieldBorder.BORDERSTYLE> {
 
    public BorderStyleParameter(String key, String help) {
-      super(key, help);
+      super(key, help, FieldBorder.BORDERSTYLE.class);
    }
 
 }

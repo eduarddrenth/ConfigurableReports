@@ -36,7 +36,7 @@ import com.vectorprint.report.itext.style.stylers.Font;
 public class FontStyleParameter extends ParameterImpl<Font.STYLE>{
 
    public FontStyleParameter(String key, String help) {
-      super(key, help);
+      super(key, help,Font.STYLE.class);
    }
 
 

@@ -36,7 +36,7 @@ import com.vectorprint.report.itext.style.stylers.Advanced;
 public class BlendParameter extends ParameterImpl<Advanced.BLENDMODE> {
 
    public BlendParameter(String key, String help) {
-      super(key, help);
+      super(key, help, Advanced.BLENDMODE.class);
    }
 
 }

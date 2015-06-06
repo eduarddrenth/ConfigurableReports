@@ -257,7 +257,7 @@ public interface BaseStyler extends Parameterizable, DocumentAware {
     * @see DefaultStylerFactory
     * @param className
     */
-   BaseStyler setConfigKey(String key);
+   BaseStyler setStyleClass(String key);
 
    /**
     * get the key in the configuration that declared this styler
@@ -294,5 +294,4 @@ public interface BaseStyler extends Parameterizable, DocumentAware {
     */
    Collection<Parameter> findForCssProperty(String cssProperty);
 
-   EnhancedMap getSettings();
 }

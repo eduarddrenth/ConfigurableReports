@@ -128,7 +128,7 @@ public class DefaultStylerFactory implements StylerFactory {
    private final List<ImportTiff> imtiff = new ArrayList<ImportTiff>(1);
    private final List<SimpleColumns> imcol = new ArrayList<SimpleColumns>(1);
 
-   private <S extends BaseStyler> Collection<S> getStylers(String styleClass, Class<S> clazz, String pkg)
+   private <S extends BaseStyler> Collection<S> getStylers(String styleClass, String pkg)
        throws VectorPrintException {
 
       if (!cache.containsKey(styleClass)) {
@@ -144,7 +144,7 @@ public class DefaultStylerFactory implements StylerFactory {
                continue;
             }
 
-            stylers.add((S) getStyler(classNameWithParams, clazz, pkg).setConfigKey(styleClass));
+            stylers.add((S) getStyler(classNameWithParams, pkg).setStyleClass(styleClass));
          }
 
          cache.put(styleClass, stylers);
@@ -165,7 +165,7 @@ public class DefaultStylerFactory implements StylerFactory {
     * @return
     * @throws VectorPrintException
     */
-   private <S extends BaseStyler> S getStyler(String classNameWithParams, Class<S> clazz, String pkg) throws VectorPrintException {
+   private <S extends BaseStyler> S getStyler(String classNameWithParams, String pkg) throws VectorPrintException {
       S st = (S) getParser(new StringReader(classNameWithParams))
              .setSettings(settings).setPackageName(pkg)
              .parseParameterizable();
@@ -223,13 +223,13 @@ public class DefaultStylerFactory implements StylerFactory {
     */
    @Override
    public List<BaseStyler> getStylers(String... styleClasses) throws VectorPrintException {
-      List<BaseStyler> stylers = preStyle(new ArrayList<BaseStyler>(styleClasses.length + 4), BaseStyler.class, styleClasses);
+      List<BaseStyler> stylers = preStyle(new ArrayList<BaseStyler>(styleClasses.length + 4), styleClasses);
 
       for (String name : styleClasses) {
-         stylers.addAll(getStylers(name, BaseStyler.class, STYLERPACKAGENAME));
+         stylers.addAll(getStylers(name, STYLERPACKAGENAME));
       }
 
-      postStyle(stylers, BaseStyler.class, styleClasses);
+      postStyle(stylers, styleClasses);
       return stylers;
    }
 
@@ -272,7 +272,7 @@ public class DefaultStylerFactory implements StylerFactory {
          try {
             EventHelper ph = (EventHelper) writer.getPageEvent();
             // init page stylers
-            Collection<BaseStyler> p = getStylers(PAGESTYLERS, BaseStyler.class, STYLERPACKAGENAME);
+            Collection<BaseStyler> p = getStylers(PAGESTYLERS, STYLERPACKAGENAME);
             for (BaseStyler s : p) {
                if (s instanceof Advanced) {
                   ph.addStylerForEachPage((Advanced) s);
@@ -312,17 +312,17 @@ public class DefaultStylerFactory implements StylerFactory {
       return containsFirstLast;
    }
 
-   private <B extends BaseStyler> List<B> preStyle(List<B> stylers, Class<B> clazz, String... styleClasses) throws VectorPrintException {
+   private <B extends BaseStyler> List<B> preStyle(List<B> stylers, String... styleClasses) throws VectorPrintException {
 
       if (doFirstLast && !containsFirstLast(styleClasses) && settings.containsKey(DEFAULTSTYLERSFIRST)) {
-         stylers.addAll(getStylers(DEFAULTSTYLERSFIRST, clazz, STYLERPACKAGENAME));
+         stylers.addAll((Collection<? extends B>) getStylers(DEFAULTSTYLERSFIRST, STYLERPACKAGENAME));
       }
       return stylers;
    }
 
-   private <B extends BaseStyler> void postStyle(List<B> stylers, Class<B> clazz, String... styleClasses) throws VectorPrintException {
+   private <B extends BaseStyler> void postStyle(List<B> stylers, String... styleClasses) throws VectorPrintException {
       if (doFirstLast && !containsFirstLast(styleClasses) && settings.containsKey(DEFAULTSTYLERSLAST)) {
-         stylers.addAll(getStylers(DEFAULTSTYLERSLAST, clazz, STYLERPACKAGENAME));
+         stylers.addAll((Collection<? extends B>) getStylers(DEFAULTSTYLERSLAST, STYLERPACKAGENAME));
       }
 
       impdf.clear();

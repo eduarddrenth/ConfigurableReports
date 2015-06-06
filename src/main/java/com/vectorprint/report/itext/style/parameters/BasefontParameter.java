@@ -35,7 +35,7 @@ import com.vectorprint.configuration.parameters.ParameterImpl;
 public class BasefontParameter extends ParameterImpl<BaseFontWrapper>{
 
    public BasefontParameter(String key, String help) {
-      super(key, help);
+      super(key, help, BaseFontWrapper.class);
    }
 
    @Override

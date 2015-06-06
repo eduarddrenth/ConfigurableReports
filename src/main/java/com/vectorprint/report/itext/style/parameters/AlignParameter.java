@@ -36,7 +36,7 @@ import com.vectorprint.report.itext.style.BaseStyler;
 public class AlignParameter extends ParameterImpl<BaseStyler.ALIGN>{
 
    public AlignParameter(String key, String help) {
-      super(key, help);
+      super(key, help, BaseStyler.ALIGN.class);
    }   
 
 }

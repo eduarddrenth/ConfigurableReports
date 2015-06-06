@@ -26,7 +26,6 @@ package com.vectorprint.report.itext.style.parameters;
  * #L%
  */
 
-import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.parameters.ParameterImpl;
 import com.vectorprint.report.itext.style.stylers.Barcode;
 
@@ -37,7 +36,7 @@ import com.vectorprint.report.itext.style.stylers.Barcode;
 public class BarcodeParameter extends ParameterImpl<Barcode.BARCODE>{
 
    public BarcodeParameter(String key, String help) {
-      super(key, help);
+      super(key, help, Barcode.BARCODE.class);
    }
    
 

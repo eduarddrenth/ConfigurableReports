@@ -36,7 +36,7 @@ import com.vectorprint.report.itext.style.FormFieldStyler;
 public class FieldTypeParameter extends ParameterImpl<FormFieldStyler.FIELDTYPE>{
 
    public FieldTypeParameter(String key, String help) {
-      super(key, help);
+      super(key, help,FormFieldStyler.FIELDTYPE.class);
    }
 
 

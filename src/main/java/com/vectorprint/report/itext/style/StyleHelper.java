@@ -93,12 +93,12 @@ public class StyleHelper {
             if (styler.canStyle(e)) {
                if (styler.shouldStyle(data, e)) {
                   if (styler instanceof Advanced) {
-                     Advanced.EVENTMODE mode = ((Advanced)styler).getEventmode();
+                     Advanced.EVENTMODE mode = ((Advanced) styler).getEventmode();
                      if (e instanceof PdfPTable && (Advanced.EVENTMODE.ALL.equals(mode) || Advanced.EVENTMODE.TABLE.equals(mode))) {
-                        ((PdfPTable)e).setTableEvent((PdfPTableEvent) styler);
+                        ((PdfPTable) e).setTableEvent((PdfPTableEvent) styler);
                      }
                      if (e instanceof PdfPCell && (Advanced.EVENTMODE.ALL.equals(mode) || Advanced.EVENTMODE.CELL.equals(mode))) {
-                        ((PdfPCell)e).setCellEvent((PdfPCellEvent) styler);
+                        ((PdfPCell) e).setCellEvent((PdfPCellEvent) styler);
                      }
                   }
                   if (styler.styleAfterAdding()) {
@@ -106,29 +106,31 @@ public class StyleHelper {
                         log.log(Level.FINE, "schedule styling {0} after adding to document: {1}",
                             new Object[]{e, styler.toString()});
                      }
-                     vpd.addHook(new VectorPrintDocument.AddElementHook(VectorPrintDocument.AddElementHook.INTENTION.STYLELATER,(Element) e, styler,styler.getStyleClass()));
+                     vpd.addHook(new VectorPrintDocument.AddElementHook(VectorPrintDocument.AddElementHook.INTENTION.STYLELATER, (Element) e, styler, styler.getStyleClass()));
                   } else {
                      e = (E) styler.style(e, data);
                   }
                } else {
-                  if (styler.getConditions().isEmpty()) {
-                     log.log(Level.WARNING, "the implementation of shouldStyle in {0} prevents styling {1}",
-                         new Object[]{styler.getClass().getSimpleName(), (null != e)
-                            ? e.getClass().getSimpleName()
-                            : "null"});
-                  } else {
-                     log.log(Level.WARNING, "a condition ({2}) prevents {0} from styling {1}",
-                         new Object[]{styler.getClass().getSimpleName(), (null != e)
-                            ? e.getClass().getSimpleName()
-                            : "null", getConditionConfig(styler.getConditions())});
+                  if (log.isLoggable(Level.FINE)) {
+                     if (styler.getConditions().isEmpty()) {
+                        log.log(Level.FINE, "the implementation of shouldStyle in {0} prevents styling {1}",
+                            new Object[]{styler.getClass().getName(), (null != e)
+                                   ? e.getClass().getSimpleName()
+                                   : "null"});
+                     } else {
+                        log.log(Level.FINE, "a condition ({2}) prevents {0} from styling {1}",
+                            new Object[]{styler.getClass().getName(), (null != e)
+                                   ? e.getClass().getSimpleName()
+                                   : "null", getConditionConfig(styler.getConditions())});
+                     }
                   }
                }
             } else {
                if (log.isLoggable(Level.FINE)) {
                   log.log(Level.FINE, "{0} cannot style {1}",
                       new Object[]{styler.getClass().getName(), (null != e)
-                         ? e.getClass().getName()
-                         : "null"});
+                             ? e.getClass().getName()
+                             : "null"});
                }
             }
          }
@@ -198,7 +200,8 @@ public class StyleHelper {
    }
 
    /**
-    * Call {@link #delayedStyle(com.itextpdf.text.Chunk, java.lang.String, java.util.Collection, com.vectorprint.report.itext.EventHelper, com.itextpdf.text.Rectangle) }
+    * Call {@link #delayedStyle(com.itextpdf.text.Chunk, java.lang.String, java.util.Collection, com.vectorprint.report.itext.EventHelper, com.itextpdf.text.Rectangle)
+    * }
     * with null for Rectangle
     */
    public void delayedStyle(Chunk c, String tag, Collection<? extends Advanced> stylers, EventHelper eventHelper) {
@@ -207,12 +210,14 @@ public class StyleHelper {
 
    /**
     * register advanced stylers with the EventHelper to do the styling later
+    *
     * @param c
     * @param tag
     * @param stylers
     * @param eventHelper
     * @param img the value of rect
-    * @see PageHelper#onGenericTag(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document, com.itextpdf.text.Rectangle, java.lang.String)
+    * @see PageHelper#onGenericTag(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document,
+    * com.itextpdf.text.Rectangle, java.lang.String)
     */
    public void delayedStyle(Chunk c, String tag, Collection<? extends Advanced> stylers, EventHelper eventHelper, Image img) {
       // add to pagehelper and set generic tag

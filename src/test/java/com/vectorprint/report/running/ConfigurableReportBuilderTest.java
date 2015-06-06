@@ -49,6 +49,7 @@ import com.vectorprint.configuration.binding.settings.EnhancedMapParser;
 import com.vectorprint.configuration.parameters.BooleanParameter;
 import com.vectorprint.configuration.parameters.ParameterImpl;
 import com.vectorprint.configuration.parameters.Parameterizable;
+import com.vectorprint.configuration.parameters.ParameterizableImpl;
 import com.vectorprint.configuration.parameters.PasswordParameter;
 import com.vectorprint.configuration.parser.ParseException;
 import com.vectorprint.report.ReportConstants;
@@ -102,7 +103,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.ExpectedSystemExit;
@@ -135,6 +135,7 @@ public class ConfigurableReportBuilderTest {
 
    @Before
    public void setUp() throws IOException, VectorPrintException, ParseException {
+      ParameterizableImpl.clearStaticSettings();
       init(true);
       System.getProperties().remove(ParameterizableBindingFactoryImpl.PARAMHELPER);
       TestableReportGenerator.setDidCreate(false);

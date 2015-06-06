@@ -35,7 +35,7 @@ import com.vectorprint.report.itext.style.stylers.DocumentSettings;
 public class PermissionsParameter extends ParameterImpl<DocumentSettings.PERMISSION[]> {
 
    public PermissionsParameter(String key, String help) {
-      super(key, help);
+      super(key, help, DocumentSettings.PERMISSION[].class);
    }
 
    public int getPermission() throws VectorPrintRuntimeException {

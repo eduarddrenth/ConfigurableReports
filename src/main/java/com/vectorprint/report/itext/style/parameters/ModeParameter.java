@@ -16,7 +16,7 @@ import com.vectorprint.report.itext.style.stylers.SimpleColumns;
 public class ModeParameter extends ParameterImpl<SimpleColumns.MODE>{
 
    public ModeParameter(String key, String help) {
-      super(key, help);
+      super(key, help, SimpleColumns.MODE.class);
    }
 
 }

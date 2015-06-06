@@ -36,6 +36,7 @@ import com.vectorprint.configuration.parameters.ColorParameter;
 import com.vectorprint.report.itext.ItextHelper;
 import com.vectorprint.report.itext.style.parameters.FloatParameter;
 import java.awt.Color;
+import java.util.logging.Level;
 
 
 /**
@@ -92,7 +93,9 @@ public abstract class AbstractPositioning<DATATYPE> extends AdvancedImpl<DATATYP
    public final void drawShadow(float x, float y, float width, float height, String genericTag) throws VectorPrintException {
          boolean bg = isBg();
          if (isBg()) {
-            log.warning(String.format("possibly drawing shadow on top of content, see setting: ", getStyleClass()));
+            if (log.isLoggable(Level.FINE)) {
+               log.fine(String.format("possibly drawing shadow on top of content, see setting: %s", getStyleClass()));
+            }
          }
          setBg(true);
          PdfContentByte canvas = getPreparedCanvas(getShadowOpactiy());

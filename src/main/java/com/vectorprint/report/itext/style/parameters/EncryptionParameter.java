@@ -36,7 +36,7 @@ import com.vectorprint.report.itext.style.stylers.DocumentSettings;
 public class EncryptionParameter extends ParameterImpl<DocumentSettings.ENCRYPTION> {
 
    public EncryptionParameter(String key, String help) {
-      super(key, help);
+      super(key, help, DocumentSettings.ENCRYPTION.class);
    }
 
 

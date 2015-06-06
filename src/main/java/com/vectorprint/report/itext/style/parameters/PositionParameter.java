@@ -36,7 +36,7 @@ import com.vectorprint.report.itext.style.BaseStyler;
 public class PositionParameter extends ParameterImpl<BaseStyler.POSITION>{
 
    public PositionParameter(String key, String help) {
-      super(key, help);
+      super(key, help,BaseStyler.POSITION.class);
    }
 
 

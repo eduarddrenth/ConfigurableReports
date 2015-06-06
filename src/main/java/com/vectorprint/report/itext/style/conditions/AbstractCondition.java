@@ -26,8 +26,6 @@ package com.vectorprint.report.itext.style.conditions;
  * #L%
  */
 //~--- non-JDK imports --------------------------------------------------------
-import com.vectorprint.configuration.EnhancedMap;
-import com.vectorprint.configuration.annotation.SettingsField;
 import com.vectorprint.configuration.parameters.ParameterizableImpl;
 import com.vectorprint.report.itext.style.StylingCondition;
 import java.util.logging.Logger;
@@ -40,16 +38,7 @@ import java.util.logging.Logger;
 public abstract class AbstractCondition extends ParameterizableImpl implements StylingCondition {
 
    private static final Logger log = Logger.getLogger(AbstractCondition.class.getName());
-   private String key;
-   @SettingsField
-   private static EnhancedMap settings;
-
-   @Override
-   public EnhancedMap getSettings() {
-      return settings;
-   }
-   
-   
+   private String key;   
 
    /**
     *

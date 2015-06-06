@@ -336,7 +336,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
    }
 
    @Override
-   public final BaseStyler setConfigKey(String key) {
+   public final BaseStyler setStyleClass(String key) {
       throw new UnsupportedOperationException("Not supported.");
    }
 

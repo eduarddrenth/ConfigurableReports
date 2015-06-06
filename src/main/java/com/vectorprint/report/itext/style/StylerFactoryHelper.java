@@ -68,7 +68,6 @@ public class StylerFactoryHelper {
     * @throws VectorPrintException
     */
    public static void initStylingObject(Object s, PdfWriter writer, Document document, ImageLoader imageLoader, LayerManager layerManager, EnhancedMap settings, ElementProducer elementProducer, StylerFactory stylerFactory) throws VectorPrintException {
-      SETTINGS_ANNOTATION_PROCESSOR.initSettings(s, settings);
       if (s instanceof DocumentAware) {
          ((DocumentAware) s).setDocument(document, writer);
       }

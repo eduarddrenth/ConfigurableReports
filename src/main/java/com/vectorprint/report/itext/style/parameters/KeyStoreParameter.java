@@ -36,7 +36,7 @@ import com.vectorprint.report.itext.style.stylers.DocumentSettings;
 public class KeyStoreParameter extends ParameterImpl<DocumentSettings.KEYSTORETYPE>{
 
    public KeyStoreParameter(String key, String help) {
-      super(key, help);
+      super(key, help, DocumentSettings.KEYSTORETYPE.class);
    }
 
 }

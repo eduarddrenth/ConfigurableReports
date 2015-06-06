@@ -32,6 +32,7 @@ import com.vectorprint.report.ReportConstants;
 import com.vectorprint.report.itext.ItextHelper;
 import com.vectorprint.report.itext.style.parameters.FloatParameter;
 import java.awt.Color;
+import java.util.logging.Level;
 
 /**
  * change page settings, size, margins and background. Size and margins are effective from the page following the
@@ -61,7 +62,9 @@ public class Page extends AdvancedImpl<Object> {
 
    private void pageSettings() {
       if (getBackground() != null) {
-         log.warning("Possibly page background is written on top of page content making it invisible");
+         if (log.isLoggable(Level.FINE)) {
+            log.fine("Possibly page background is written on top of page content making it invisible");
+         }
          PdfContentByte bg = getWriter().getDirectContentUnder();
          Rectangle rect = getWriter().getPageSize();
          rect.setBackgroundColor(itextHelper.fromColor(getBackground()));

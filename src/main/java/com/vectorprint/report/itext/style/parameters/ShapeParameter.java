@@ -36,7 +36,7 @@ import com.vectorprint.report.itext.style.stylers.Shape;
 public class ShapeParameter extends ParameterImpl<Shape.SHAPE>{
 
    public ShapeParameter(String key, String help) {
-      super(key, help);
+      super(key, help,Shape.SHAPE.class);
    }
 
 
