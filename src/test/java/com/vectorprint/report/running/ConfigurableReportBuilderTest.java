@@ -531,7 +531,7 @@ public class ConfigurableReportBuilderTest {
                         assertNull(p.getValue());
                         continue;
                      }
-                     ParameterizableSerializer ps = ParameterizableBindingFactoryImpl.getDefaultFactory().getSerializer().setPrintOnlyNonDefault(false);
+                     ParameterizableSerializer ps = ParameterizableBindingFactoryImpl.getDefaultFactory().getSerializer();
                      StringWriter sw = new StringWriter();
                      ps.serialize(p, sw);
                      String conf = sw.toString();
