@@ -43,7 +43,6 @@ import com.vectorprint.configuration.parameters.CharPasswordParameter;
 import com.vectorprint.configuration.parameters.Parameter;
 import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactoryImpl;
 import com.vectorprint.configuration.binding.parameters.ParameterizableParser;
-import com.vectorprint.configuration.binding.parameters.ParameterizableSerializer;
 import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactoryImpl;
 import com.vectorprint.configuration.binding.settings.EnhancedMapParser;
 import com.vectorprint.configuration.parameters.BooleanParameter;
@@ -76,7 +75,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
@@ -531,14 +529,10 @@ public class ConfigurableReportBuilderTest {
                         assertNull(p.getValue());
                         continue;
                      }
-                     ParameterizableSerializer ps = ParameterizableBindingFactoryImpl.getDefaultFactory().getSerializer();
-                     StringWriter sw = new StringWriter();
-                     ps.serialize(p, sw);
-                     String conf = sw.toString();
+                     BindingHelper stringConversion = ParameterizableBindingFactoryImpl.getDefaultFactory().getBindingHelper();
+                     String conf = stringConversion.serializeValue(p.getValue());
                      
                      if (conf != null && !"".equals(conf)) {
-                        BindingHelper stringConversion = ParameterizableBindingFactoryImpl.getDefaultFactory().getBindingHelper();
-                        assertEquals(stringConversion.serializeValue(p.getValue()), conf.substring(conf.indexOf('=') + 1));
                         ParameterizableBindingFactoryImpl.getDefaultFactory().getParser(new StringReader("")).parseAsParameterValue(stringConversion.serializeValue(p.getValue()), p);
                      }
                   } catch (NumberFormatException runtimeException) {
