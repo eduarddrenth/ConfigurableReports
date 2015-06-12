@@ -45,16 +45,16 @@ import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFa
 import com.vectorprint.configuration.binding.parameters.ParameterizableParser;
 import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactoryImpl;
 import com.vectorprint.configuration.binding.settings.EnhancedMapParser;
+import com.vectorprint.configuration.jaxb.SettingsFromJAXB;
+import com.vectorprint.configuration.jaxb.SettingsXMLHelper;
 import com.vectorprint.configuration.parameters.BooleanParameter;
 import com.vectorprint.configuration.parameters.ParameterImpl;
 import com.vectorprint.configuration.parameters.Parameterizable;
 import com.vectorprint.configuration.parameters.ParameterizableImpl;
 import com.vectorprint.configuration.parameters.PasswordParameter;
-import com.vectorprint.configuration.parser.ParseException;
 import com.vectorprint.report.ReportConstants;
 import static com.vectorprint.report.ReportConstants.HELP;
 import static com.vectorprint.report.ReportConstants.VERSION;
-import com.vectorprint.report.data.ReportDataHolder;
 import com.vectorprint.report.itext.BaseReportGenerator;
 import com.vectorprint.report.itext.Help;
 import com.vectorprint.report.itext.style.BaseStyler;
@@ -72,6 +72,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringReader;
@@ -89,6 +90,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.List;
 import java.util.Set;
+import javax.xml.bind.JAXBException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -111,7 +113,7 @@ import org.junit.contrib.java.lang.system.ExpectedSystemExit;
  */
 public class ConfigurableReportBuilderTest {
 
-   private static ThreadSafeReportBuilder<ReportDataHolder> instance;
+   private static ReportRunner instance;
    public static final String TARGET = "target" + File.separator;
 
    static {
@@ -121,21 +123,27 @@ public class ConfigurableReportBuilderTest {
    public ConfigurableReportBuilderTest() throws IOException {
    }
 
-   private static void init(boolean allowEmpties) throws IOException, VectorPrintException, ParseException {
+   private static void init(boolean allowEmpties, boolean pdfa) throws IOException, VectorPrintException, JAXBException {
       FindableProperties.clearStaticReferences();
-      instance = new ThreadSafeReportBuilder("src/test/resources/config",
-          ThreadSafeReportBuilder.DEFAULTPROPERTYURLS.toArray(new String[ThreadSafeReportBuilder.DEFAULTPROPERTYURLS.size()]), allowEmpties, true);
+      if (pdfa) {
+         instance
+             = new ReportRunner(new SettingsFromJAXB().fromJaxb(SettingsXMLHelper.fromXML(new FileReader("src/test/resources/settingspdfa.xml"))));
+      } else {
+         instance = allowEmpties
+             ? new ReportRunner(new SettingsFromJAXB().fromJaxb(SettingsXMLHelper.fromXML(new FileReader("src/test/resources/settings.xml"))))
+             : new ReportRunner(new SettingsFromJAXB().fromJaxb(SettingsXMLHelper.fromXML(new FileReader("src/test/resources/settingsNoEmpties.xml"))));
+      }
    }
-   
+
    @AfterClass
    public static void tearDownClass() {
    }
 
    @Before
-   public void setUp() throws IOException, VectorPrintException, ParseException {
+   public void setUp() throws IOException, VectorPrintException, JAXBException {
       ParameterizableImpl.clearStaticSettings();
-      init(true);
-      System.getProperties().remove(ParameterizableBindingFactoryImpl.PARAMHELPER);
+      init(true,false);
+      System.setProperty(ParameterizableBindingFactoryImpl.PARAMHELPER, ReportBindingHelper.class.getName());
       TestableReportGenerator.setDidCreate(false);
       TestableReportGenerator.setForceException(false);
 
@@ -153,16 +161,6 @@ public class ConfigurableReportBuilderTest {
       stat = FontLoader.getInstance().setLoadiText(true).loadFont(new URL("file:src/test/resources/config" + instance.getSettings().getProperty("fontsemibold")));
       assertEquals(FontLoader.LOADSTATUS.LOADED_ONLY_ITEXT, stat);
 
-   }
-
-   /**
-    * Test of getConfigBaseUrl method, of class ThreadSafeReportBuilder.
-    */
-   @Test
-   public void testGetConfigDir() throws IOException {
-      String expResult = "src/test/resources/config";
-      String result = instance.getSettings().getProperty(ThreadSafeReportBuilder.CONFIG_URL);
-      assertEquals(expResult, result);
    }
 
    @Test
@@ -199,7 +197,7 @@ public class ConfigurableReportBuilderTest {
       PrintStream orig = System.out;
       ByteArrayOutputStream bo = new ByteArrayOutputStream(50 * 1024);
       System.setOut(new PrintStream(bo));
-      instance.buildReport(new String[]{"output="+ReportConstants.STREAM});
+      instance.buildReport(new String[]{"output=" + ReportConstants.STREAM});
       System.setOut(orig);
       assertTrue(TestableReportGenerator.isDidCreate());
       System.out.println("Bytes written: " + bo.toByteArray().length);
@@ -208,19 +206,19 @@ public class ConfigurableReportBuilderTest {
 
    @Test
    public void testImportPdf() throws Exception {
-      new ReportRunner(new ParsingProperties(new CachingProperties(new Settings()),"src/test/resources/config/stylingImportPdf.properties"))
-          .buildReport(new String[]{"output="+ TARGET + "importPdf.pdf\ndataclass=com.vectorprint.report.running.ImportingDataCollector\ndebug=false"});
+      new ReportRunner(new ParsingProperties(new CachingProperties(new Settings()), "src/test/resources/config/stylingImportPdf.properties"))
+          .buildReport(new String[]{"output=" + TARGET + "importPdf.pdf\ndataclass=com.vectorprint.report.running.ImportingDataCollector\ndebug=false"});
    }
 
    @Test
    public void testImportTiff() throws Exception {
-      new ReportRunner(new ParsingProperties(new CachingProperties(new Settings()),"src/test/resources/config/stylingImportTiff.properties"))
-          .buildReport(new String[]{"output="+ TARGET + "importTiff.pdf\ndataclass=com.vectorprint.report.running.ImportingDataCollector\ndebug=false"});
+      new ReportRunner(new ParsingProperties(new CachingProperties(new Settings()), "src/test/resources/config/stylingImportTiff.properties"))
+          .buildReport(new String[]{"output=" + TARGET + "importTiff.pdf\ndataclass=com.vectorprint.report.running.ImportingDataCollector\ndebug=false"});
    }
 
    @Test
    public void testDefaultStylerSettings() throws Exception {
-      instance.buildReport(new String[]{"output="+ TARGET + "style.pdf\nFont.color.set_default=#eeeeee"});
+      instance.buildReport(new String[]{"output=" + TARGET + "style.pdf\nFont.color.set_default=#eeeeee"});
       assertTrue(TestableReportGenerator.isDidCreate());
    }
 
@@ -242,20 +240,20 @@ public class ConfigurableReportBuilderTest {
 
    @Test
    public void testToXmlConfig() throws Exception {
-      new ReportRunner(new ParsingProperties(new CachingProperties(new Settings()),"src/test/resources/config/styling.properties")).buildReport(
+      new ReportRunner(new ParsingProperties(new CachingProperties(new Settings()), "src/test/resources/config/styling.properties")).buildReport(
           new String[]{ReportConstants.DATAMAPPINGXML + "=file:src/test/resources/DataMapping.xml\ndataclass=com.vectorprint.report.running.NonQueueingTestableDataCollector"}, new FileOutputStream(TARGET + "testToXmlConfig.pdf"));
    }
 
    @Test
    public void testToc() throws Exception {
-      instance.buildReport(new String[]{"output="+ TARGET + "testToc.pdf\nDocumentSettings.toc=true\ndebug=false"});
+      instance.buildReport(new String[]{"output=" + TARGET + "testToc.pdf\nDocumentSettings.toc=true\ndebug=false"});
       assertTrue(TestableReportGenerator.isDidCreate());
    }
 
    @Test
    public void testNoConsumer() throws Exception {
       try {
-      ReportRunner.main(new String[]{"src/test/resources/config/styling.properties","output="+ TARGET + "testNoConsumer.pdf\nqueuetimeout=3\ndataclass=com.vectorprint.report.running.TestableDataCollector"});
+         ReportRunner.main(new String[]{"src/test/resources/config/styling.properties", "output=" + TARGET + "testNoConsumer.pdf\nqueuetimeout=3\ndataclass=com.vectorprint.report.running.TestableDataCollector"});
       } catch (VectorPrintRuntimeException ex) {
          assertTrue(ex.getMessage().contains("Failed to queue"));
       }
@@ -263,7 +261,7 @@ public class ConfigurableReportBuilderTest {
 
    @Test
    public void testAnnotations() throws Exception {
-      new ReportRunner(new ParsingProperties(new CachingProperties(new Settings()),"src/test/resources/config/styling.properties")).buildReport(new String[]{"output="+ TARGET + "testAnnotations.pdf\ndataclass=com.vectorprint.report.running.TestableDataCollector\ndebug=true\nqueuetimeout=20000"});
+      new ReportRunner(new ParsingProperties(new CachingProperties(new Settings()), "src/test/resources/config/styling.properties")).buildReport(new String[]{"output=" + TARGET + "testAnnotations.pdf\ndataclass=com.vectorprint.report.running.TestableDataCollector\ndebug=true\nqueuetimeout=20000"});
    }
    @Rule
    public final ExpectedSystemExit exit = ExpectedSystemExit.none();
@@ -275,13 +273,13 @@ public class ConfigurableReportBuilderTest {
 
       exit.expectSystemExitWithStatus(0);
       ReportRunner.main(new String[]{"src/test/resources/config/styling.properties",
-         "output"+ TARGET + "testMain.pdf\ndataclass=com.vectorprint.report.running.TestableDataCollector"});
+         "output" + TARGET + "testMain.pdf\ndataclass=com.vectorprint.report.running.TestableDataCollector"});
 
    }
 
    @Test
    public void testEncryption() throws Exception {
-      instance.buildReport(new String[]{"output="+ TARGET + "testEncryption.pdf\ndocumentsettings=DocumentSettings(margin_top=5,margin_left=50,margin_right=5,margin_bottom=5,width=297,height=210,password=password,ownerpassword=password)"});
+      instance.buildReport(new String[]{"output=" + TARGET + "testEncryption.pdf\ndocumentsettings=DocumentSettings(margin_top=5,margin_left=50,margin_right=5,margin_bottom=5,width=297,height=210,password=password,ownerpassword=password)"});
       assertTrue(TestableReportGenerator.isDidCreate());
       try {
          PdfReader pdfReader = new PdfReader(TARGET + "testEncryption.pdf");
@@ -323,7 +321,7 @@ public class ConfigurableReportBuilderTest {
    @Test
    public void testBuildNoEmptyValues() throws Exception {
       try {
-         init(false);
+         init(false,false);
          fail("exception expected for empty value");
          instance.buildReport(new String[]{"-output", TARGET + "testBuildNoEmptyValues.pdf"});
          assertTrue(TestableReportGenerator.isDidCreate());
@@ -334,14 +332,14 @@ public class ConfigurableReportBuilderTest {
 
    @Test
    public void testPrintVersion() throws Exception {
-      int res = instance.buildReport(new String[]{VERSION+"="});
+      int res = instance.buildReport(new String[]{VERSION + "="});
       assertEquals(ReportRunner.EXITFROMPROPERTYCODE, res);
       assertFalse(TestableReportGenerator.isDidCreate());
    }
 
    @Test
    public void testPrintHelp() throws Exception {
-      int res = instance.buildReport(new String[]{HELP+"="});
+      int res = instance.buildReport(new String[]{HELP + "="});
       assertEquals(ReportRunner.EXITFROMPROPERTYCODE, res);
       assertFalse(TestableReportGenerator.isDidCreate());
    }
@@ -350,7 +348,7 @@ public class ConfigurableReportBuilderTest {
    public void testStopAfterErrors() throws Exception {
       TestableReportGenerator.setContinueAfterError(false);
       NonQueueingTestableDataCollector.setProduceError(true);
-      instance.buildReport(new String[]{"output="+TARGET + "testStopAfterErrors.pdf"});
+      instance.buildReport(new String[]{"output=" + TARGET + "testStopAfterErrors.pdf"});
       assertFalse(TestableReportGenerator.isDidCreate());
    }
 
@@ -358,14 +356,14 @@ public class ConfigurableReportBuilderTest {
    public void testContinueAfterErrors() throws Exception {
       TestableReportGenerator.setContinueAfterError(true);
       NonQueueingTestableDataCollector.setProduceError(true);
-      instance.buildReport(new String[]{"output="+ TARGET + "testContinueAfterErrors.pdf"});
+      instance.buildReport(new String[]{"output=" + TARGET + "testContinueAfterErrors.pdf"});
       assertTrue(TestableReportGenerator.isDidCreate());
    }
 
    @Test
    public void testBuildDebug() throws Exception {
       NonQueueingTestableDataCollector.setProduceError(false);
-      instance.buildReport(new String[]{"output="+ TARGET + "testBuildDebug.pdf\ndebug=true"});
+      instance.buildReport(new String[]{"output=" + TARGET + "testBuildDebug.pdf\ndebug=true"});
       assertTrue(TestableReportGenerator.isDidCreate());
    }
 
@@ -375,7 +373,7 @@ public class ConfigurableReportBuilderTest {
          @Override
          public void run() {
             try {
-               instance.buildReport(new String[]{"output="+ TARGET + "testBuildInChildThread.pdf"});
+               instance.buildReport(new String[]{"output=" + TARGET + "testBuildInChildThread.pdf"});
             } catch (Exception ex) {
                ex.printStackTrace();
                fail("failed to build report in thread");
@@ -393,7 +391,7 @@ public class ConfigurableReportBuilderTest {
          @Override
          public void run() {
             try {
-               init(true);
+               init(true,false);
             } catch (Exception ex) {
                fail("failed to init");
             }
@@ -409,7 +407,7 @@ public class ConfigurableReportBuilderTest {
          @Override
          public void run() {
             try {
-               instance.buildReport(new String[]{"output="+ TARGET + "testBuildInSiblingThread.pdf"});
+               instance.buildReport(new String[]{"output=" + TARGET + "testBuildInSiblingThread.pdf"});
                fail("expected failure to build from sibling thread");
             } catch (Exception ex) {
                //expected
@@ -423,7 +421,7 @@ public class ConfigurableReportBuilderTest {
       TestableReportGenerator.setForceException(true);
       new File("testExStop.pdf").delete();
       try {
-         instance.buildReport(new String[]{"output="+ TARGET + "testExceptionStop.pdf\nstoponerror=true"});
+         instance.buildReport(new String[]{"output=" + TARGET + "testExceptionStop.pdf\nstoponerror=true"});
          fail("exception expected");
       } catch (VectorPrintRuntimeException ex) {
          // expected
@@ -439,7 +437,7 @@ public class ConfigurableReportBuilderTest {
 
    @Test
    public void testSign() throws Exception {
-      instance.buildReport(new String[]{"output="+ TARGET + "testSign.pdf\ndocumentsettings=DocumentSettings(margin_top=5,margin_left=50,margin_right=5,margin_bottom=5,width=297,height=210,keystore=file:src/test/resources/config/eduarddrenth-TECRA-S11.pfx,keystorepassword=password)\ndebug=true"});
+      instance.buildReport(new String[]{"output=" + TARGET + "testSign.pdf\ndocumentsettings=DocumentSettings(margin_top=5,margin_left=50,margin_right=5,margin_bottom=5,width=297,height=210,keystore=file:src/test/resources/config/eduarddrenth-TECRA-S11.pfx,keystorepassword=password)\ndebug=true"});
       assertTrue(TestableReportGenerator.isDidCreate());
    }
 
@@ -448,7 +446,7 @@ public class ConfigurableReportBuilderTest {
       TestableReportGenerator.setForceException(true);
       new File(TARGET + "testExContinue.pdf").delete();
       try {
-         instance.buildReport(new String[]{"output="+ TARGET + "testExceptionContinue.pdf\nstoponerror=false"});
+         instance.buildReport(new String[]{"output=" + TARGET + "testExceptionContinue.pdf\nstoponerror=false"});
       } catch (VectorPrintException ex) {
          ex.printStackTrace();
          fail("exception not expected");
@@ -460,26 +458,23 @@ public class ConfigurableReportBuilderTest {
 
    @Test
    public void testPdfA1A() throws Exception {
-
-      String[] props = ThreadSafeReportBuilder.DEFAULTPROPERTYURLS.toArray(new String[ThreadSafeReportBuilder.DEFAULTPROPERTYURLS.size()]);
-      props[1] = "styling_pdfa1a.properties";
-      instance = new ThreadSafeReportBuilder("src/test/resources/config", props, true, true);
-      instance.buildReport(new String[]{"output="+ TARGET + "testPdfA1A.pdf\nfonts=src/test/resources/config"});
+      init(true, true);
+      instance.buildReport(new String[]{"output=" + TARGET + "testPdfA1A.pdf\nfonts=src/test/resources/config"});
       assertTrue(TestableReportGenerator.isDidCreate());
    }
 
    @Test
    public void testBoxes() throws Exception {
-      instance.buildReport(new String[]{"output="+ TARGET + "testBoxes.pdf\n"+
-         "documentsettings=DocumentSettings("
+      instance.buildReport(new String[]{"output=" + TARGET + "testBoxes.pdf\n"
+         + "documentsettings=DocumentSettings("
          + "margin_top=5,margin_left=50,margin_right=5,margin_bottom=5,"
          + "width=297,height=210,bleed=-10|-10|317|230,crop=50|50|247|160)"});
    }
 
    @Test
    public void testLoadFonts() throws Exception {
-      instance.buildReport(new String[]{"output="+ TARGET + "testLoadFonts.pdf\n"+
-         "fonts=src/test/resources/config"});
+      instance.buildReport(new String[]{"output=" + TARGET + "testLoadFonts.pdf\n"
+         + "fonts=src/test/resources/config"});
       Assert.assertEquals("myriad pro", FontFactory.getFont("myriad pro").getFamilyname().toLowerCase());
       Assert.assertNotNull(FontFactory.getFont("myriad pro").getBaseFont());
    }
@@ -494,7 +489,7 @@ public class ConfigurableReportBuilderTest {
       ParameterizableParser parser = ParameterizableBindingFactoryImpl.getDefaultFactory().getParser(new StringReader(parameter.getKey() + "=" + settings.getProperty(parameter.getKey())));
       ParameterizableBindingFactoryImpl.getDefaultFactory().getBindingHelper().setValueOrDefault(parameter, parser.parseAsParameterValue(settings.getPropertyNoDefault(parameter.getClass().getSimpleName()), parameter), false);
    }
-   
+
    @Test
    public void testParameters() throws Exception {
       String[] testStrings = new String[]{"lt", "ean8", "Helvetica", "overlay", "enc128", "bold", "combo", "pkcs12", "top", "rectangle"};
@@ -531,12 +526,12 @@ public class ConfigurableReportBuilderTest {
                      }
                      BindingHelper stringConversion = ParameterizableBindingFactoryImpl.getDefaultFactory().getBindingHelper();
                      String conf = stringConversion.serializeValue(p.getValue());
-                     
+
                      if (conf != null && !"".equals(conf)) {
                         ParameterizableBindingFactoryImpl.getDefaultFactory().getParser(new StringReader("")).parseAsParameterValue(stringConversion.serializeValue(p.getValue()), p);
                      }
                   } catch (NumberFormatException runtimeException) {
-                        System.out.println(runtimeException.getMessage());
+                     System.out.println(runtimeException.getMessage());
                   } catch (IllegalArgumentException runtimeException) {
                      if (runtimeException.getMessage().contains("No enum const")) {
                         System.out.println(runtimeException.getMessage());

@@ -33,6 +33,7 @@ import com.vectorprint.configuration.Settings;
 import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactoryImpl;
 import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactory;
 import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactoryImpl;
+import com.vectorprint.configuration.decoration.CachingProperties;
 import com.vectorprint.configuration.decoration.ParsingProperties;
 import static com.vectorprint.report.ReportConstants.DATACLASS;
 import static com.vectorprint.report.ReportConstants.HELP;
@@ -280,7 +281,7 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
              2 parser classes, 2 serializer classes and 2 bindinghelper class
             
              */
-            System.exit(new ReportRunner(new ParsingProperties(new Settings(), args[0])).buildReport(shiftArgs));
+            System.exit(new ReportRunner(new CachingProperties(new ParsingProperties(new Settings(), args[0]))).buildReport(shiftArgs));
          }
       }
       if (EXITNOSETTINGS == findSettingsAndBuild()) {

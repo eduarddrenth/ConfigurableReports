@@ -242,8 +242,7 @@ public class TestableReportGenerator extends BaseReportGenerator<ReportDataHolde
          com.vectorprint.report.itext.style.stylers.Image ims
              = new com.vectorprint.report.itext.style.stylers.Image(this, this, document, writer, getSettings());
          // the setters here could also be done from setup
-         ims.setUrl(conversion.convert(getSettings().getProperty(ThreadSafeReportBuilder.CONFIG_URL)
-             + "/" + "zon.pdf",URL.class));
+         ims.setUrl(conversion.convert("src/test/resources/config/zon.pdf",URL.class));
          ims.setPdf(true);
          ims.setShifty(50);
          ims.setTransform(new float[]{2f, 25f, 2f, 2f, 0f, 0f});
@@ -254,8 +253,7 @@ public class TestableReportGenerator extends BaseReportGenerator<ReportDataHolde
          ims.draw(new Rectangle(10, 10, 100, 100), "");
          newLine();
          if (writer.getPDFXConformance() != PdfWriter.PDFX1A2001) {
-            document.add(loadImage(conversion.convert(getSettings().getProperty(ThreadSafeReportBuilder.CONFIG_URL)
-                + "/" + "pointer.png",URL.class), 1));
+            document.add(loadImage(conversion.convert("src/test/resources/config/pointer.png",URL.class), 1));
          }
          newLine();
 

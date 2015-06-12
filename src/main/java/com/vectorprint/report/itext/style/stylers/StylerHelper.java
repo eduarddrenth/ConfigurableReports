@@ -26,7 +26,7 @@ package com.vectorprint.report.itext.style.stylers;
  * #L%
  */
 
-import com.vectorprint.configuration.observing.PrepareKeyValue;
+import com.vectorprint.configuration.preparing.PrepareKeyValue;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.logging.Level;
