@@ -44,7 +44,7 @@ import java.lang.annotation.Target;
  * to another element.
  * @see CONTAINER_ELEMENT
  * @see Element
- * @see ElementProducer#createElement(java.lang.Object, java.util.Collection, java.lang.Class) 
+ * @see ElementProducer#createElement(java.lang.Object, java.lang.Class, java.util.List) 
  * @see StylerFactory#getStylers(java.lang.String[]) 
  * @author Eduard Drenth at VectorPrint.nl
  */

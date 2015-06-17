@@ -30,6 +30,7 @@ package com.vectorprint.report;
 import com.vectorprint.report.data.DataCollector;
 import com.vectorprint.report.data.types.Formatter;
 import com.vectorprint.report.itext.BaseReportGenerator;
+import com.vectorprint.report.itext.EventHelper;
 import com.vectorprint.report.itext.ItextHelper;
 import com.vectorprint.report.itext.mappingconfig.DatamappingHelper;
 import com.vectorprint.report.itext.style.DocumentStyler;
@@ -45,10 +46,10 @@ public interface ReportConstants {
 
    /**
     * boolean setting to print a footer on each page or not.
-    * @see PageHelper#PAGEFOOTERSTYLE
-    * @see PageHelper#PAGEFOOTERSTYLEKEY
-    * @see PageHelper#PAGEFOOTERTABLEKEY
-    * @see PageHelper#renderFooter(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document) 
+    * @see EventHelper#PAGEFOOTERSTYLE
+    * @see EventHelper#PAGEFOOTERSTYLEKEY`
+    * @see EventHelper#PAGEFOOTERTABLEKEY
+    * @see EventHelper#renderFooter(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document) 
     */
    public static final String PRINTFOOTER = "printfooter";
    /**
@@ -122,4 +123,10 @@ public interface ReportConstants {
     * @see ICC_Profile#getInstance(java.io.InputStream) 
     */
    public static final String ICCCOLORPROFILE = "icccolorprofile";
+   
+   /**
+    * name of a boolean setting that may be used. Setting this to false will try to write the stacktrace
+    * to the report.
+    */
+   public static final String STOPONERROR = "stoponerror";
 }

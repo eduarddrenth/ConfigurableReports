@@ -64,8 +64,8 @@ public interface ReportDataHolder {
          this.id = id;
       }
 
-      private Object data;
-      private String id;
+      private final Object data;
+      private final String id;
 
       public Object getData() {
          return data;

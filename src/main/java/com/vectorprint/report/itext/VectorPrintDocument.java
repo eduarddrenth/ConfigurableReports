@@ -39,6 +39,7 @@ import com.vectorprint.report.itext.style.BaseStyler;
 import com.vectorprint.report.itext.style.StyleHelper;
 import com.vectorprint.report.itext.style.StylerFactory;
 import com.vectorprint.report.itext.style.stylers.Advanced;
+import static com.vectorprint.report.itext.VectorPrintDocument.AddElementHook.INTENTION;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -50,10 +51,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Calls {@link BaseStyler#style(java.lang.Object, java.lang.Object) } with no data on elements in
- * {@link #scheduleStylerAfterAdding(com.vectorprint.report.itext.style.BaseStyler) a queue}, see {@link BaseStyler#styleAfterAdding()
- * } and {@link StyleHelper#style(java.lang.Object, java.lang.Object, java.util.Collection) }. For debugging images by
- * wrapping it in a Chunk.
+ * 
+ * This subclass of document gathers information for table of contents and enables you to work with
+ * {@link VectorPrintDocument.AddElementHook hooks}. Hooks are added to this document before elements are added and
+ * enable for example drawing near content.
  *
  * @author Eduard Drenth at VectorPrint.nl
  */
@@ -88,13 +89,14 @@ public class VectorPrintDocument extends Document {
    }
 
    /**
-    * Provides support for debugging, table of contents and styling elements after adding to the document
+    * If there is a hook for the element it will be processed, For all hooks except {@link INTENTION stylelater}
+    * {@link StyleHelper#delayedStyle(com.itextpdf.text.Chunk, java.lang.String, java.util.Collection, com.vectorprint.report.itext.EventHelper, com.itextpdf.text.Image) }
+    * (variant without image when there is none) will be called. When element is a Section the pagenumber and the Section are remembered, see {@link #getToc() }.
     *
     * @param element
     * @return
     * @throws DocumentException
-    * @see PageHelper#onGenericTag(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document,
-    * com.itextpdf.text.Rectangle, java.lang.String)
+    * @see EventHelper#onGenericTag(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document, com.itextpdf.text.Rectangle, java.lang.String) 
     */
    @Override
    public boolean add(Element element) throws DocumentException {
@@ -225,7 +227,7 @@ public class VectorPrintDocument extends Document {
    }
 
    /**
-    * Before or after adding elements to the document we can perform actions. Supoorted are:
+    * Before or after adding elements to the document we can perform actions. Supported are:
     * <ul>
     * <li>print debugging info near the element</li>
     * <li>print a shadow</li>

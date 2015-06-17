@@ -26,7 +26,7 @@ package com.vectorprint.report.data;
  * A DataSelector determines whether or not to include data in (parts of) the report.
  *
  * @param DATATYPE the type of data this selector can handle
- * @see ReportData#getData()
+ * @see ReportDataHolder#getData() 
  * @author Eduard Drenth at VectorPrint.nl
  */
 public interface DataSelector<DATATYPE> {

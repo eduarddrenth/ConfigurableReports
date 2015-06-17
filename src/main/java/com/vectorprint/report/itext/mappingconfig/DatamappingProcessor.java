@@ -39,6 +39,7 @@ import com.vectorprint.report.itext.mappingconfig.model.DataConfig;
 import com.vectorprint.report.itext.mappingconfig.model.ElementConfig;
 import com.vectorprint.report.itext.mappingconfig.model.StartContainerConfig;
 import com.vectorprint.report.itext.style.StylerFactory;
+import com.vectorprint.report.itext.style.stylers.SimpleColumns;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Deque;
 
@@ -103,7 +104,7 @@ public interface DatamappingProcessor extends ElementProducer, StylerFactory, Do
 
    /**
     * removes containers from the stack upto and including the n-th container of the given type. When the container to end is
-    * a {@link MultiColumnText} or {@link Chapter} it is added to the document.
+    * a {@link SimpleColumns} or it is the last on the stack it is added to the document.
     *
     * @param container
     * @param depth

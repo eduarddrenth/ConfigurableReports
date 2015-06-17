@@ -146,7 +146,7 @@ public abstract class AbstractFieldStyler extends AbstractPositioning<Object> im
    }
 
    /**
-    * calls {@link #create() } and {@link #setFieldValues(com.itextpdf.text.pdf.BaseField) } and registers this
+    * calls {@link #create() } and {@link #setFieldValues()  } and registers this
     * FormFieldStyler as a {@link PdfPCellEvent} when element is null or when the {@link DebuggablePdfPCell} does not
     * contain a {@link BaseField} yet. Subclasses should first call this style method and after this call
     * {@link #getFromCell(java.lang.Object)} to get hold of the BaseField and style it. The BaseField is drawn on the

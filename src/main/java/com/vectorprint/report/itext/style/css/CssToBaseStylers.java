@@ -22,6 +22,7 @@ package com.vectorprint.report.itext.style.css;
  */
 
 import com.vectorprint.configuration.EnhancedMap;
+import com.vectorprint.configuration.binding.parameters.ParamBindingHelper;
 import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactory;
 import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactory;
 import com.vectorprint.configuration.parameters.Parameter;
@@ -69,7 +70,7 @@ public interface CssToBaseStylers extends DocumentHandler{
    void printStylers(OutputStream os) throws IOException;
    
    /**
-    * turn a parsed css stylesheet into settings suitable for a {@link StylerFactory#initSettings(java.util.Map) }.
+    * turn a parsed css stylesheet into settings suitable for report styling.
     * @return
     * @throws IOException 
     */
@@ -100,10 +101,9 @@ public interface CssToBaseStylers extends DocumentHandler{
    public Float getPoints(LexicalUnit lu);
 
    /**
-    * Construct a String to use in {@link Parameter#convert(java.lang.String) }. Probably the most messy part of the SAC
+    * Construct a String to use in {@link ParamBindingHelper#convert(java.lang.String, java.lang.Class)  }. Probably the most messy part of the SAC
     * api, becasue of composed css properties, because of functions for example rgb(r,g,b). It is often necessary to
-    * debug in order to find the values you need to convert to String that can be used by {@link Parameter#convert(java.lang.String)
-    * }.
+    * debug in order to find the values you need to convert to String that can be used by {@link ParamBindingHelper#convert(java.lang.String, java.lang.Class) }.
     *
     * @param lu
     * @return

@@ -101,7 +101,7 @@ public class DefaultElementProducer implements ElementProducer, LayerManager {
    /**
     * prefix for generic tags used for {@link Advanced advanced stylers}.
     *
-    * @see PageHelper#addDelayedStyler(java.lang.String, java.util.Collection)
+    * @see EventHelper#addDelayedStyler(java.lang.String, java.util.Collection, com.itextpdf.text.Chunk) 
     */
    public static final String ADV = "adv";
    @Setting(keys = ReportConstants.DEBUG)
@@ -139,7 +139,7 @@ public class DefaultElementProducer implements ElementProducer, LayerManager {
 
    /**
     * Creates and styles a cell with data in it. If the data is an instance of Element it is added as is to the cell,
-    * otherwise a {@link #createPhrase(java.lang.Object, java.util.List) phrase} is created from the data.
+    * otherwise a {@link #createPhrase(java.lang.Object, java.util.Collection) phrase} is created from the data.
     *
     * @param data
     * @param stylers
@@ -360,8 +360,8 @@ public class DefaultElementProducer implements ElementProducer, LayerManager {
    }
 
    /**
-    * When data is an instance of {@link ReportValue},  {@link Formatter#formatValue(com.vectorprint.itextreport.datatypes.ReportValue)
-    * } is called, otherwise String.valueOf is used.
+    * When data is an instance of {@link ReportValue},  {@link Formatter#formatValue(com.vectorprint.report.data.types.ReportValue) }
+    * is called, otherwise String.valueOf is used.
     *
     * @param data
     * @return
@@ -681,7 +681,7 @@ public class DefaultElementProducer implements ElementProducer, LayerManager {
 
    /**
     * Creates a ColumnText, adds the data using addText and returns the {@link SimpleColumns} that can be used to
-    * {@link SimpleColumns#write() write out} or to {@link SimpleColumns#addText(java.lang.Object) add more data} to the
+    * {@link SimpleColumns#write() write out} or to {@link SimpleColumns#addContent(java.lang.Object, java.lang.String...) add more data} to the
     * document.
     *
     * @param stylers

@@ -33,8 +33,12 @@ import com.vectorprint.configuration.Settings;
 import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactoryImpl;
 import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactory;
 import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactoryImpl;
+import com.vectorprint.configuration.binding.settings.EnhancedMapParser;
 import com.vectorprint.configuration.decoration.CachingProperties;
 import com.vectorprint.configuration.decoration.ParsingProperties;
+import com.vectorprint.configuration.jaxb.SettingsFromJAXB;
+import com.vectorprint.configuration.jaxb.SettingsXMLHelper;
+import com.vectorprint.report.ReportConstants;
 import static com.vectorprint.report.ReportConstants.DATACLASS;
 import static com.vectorprint.report.ReportConstants.HELP;
 import static com.vectorprint.report.ReportConstants.REPORTCLASS;
@@ -62,10 +66,19 @@ import java.net.URLConnection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.vectorprint.report.itext.style.parameters.ReportBindingHelper;
+import java.io.FileReader;
+import org.xml.sax.SAXException;
 
 /**
- * This implementation does not depend on iText and may be subclassed to generate reports of other tastes. It overrides
- * {@link ReportBuilder} with String[] for arguments.
+ * This implementation does not depend on iText and may be subclassed to generate reports of other tastes. A
+ * ReportRunner needs settings for example to initialize styling for the report. Settings can originate from (in this order):
+ * <ul>
+ * <li>constructor argument</li>
+ * <li>file path containing xml settings declaration</li>
+ * <li>file path containing settings</li>
+ * <li>default file path ({@link #CONFIG_FILE}) containing settings</li>
+ * <li>String argument containing settings</li>
+ * </ul>
  *
  * @param <RD> the type of data for the Runner
  *
@@ -75,14 +88,21 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
 
    private static final Logger log = Logger.getLogger(ReportRunner.class.getName());
    /**
-    * return value for {@link #buildReport(java.lang.String[]) } indicating a property was present causing a direct
-    * return of the method.
+    * return value for {@link #buildReport(java.lang.String[]) } indicating a property
+    * ({@link ReportConstants#HELP}, {@link ReportConstants#VERSION}) caused a direct return of the method.
     */
    public static final int EXITFROMPROPERTYCODE = -1;
    public static final int EXITNOSETTINGS = -2;
    public static final String DATACLASS_HELP = "annotate your dataclasses, extend " + DataCollectorImpl.class.getName() + " and provide its classname using the property " + DATACLASS;
-   private final EnhancedMap settings;
+   private EnhancedMap settings;
 
+   /**
+    * initializes settings and {@link EnhancedMapBindingFactory}
+    *
+    * @see SettingsFromJAXB#fromJaxb(java.io.Reader)
+    * @see EnhancedMapBindingFactory#getParser(java.io.Reader)
+    * @param properties
+    */
    public ReportRunner(EnhancedMap properties) {
       if (properties == null) {
          throw new IllegalArgumentException("properties may not be null");
@@ -91,21 +111,63 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
       bindingFactory = EnhancedMapBindingFactoryImpl.getDefaultFactory();
    }
 
+   public ReportRunner() {
+      bindingFactory = EnhancedMapBindingFactoryImpl.getDefaultFactory();
+   }
+
+   /**
+    * Called from {@link #buildReport(java.lang.String[]) } and {@link #buildReport(java.lang.String[], java.io.OutputStream) }. Uses 
+    * at most 2 arguments the last containing settings in the current syntax, the first, if present, containing the path to a file.
+    * When this report runner does not have any settings yet initialize them using {@link #initSettingsFromArg(java.lang.String) }, when settings
+    * are still not found instantiate new settings.
+    * If there is an argument containing settings {@link EnhancedMapParser#parse(com.vectorprint.configuration.EnhancedMap) } will be called.
+    * 
+    * @param args only 
+    * @throws Exception when a failure occurs, also when settings are not initialized properly
+    */
+   protected void initSettings(String[] args) throws Exception {
+      if (args != null && args.length > 0) {
+         int secondArg = 0;
+         boolean needSettingsArg = false;
+         if (settings == null) {
+            settings = initSettingsFromArg(args[0]);
+            if (settings != null) {
+               secondArg = 1;
+            } else {
+               needSettingsArg = true;
+            }
+         }
+         if (secondArg < args.length) {
+            if (needSettingsArg) {
+               settings = new CachingProperties(new Settings());
+            }
+            bindingFactory.getParser(new StringReader(args[secondArg])).parse(settings);
+         } else if (needSettingsArg) {
+            System.out.println(SETTINGS_HELP);
+            Help.printHelp(System.out);
+            System.exit(EXITNOSETTINGS);
+         }
+      }
+      if (settings == null) {
+         System.out.println(SETTINGS_HELP);
+         Help.printHelp(System.out);
+         System.exit(EXITNOSETTINGS);
+      }
+   }
+
    /**
     * Calls {@link #buildReport(java.lang.String[], java.io.OutputStream) }, uses the setting {@link #OUTPUT}.
     *
     * @throws java.lang.Exception
     * @param args the command line arguments
-    * @return the value returned by {@link ReportGenerator#generate(com.vectorprint.itextreport.data.ReportDataHolder, java.io.OutputStream)},
-    * {@link #EXITFROMPROPERTYCODE}, {@link #EXITNOSETTINGS} or {@link #INVALIDPDF}
+    * @return the value returned by {@link ReportGenerator#generate(com.vectorprint.report.data.ReportDataHolder, java.io.OutputStream) },
+    * {@link #EXITFROMPROPERTYCODE}, {@link #EXITNOSETTINGS}
     */
    @Override
    public final int buildReport(String[] args) throws Exception {
 
       try {
-         if (args != null && args.length > 0) {
-            bindingFactory.getParser(new StringReader(args[0])).parse(settings);
-         }
+         initSettings(args);
 
          if (settings.containsKey(VERSION)) {
             for (VersionInfo.VersionInformation mi : VersionInfo.getVersionInfo().values()) {
@@ -165,10 +227,17 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
    public static final String OUTPUT = "output";
 
    /**
-    * called when a setting {@link #HELP} is present, calls {@link Help#printHelp(java.io.PrintStream) } and {@link EnhancedMap#printHelp()
+    * called when a setting {@link ReportConstants#HELP} is present, calls {@link Help#printHelp(java.io.PrintStream) } and {@link EnhancedMap#printHelp()
     * }.
     *
     * @param properties
+    * @throws java.io.IOException
+    * @throws java.io.FileNotFoundException
+    * @throws java.lang.ClassNotFoundException
+    * @throws java.lang.InstantiationException
+    * @throws java.lang.IllegalAccessException
+    * @throws java.lang.NoSuchMethodException
+    * @throws java.lang.reflect.InvocationTargetException
     */
    protected void showHelp(EnhancedMap properties) throws IOException, FileNotFoundException, ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
 
@@ -179,9 +248,10 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
    }
 
    /**
-    * Instantiates a datacollector based on a property {@link #DATACLASS}
+    * Instantiates a datacollector based on a property {@link ReportConstants#DATACLASS}
     *
     * @return
+    * @throws com.vectorprint.VectorPrintException
     */
    @Override
    public DataCollector<RD> getDataCollector() throws VectorPrintException {
@@ -202,11 +272,11 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
    }
 
    /**
-    * Instantiates a report generator based on a property {@link #REPORTCLASS}, defaults to {@link
-    * BaseReportGenerator}. Sets the system property {@link ParameterizableBindingFactoryImpl#PARAMHELPER} to
-    * {@link #getBindingHelperClass() }.
+    * Instantiates a report generator based on a property {@link ReportConstants#REPORTCLASS}, defaults to {@link
+    * BaseReportGenerator}.
     *
     * @return
+    * @throws com.vectorprint.VectorPrintException
     */
    @Override
    public ReportGenerator<RD> getReportGenerator() throws VectorPrintException {
@@ -238,57 +308,55 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
 
    /**
     * looks for {@link #CONFIG_FILE} in the working directory or in the classpath ({@link ClassLoader#getResourceAsStream(java.lang.String)
-    * }), when found creates {@link VectorPrintProperties } and calls {@link ReportRunner#buildReport(java.lang.String[])
-    * }.
+    * }), when found creates {@link CachingProperties} holding {@link ParsingProperties}.
     *
-    * @return {@link #EXITNOSETTINGS} when no config found
+    * @return settings or null
     * @throws Exception
     */
-   public static int findSettingsAndBuild() throws Exception {
+   public static EnhancedMap findSettings() throws Exception {
       if (new File(CONFIG_FILE).canRead()) {
-         return new ReportRunner(new ParsingProperties(new Settings(), CONFIG_FILE)).buildReport(null);
+         return new CachingProperties(new ParsingProperties(new Settings(), CONFIG_FILE));
       } else {
          InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream('/' + CONFIG_FILE);
          if (in != null) {
-            return new ReportRunner(new ParsingProperties(new Settings(), CONFIG_FILE)).buildReport(null);
+            return new CachingProperties(new ParsingProperties(new Settings(), CONFIG_FILE));
          }
       }
-      return EXITNOSETTINGS;
+      return null;
    }
-   
+
    /**
-    * if the first argument is a file, this file is assumed to be the settings file, otherwise settings are searched
-    * using {@link #CONFIG_FILE}. When no settings are found help will be printed to standard out.
+    * When the argument is null call {@link #findSettings() }. When the argument is a file that exists it is assumed to
+    * either be an xml file declaring settings or a file holding setting. Either {@link SettingsFromJAXB#fromJaxb(java.io.Reader)
+    * } or {@link ParsingProperties#ParsingProperties(com.vectorprint.configuration.EnhancedMap, java.net.URL...) } will
+    * be called.
+    *
+    * @param arg name of a file or null
+    * @return settings or null
+    * @throws Exception
+    */
+   public static EnhancedMap initSettingsFromArg(String arg) throws Exception {
+      if (arg != null) {
+         if (new File(arg).canRead()) {
+            try {
+               SettingsXMLHelper.validateXml(arg);
+               return new SettingsFromJAXB().fromJaxb(new FileReader(arg));
+            } catch (SAXException sAXException) {
+               log.warning(String.format("%s does not contain settings xml, trying to parse settings directly", arg));
+            }
+            return new CachingProperties(new ParsingProperties(new Settings(), arg));
+         }
+      }
+      return findSettings();
+   }
+
+   /**
+    *
     *
     * @param args
     */
    public static void main(String[] args) throws Exception {
-      // lookup settings using default filename
-      // call constructor and run
-      if (args != null) {
-         if (args.length > 0 && new File(args[0]).canRead()) {
-            String[] shiftArgs = new String[args.length - 1];
-            if (shiftArgs.length > 0) {
-               System.arraycopy(args, 1, shiftArgs, 0, shiftArgs.length);
-            }
-            /*
-             before anything (also before parsing properties) we need to init the factories dealing with syntax:
-            
-             ParameterizableBindingFactory and EnhancedMapBindingFactory
-            
-             we need to know 6 classes:
-            
-             2 parser classes, 2 serializer classes and 2 bindinghelper class
-            
-             */
-            System.exit(new ReportRunner(new CachingProperties(new ParsingProperties(new Settings(), args[0]))).buildReport(shiftArgs));
-         }
-      }
-      if (EXITNOSETTINGS == findSettingsAndBuild()) {
-         System.out.println(SETTINGS_HELP);
-         Help.printHelp(System.out);
-         System.exit(EXITNOSETTINGS);
-      }
+      System.exit(new ReportRunner().buildReport(args));
    }
 
    private final EnhancedMapBindingFactory bindingFactory;
@@ -297,22 +365,19 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
     * Bottleneck method, writes report to stream argument, calls {@link BaseReportGenerator#generate(com.vectorprint.report.data.ReportDataHolder, java.io.OutputStream)
     * }.
     *
-    * @see EnhancedMap#addFromArguments(java.lang.String[])
     * @see DataCollector
     * @see ReportGenerator
     * @param args
     * @param out
     * @return the value returned by {@link ReportGenerator#generate(com.vectorprint.itextreport.data.ReportDataHolder, java.io.OutputStream)},
-    * {@link #EXITFROMPROPERTYCODE}, {@link #EXITNOSETTINGS} or {@link #INVALIDPDF}
+    * {@link #EXITFROMPROPERTYCODE}
     * @throws Exception
     */
    @Override
    public int buildReport(String[] args, final OutputStream out) throws Exception {
 
       try {
-         if (args != null && args.length > 0) {
-            bindingFactory.getParser(new StringReader(args[0])).parse(settings);
-         }
+         initSettings(args);
 
          if (settings.containsKey(VERSION)) {
             for (VersionInfo.VersionInformation mi : VersionInfo.getVersionInfo().values()) {
@@ -331,15 +396,15 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
          DataCollector<RD> dc = getDataCollector();
          // init bindinghelper now
          String clazz = System.getProperty(ParameterizableBindingFactoryImpl.PARAMHELPER);
-         if (clazz==null) {
-            System.setProperty(ParameterizableBindingFactoryImpl.PARAMHELPER,dc.getDefaultBindingHelperClass().getName());
+         if (clazz == null) {
+            System.setProperty(ParameterizableBindingFactoryImpl.PARAMHELPER, dc.getDefaultBindingHelperClass().getName());
          } else {
             Class<?> forName = Class.forName(clazz);
             if (!ReportBindingHelper.class.isAssignableFrom(forName)) {
                throw new VectorPrintException(String.format("%s, from system property %s is not a %s", clazz, ParameterizableBindingFactoryImpl.PARAMHELPER,
                    ReportBindingHelper.class.getName()));
             } else {
-            System.setProperty(ParameterizableBindingFactoryImpl.PARAMHELPER,clazz);
+               System.setProperty(ParameterizableBindingFactoryImpl.PARAMHELPER, clazz);
             }
          }
          ReportGenerator<RD> rg = getReportGenerator();

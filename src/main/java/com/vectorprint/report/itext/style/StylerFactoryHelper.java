@@ -55,7 +55,6 @@ public class StylerFactoryHelper {
    public static final Logger LOGGER = Logger.getLogger(StylerFactoryHelper.class.getName());
    /**
     *
-    * @param <T>
     * @param s
     * @param writer
     * @param document
@@ -64,7 +63,6 @@ public class StylerFactoryHelper {
     * @param settings
     * @param elementProducer
     * @param stylerFactory
-    * @return
     * @throws VectorPrintException
     */
    public static void initStylingObject(Object s, PdfWriter writer, Document document, ImageLoader imageLoader, LayerManager layerManager, EnhancedMap settings, ElementProducer elementProducer, StylerFactory stylerFactory) throws VectorPrintException {

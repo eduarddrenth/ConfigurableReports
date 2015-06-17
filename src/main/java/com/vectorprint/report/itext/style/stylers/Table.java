@@ -30,7 +30,6 @@ package com.vectorprint.report.itext.style.stylers;
 
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.PdfPTable;
-import com.vectorprint.ArrayHelper;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.parameters.IntParameter;
 import com.vectorprint.configuration.parameters.Parameter;

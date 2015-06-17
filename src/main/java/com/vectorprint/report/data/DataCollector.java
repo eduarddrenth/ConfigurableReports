@@ -46,7 +46,7 @@ public interface DataCollector<RD extends ReportDataHolder> {
    /**
     * called by {@link ReportBuilder#buildReport(java.lang.Object) } to collect data.
     *
-    * @see #add(java.lang.Object)
+    * @see #add(java.lang.Object, java.lang.String) 
     * @return
     */
    RD collect();

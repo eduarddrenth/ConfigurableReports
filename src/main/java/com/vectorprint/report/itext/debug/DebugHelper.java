@@ -96,15 +96,17 @@ public class DebugHelper {
    }
 
    /**
-    * When in debugging mode, adds a border to the image and calls {@link VectorPrintDocument#addHook(com.vectorprint.report.itext.VectorPrintDocument.AddHook) } to 
+    * When in debugging mode, adds a border to the image and calls {@link VectorPrintDocument#addHook(com.vectorprint.report.itext.VectorPrintDocument.AddElementHook)  } to 
     * be able to print debugging info and link for the image
     *
     * @param canvas
     * @param img
     * @param bordercolor
-    * @param styles
+    * @param styleClass
+    * @param extraInfo
     * @param settings
     * @param layerAware
+    * @param document
     */
    public static void debugImage(PdfContentByte canvas, Image img, Color bordercolor, String styleClass, String extraInfo, EnhancedMap settings, LayerManager layerAware, VectorPrintDocument document) {
       if (null != img) {

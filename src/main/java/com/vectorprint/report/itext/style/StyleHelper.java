@@ -64,10 +64,10 @@ public class StyleHelper {
    }
 
    /**
-    * style elements, prepends the argument stylers with stylers by calling {@link StylerFactory#getElementStylers(java.lang.String[])
-    * } with the simpleName of the class of the element to be styled. When {@link BaseStyler#shouldStyle(java.lang.Object, java.lang.Object)
-    * } is true and {@link BaseStyler#styleAfterAdding() } is true, {@link VectorPrintDocument#scheduleStylerAfterAdding(com.vectorprint.report.itext.style.BaseStyler)
-    * } will be called to do styling after adding the element. This way you can extend styling setup without using
+    * style elements, prepends the argument stylers with stylers by calling {@link StylerFactory#getStylers(java.lang.String...) }
+    * with the simpleName of the class of the element to be styled. When {@link BaseStyler#shouldStyle(java.lang.Object, java.lang.Object)}
+    * is true and {@link BaseStyler#styleAfterAdding() } is true, {@link VectorPrintDocument#addHook(com.vectorprint.report.itext.VectorPrintDocument.AddElementHook) }
+    * will be called to do styling after adding the element. This way you can extend styling setup without using
     * styleClasses in your code.
     *
     * @param <E>
@@ -180,7 +180,7 @@ public class StyleHelper {
    }
 
    /**
-    * for debugging, uses {@link DebugStyler#getStyleClasses() } to return classNames
+    * for debugging, uses {@link DebugStyler#getStyleSetup()  } to return classNames
     *
     * @param l
     * @return
@@ -200,9 +200,8 @@ public class StyleHelper {
    }
 
    /**
-    * Call {@link #delayedStyle(com.itextpdf.text.Chunk, java.lang.String, java.util.Collection, com.vectorprint.report.itext.EventHelper, com.itextpdf.text.Rectangle)
-    * }
-    * with null for Rectangle
+    * Call {@link #delayedStyle(com.itextpdf.text.Chunk, java.lang.String, java.util.Collection, com.vectorprint.report.itext.EventHelper, com.itextpdf.text.Image) }
+    * with null for Image
     */
    public void delayedStyle(Chunk c, String tag, Collection<? extends Advanced> stylers, EventHelper eventHelper) {
       delayedStyle(c, tag, stylers, eventHelper, null);
@@ -216,8 +215,7 @@ public class StyleHelper {
     * @param stylers
     * @param eventHelper
     * @param img the value of rect
-    * @see PageHelper#onGenericTag(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document,
-    * com.itextpdf.text.Rectangle, java.lang.String)
+    * @see EventHelper#onGenericTag(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document, com.itextpdf.text.Rectangle, java.lang.String) 
     */
    public void delayedStyle(Chunk c, String tag, Collection<? extends Advanced> stylers, EventHelper eventHelper, Image img) {
       // add to pagehelper and set generic tag

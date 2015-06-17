@@ -33,7 +33,6 @@ import com.itextpdf.text.pdf.PdfGState;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
-import com.vectorprint.ArrayHelper;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.EnhancedMap;
@@ -44,6 +43,7 @@ import com.vectorprint.report.itext.EventHelper;
 import com.vectorprint.report.itext.LayerManager;
 import com.vectorprint.report.itext.LayerManagerAware;
 import com.vectorprint.report.itext.style.DefaultStylerFactory;
+import com.vectorprint.report.itext.style.StyleHelper;
 
 import com.vectorprint.report.itext.style.StylerFactoryHelper;
 import com.vectorprint.report.itext.style.StylingCondition;
@@ -63,9 +63,7 @@ import java.util.Set;
  * page, draw after a certain Chunk is drawn. Subclasses that {@link ElementStyler#creates() can create elements} can as
  * well be used in combination with the {@link ElementProducer} methods to add elements to the document. Furthermore an
  * advanced styler can be used programmatically, use the constructor with arguments for this and the
- * {@link #draw(com.itextpdf.text.Rectangle, java.lang.String)} method. Like all stylers setup of these stylers can be
- * done from properties, see {@link AbstractStyler#setup(java.util.Map, java.util.Map)}
- * }.
+ * {@link #draw(com.itextpdf.text.Rectangle, java.lang.String)} method.
  *
  * @author Eduard Drenth at VectorPrint.nl
  */
@@ -121,7 +119,7 @@ public class AdvancedImpl<DATATYPE> extends AbstractStyler implements Advanced<D
    /**
     * get a canvas for drawing, prepared according to settings
     *
-    * @see #draw(com.itextpdf.text.pdf.PdfContentByte)
+    * @see #draw(com.itextpdf.text.Rectangle, java.lang.String) 
     * @return
     */
    @Override
@@ -131,7 +129,7 @@ public class AdvancedImpl<DATATYPE> extends AbstractStyler implements Advanced<D
    /**
     * get a canvas for drawing, prepared according to settings
     *
-    * @see #draw(com.itextpdf.text.pdf.PdfContentByte)
+    * @see #draw(com.itextpdf.text.Rectangle, java.lang.String) 
     * @return
     */
    protected final PdfContentByte getPreparedCanvas(float opacity) {
@@ -227,10 +225,9 @@ public class AdvancedImpl<DATATYPE> extends AbstractStyler implements Advanced<D
    }
 
    /**
-    * called when a {@link EVENTMODE document event} or when {@link DefaultStylerFactory#PAGESTYLERS a page is written}.
+    * called when a {@link EVENTMODE document event} is fired or when {@link DefaultStylerFactory#PAGESTYLERS a page is written}.
     *
-    * @see EventHelper#addDelayedStyler(java.lang.String, java.util.Collection, com.itextpdf.text.Chunk,
-    * com.itextpdf.text.Rectangle)
+    * @see EventHelper#addDelayedStyler(java.lang.String, java.util.Collection, com.itextpdf.text.Chunk, com.itextpdf.text.Image) 
     * @see EVENTMODE
     * @param rect the rectangle where the text was printed
     * @param genericTag event that was fired
@@ -302,7 +299,6 @@ public class AdvancedImpl<DATATYPE> extends AbstractStyler implements Advanced<D
    /**
     * adaptation of X coordinate to be used when x is known from the previous addition of an iText element
     *
-    * @return
     */
    public void setShiftx(float shiftx) {
       setValue(SHIFTX, shiftx);
@@ -379,8 +375,11 @@ public class AdvancedImpl<DATATYPE> extends AbstractStyler implements Advanced<D
    }
 
    /**
-    * Calls {@link #draw(com.itextpdf.text.Rectangle, java.lang.String) } with null as genericTag.
+    * An advanced styler may be added as event to a table by {@link StyleHelper#style(java.lang.Object, java.lang.Object, java.util.Collection) }
+    * when the element styled is a table and the {@link EVENTMODE} is ALL or TABLE. This enables drawing near a table.
+    * Calls {@link #draw(com.itextpdf.text.Rectangle, java.lang.String) } with the rectangle of the table null as genericTag.
     *
+    * @see EVENTMODE#TABLE
     * @param table
     * @param widths
     * @param heights
@@ -389,13 +388,13 @@ public class AdvancedImpl<DATATYPE> extends AbstractStyler implements Advanced<D
     * @param canvases
     */
    @Override
-   public void tableLayout(PdfPTable table, float[][] widths, float[] heights, int headerRows, int rowStart, PdfContentByte[] canvases) {
+   public final void tableLayout(PdfPTable table, float[][] widths, float[] heights, int headerRows, int rowStart, PdfContentByte[] canvases) {
       final int footer = widths.length - table.getFooterRows();
       final int header = table.getHeaderRows();
       int columns = widths[header].length - 1;
       float w = widths[header][columns];
       try {
-         tableForeground = (isBg()) ? canvases[PdfPTable.BASECANVAS] : canvases[PdfPTable.TEXTCANVAS];
+         tableForeground = isBg() ? canvases[PdfPTable.BASECANVAS] : canvases[PdfPTable.TEXTCANVAS];
          draw(new Rectangle(widths[header][0], heights[footer - 1], w, heights[header]), null);
          tableForeground = null;
       } catch (VectorPrintException ex) {
@@ -404,11 +403,12 @@ public class AdvancedImpl<DATATYPE> extends AbstractStyler implements Advanced<D
    }
 
    /**
-    * Calls {@link #draw(com.itextpdf.text.Rectangle, java.lang.String) } with null as genericTag, when
-    * {@link #USEPADDING} is true, calculate a rectangle taking padding into account before calling {@link #draw(com.itextpdf.text.Rectangle, java.lang.String)
-    * }. When {@link #isBg() } is true {@link PdfPTable#BASECANVAS} is used for drawing, otherwise
-    * {@link PdfPTable#TEXTCANVAS}.
+    * An advanced styler may be added as event to a cell by {@link StyleHelper#style(java.lang.Object, java.lang.Object, java.util.Collection) }
+    * when the element styled is a table and the {@link EVENTMODE} is ALL or CELL. This enables drawing near a cell.
+    * Calls {@link #draw(com.itextpdf.text.Rectangle, java.lang.String) } with the rectangle of the cell null as genericTag. When
+    * {@link #USEPADDING} is true the rectangle is calculated taking cell padding into account.
     *
+    * @see EVENTMODE#CELL
     * @param cell
     * @param position
     * @param canvases
@@ -416,8 +416,8 @@ public class AdvancedImpl<DATATYPE> extends AbstractStyler implements Advanced<D
    @Override
    public final void cellLayout(PdfPCell cell, Rectangle position, PdfContentByte[] canvases) {
       try {
-         tableForeground = (isBg()) ? canvases[PdfPTable.BASECANVAS] : canvases[PdfPTable.TEXTCANVAS];
-         Rectangle box = (getValue(USEPADDING, Boolean.class)) ? new Rectangle(
+         tableForeground = isBg() ? canvases[PdfPTable.BASECANVAS] : canvases[PdfPTable.TEXTCANVAS];
+         Rectangle box = getValue(USEPADDING, Boolean.class) ? new Rectangle(
              position.getLeft() + cell.getPaddingLeft(),
              position.getBottom() + cell.getPaddingBottom(),
              position.getRight() - cell.getPaddingRight(),

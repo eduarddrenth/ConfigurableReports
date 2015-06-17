@@ -7,8 +7,10 @@ import com.itextpdf.text.pdf.PdfPCellEvent;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.report.itext.debug.DebuggablePdfPCell;
+import com.vectorprint.report.itext.style.stylers.AbstractFieldStyler;
 import com.vectorprint.report.itext.style.stylers.Advanced;
 import java.io.IOException;
+import static com.vectorprint.report.itext.style.FormFieldStyler.FIELDTYPE;
 
 /*
  * #%L
@@ -64,7 +66,7 @@ public interface FormFieldStyler extends Advanced<Object> {
    /**
     * Set the value(s) for the BaseField, based on {@link FIELDTYPE}.
     *
-    * @see #VALUES_PARAM
+    * @see AbstractFieldStyler#VALUES_PARAM
     */
    void setFieldValues();
 

@@ -37,12 +37,12 @@ import java.lang.annotation.Target;
 
 /**
  * You can annotate classes in your data to be added to a report as implementations of {@link com.itextpdf.text.Element}
- * and styled according to styleClasses. When a container is active the element will be added to the active container,
- * except {@link MultiColumnText} which cannot be added to another element.
+ * and styled according to styleClasses. When a container is active the element will be added to the active container if
+ * possible.
  *
  * @see DataType
  * @see GetData
- * @see ElementProducer#createElement(java.lang.Object, java.util.Collection, java.lang.Class)
+ * @see ElementProducer#createElement(java.lang.Object, java.lang.Class, java.util.List) 
  * @see StylerFactory#getStylers(java.lang.String[])
  * @author Eduard Drenth at VectorPrint.nl
  */

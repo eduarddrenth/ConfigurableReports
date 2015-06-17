@@ -182,10 +182,10 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
 
    /**
     * adds a visible signature of 200 / 100 at top left of the first page of the pdf with "verify origin" as reason, the
-    * localhost name as location, {@link PdfSignatureAppearance#SELF_SIGNED} as filter. Override this if you want a
-    * different signature in your pdf.
+    * localhost name as location.
+    * Uses MakeSignature.signDetached(psa, as, pks, certificateChain, null, null, null, 0, MakeSignature.CryptoStandard.CMS)
     *
-    * @see #loadKeyStore()
+    * @see #loadKeyStore(char[]) 
     * @see #getKey(java.security.KeyStore, java.lang.String, char[]) }
     * @param psa
     * @throws KeyStoreException
@@ -229,7 +229,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
     * If your settings contain a key {@link #FONTS} it is assumed to be a list of directory names where fonts are loaded
     * from.
     *
-    * @see EnhancedMap#getStringProperties(java.lang.String, java.lang.String[])
+    * @see EnhancedMap#getStringProperties(java.lang.String..., java.lang.String...) 
     * @see FontFactory#registerDirectory(java.lang.String)
     * @throws VectorPrintException
     */
@@ -478,7 +478,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
    }
 
    /**
-    * loads a keystore using {@link #getSigncertificate() } and {@link #getKeystoretype() }, uses configured
+    * loads a keystore using {@link #getSignKeystore()  } and {@link #getKeystoretype() }, uses configured
     * {@link #KEYSTORE_PASSWORD keystorepassword}.
     *
     * @return
@@ -530,8 +530,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
    }
 
    /**
-    * called as the last step from {@link #style(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document, com.vectorprint.report.data.ReportDataHolder)
-    * }, calls {@link #builtInFontHack() } which is necessary when creating PDF/X-1a with iText.
+    * called as the last step from {@link #style(java.lang.Object, java.lang.Object) }, calls {@link #builtInFontHack() } which is necessary when creating PDF/X-1a with iText.
     *
     * @param writer
     * @throws IOException

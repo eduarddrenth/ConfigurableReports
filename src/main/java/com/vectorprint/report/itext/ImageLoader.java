@@ -64,7 +64,6 @@ public interface ImageLoader {
     * @param writer
     * @param password the value of password
     * @param pages when null assume all pages
-    * @return
     * @throws VectorPrintException
     */
    void loadPdf(URL pdf, PdfWriter writer, byte[] password, ImageProcessor imageProcessor, int... pages) throws VectorPrintException;
@@ -76,7 +75,6 @@ public interface ImageLoader {
     * @param writer
     * @param password the value of password
     * @param pages when null assume all pages
-    * @return
     * @throws VectorPrintException
     */
    void loadPdf(InputStream pdf, PdfWriter writer, byte[] password,  ImageProcessor imageProcessor, int... pages) throws VectorPrintException;
@@ -86,7 +84,6 @@ public interface ImageLoader {
     *
     * @param tiff
     * @param pages when null assume all pages
-    * @return
     * @throws VectorPrintException
     */
    void loadTiff(InputStream tiff, ImageProcessor imageProcessor, int... pages) throws VectorPrintException;
@@ -96,7 +93,6 @@ public interface ImageLoader {
     *
     * @param tiff
     * @param pages when null assume all pages
-    * @return
     * @throws VectorPrintException
     */
    void loadTiff(URL tiff, ImageProcessor imageProcessor, int... pages) throws VectorPrintException;

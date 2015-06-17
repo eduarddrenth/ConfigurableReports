@@ -26,7 +26,6 @@ package com.vectorprint.report.itext.mappingconfig;
  * #L%
  */
 import com.vectorprint.IOHelper;
-import com.vectorprint.report.data.types.Formatter;
 import com.vectorprint.report.data.types.ReportValue;
 import com.vectorprint.report.data.types.TextValue;
 import com.vectorprint.report.itext.annotations.CONTAINER_ELEMENT;
@@ -39,7 +38,6 @@ import com.vectorprint.report.itext.annotations.MultipleFromData;
 import com.vectorprint.report.itext.jaxb.Datamappingstype;
 import com.vectorprint.report.itext.jaxb.Datamappingtype;
 import com.vectorprint.report.itext.jaxb.Elementtype;
-import com.vectorprint.report.itext.jaxb.ObjectFactory;
 import com.vectorprint.report.itext.jaxb.Startcontainertype;
 import com.vectorprint.report.itext.mappingconfig.model.DataMapping;
 import com.vectorprint.report.itext.mappingconfig.model.DatatypeConfig;
@@ -80,14 +78,6 @@ public class DatamappingHelper {
    private static Logger logger = Logger.getLogger(DatamappingHelper.class.getName());
 
    public static final String XSD = "/xsd/DataMappingConfig.xsd";
-
-   public static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
-
-   /**
-    * when the first argument to {@link #main(java.lang.String[]) } equals this constant an xml file, given in the
-    * second arguments as a URL, will be validated
-    */
-   public static final String VALIDATE = "validate";
 
    private static JAXBContext JAXBCONTEXT = null;
    private static Schema schema = null;
@@ -138,13 +128,12 @@ public class DatamappingHelper {
    /**
     * prints xsd, or validate xml (no exceptions => ok)
     *
-    * @see #VALIDATE
     * @param args
     * @throws IOException
     */
    public static void main(String[] args) throws IOException, SAXException {
-      if (args != null && args.length > 1 && VALIDATE.equals(args[0])) {
-         validateXml(new URL(args[1]));
+      if (args != null && args.length > 0) {
+         validateXml(new URL(args[0]));
       } else {
          System.out.println(getXsd());
       }

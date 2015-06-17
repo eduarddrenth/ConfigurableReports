@@ -55,7 +55,7 @@ public interface StylingCondition extends Parameterizable {
     * set the key in the configuration that declared this condition
     *
     * @see DefaultStylerFactory
-    * @param className
+    * @param key
     */
    StylingCondition setConfigKey(String key);
 

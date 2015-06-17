@@ -49,6 +49,7 @@ import com.vectorprint.report.ReportConstants;
 import static com.vectorprint.report.ReportConstants.DEBUG;
 import com.vectorprint.report.ReportGenerator;
 import com.vectorprint.report.data.DataCollectionMessages;
+import static com.vectorprint.report.data.DataCollectionMessages.Level;
 import com.vectorprint.report.data.BlockingDataCollector.QUEUECONTROL;
 import com.vectorprint.report.data.ReportDataHolder;
 import com.vectorprint.report.data.ReportDataHolder.IdData;
@@ -76,7 +77,6 @@ import com.vectorprint.report.itext.style.StylerFactory;
 import com.vectorprint.report.itext.style.StylerFactoryHelper;
 import com.vectorprint.report.itext.style.stylers.SimpleColumns;
 import com.vectorprint.report.itext.style.stylers.DocumentSettings;
-import com.vectorprint.report.running.ReportRunner;
 import java.awt.Color;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -85,7 +85,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -102,14 +101,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.JAXBException;
 
 //~--- JDK imports ------------------------------------------------------------
 /**
  * This implementation of ReportGenerator uses a {@link EventHelper} and a {@link ElementProducer} to build an iText
- * report. Subclasses should provide a constructor and implement {@link #createReportBody(com.itextpdf.text.DocumentSettings, com.vectorprint.itextreport.data.ReportDataHolder)
+ * report. Subclasses should provide a constructor and implement {@link #createReportBody(com.itextpdf.text.Document, com.vectorprint.report.data.ReportDataHolder, com.itextpdf.text.pdf.PdfWriter) }
  * }
  *
  * @author Eduard Drenth at VectorPrint.nl
@@ -155,7 +153,7 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
     * Basic constructor
     *
     * @param eventHelper
-    * @param elementProducer {@link DefaultElementProvider see default}
+    * @param elementProducer {@link DefaultElementProducer see default}
     * @throws com.vectorprint.VectorPrintException
     */
    public BaseReportGenerator(EventHelper<RD> eventHelper, ElementProducer elementProducer)
@@ -195,19 +193,15 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
    private boolean wasDebug = false;
 
    /**
-    * prepare the report, call {@link #handleMessages(com.vectorprint.itextreport.DataCollectionMessages)
+    * prepare the report, call {@link #continueOnDataCollectionMessages(com.vectorprint.report.data.DataCollectionMessages, com.itextpdf.text.Document)
     * }
-    * and when true {@link #createReportBody(com.itextpdf.text.Document, com.vectorprint.itextreport.data.ReportDataHolder)
-    * }. Depending on a
-    * {@link ReportRunner#getRunProperties() property "stoponerror" true/false} {@link VectorPrintException}s will be
-    * caught or not. When {@link VectorPrintException}s are caught a
-    * {@link ReportRunner#getMessages() default messages (renderfault)} will be shown in the pdf or the {@link VectorPrintException#getMessage()
-    * }. VectorPrintExceptions as well as {@link DocumentException}s thrown outside createReportBody will be dealt with
-    * in the same manner.
+    * and when this returns true call {@link #createReportBody(com.itextpdf.text.Document, com.vectorprint.report.data.ReportDataHolder, com.itextpdf.text.pdf.PdfWriter)
+    * }. When a Runtime, VectorPrint, IO and DocumentException occurs {@link #handleException(java.lang.Exception, java.io.OutputStream)
+    * } will be called.
     *
     * @param data
     * @param outputStream
-    * @return 0, {@link #ERRORINREPORT} or {@link #INVALIDPDF}
+    * @return 0 or {@link #ERRORINREPORT}
     * @throws com.vectorprint.VectorPrintException
     */
    @Override
@@ -248,14 +242,13 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
             ds.styleAfterOpen(document, data);
          }
 
-         // data from the data collection phase don't have to be present
-         if ((data == null) || continueOnDataCollectionMessages(data.getMessages(), document)) {
+         // data from the data collection phase doesn't have to be present
+         if (continueOnDataCollectionMessages(data.getMessages(), document)) {
             createReportBody(document, data, writer);
             /*
              * when using queueing we may have run into failures in the data collection thread
              */
-            if (data == null || data.getData().isEmpty()) {
-            } else {
+            if (!data.getData().isEmpty()) {
                Object t = data.getData().poll();
                if (t instanceof Throwable) {
                   throw new VectorPrintException((Throwable) t);
@@ -292,57 +285,56 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
 
    /**
     * This method will be called when exceptions are thrown in
-    * {@link #createReportBody(com.itextpdf.text.Document, com.vectorprint.report.data.ReportDataHolder)} or {@link #appendDebugInfo()
-    * }, it will rethrow the exception by default. If you provide a property "stoponerror" with a value of false, the
-    * stacktrace will be appended to the pdf and the document and writer will be closed.
+    * {@link #createReportBody(com.itextpdf.text.Document, com.vectorprint.report.data.ReportDataHolder)} or
+    * {@link DebugHelper#appendDebugInfo(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document, com.vectorprint.configuration.EnhancedMap, com.vectorprint.report.itext.style.StylerFactory) },
+    * it will rethrow the exception by default. If you provide a property {@link ReportConstants#STOPONERROR} with a
+    * value of false, the stacktrace will be appended to the pdf and the document and writer will be closed.
     *
     * @param ex
     * @param output the pdf document output stream
     * @return 1
     */
    protected int handleException(Exception ex, OutputStream output) throws VectorPrintRuntimeException {
-      if (getSettings().getBooleanProperty(Boolean.TRUE, "stoponerror")) {
+      if (getSettings().getBooleanProperty(Boolean.TRUE, ReportConstants.STOPONERROR)) {
          throw (ex instanceof VectorPrintRuntimeException)
              ? (VectorPrintRuntimeException) ex
              : new VectorPrintRuntimeException("failed to generate the report: " + ex.getMessage(), ex);
       } else {
          PrintStream out;
 
+         ByteArrayOutputStream bo = new ByteArrayOutputStream();
+
+         out = new PrintStream(bo);
+         ex.printStackTrace(out);
+         out.close();
+
          try {
-            ByteArrayOutputStream bo = new ByteArrayOutputStream();
+            Font f = FontFactory.getFont(FontFactory.COURIER, 8);
 
-            out = new PrintStream(bo, true, "UTF-8");
-            ex.printStackTrace(out);
-            out.close();
+            f.setColor(itextHelper.fromColor(getSettings().getColorProperty(Color.MAGENTA, "debugcolor")));
 
-            try {
-               Font f = FontFactory.getFont(FontFactory.COURIER, 8);
+            String s = getSettings().getProperty(bo.toString(), "renderfault");
+            eventHelper.setLastPage(writer.getCurrentPageNumber());
+            document.setPageSize(new Rectangle(ItextHelper.mmToPts(297), ItextHelper.mmToPts(210)));
+            document.setMargins(5, 5, 5, 5);
 
-               f.setColor(itextHelper.fromColor(getSettings().getColorProperty(Color.MAGENTA, "debugcolor")));
+            document.newPage();
+            eventHelper.setFailuresHereAfter(true);
 
-               String s = getSettings().getProperty(bo.toString("UTF-8"), "renderfault");
-               eventHelper.setLastPage(writer.getCurrentPageNumber());
-               document.setPageSize(new Rectangle(ItextHelper.mmToPts(297), ItextHelper.mmToPts(210)));
-               document.setMargins(5, 5, 5, 5);
-
-               document.newPage();
-               eventHelper.setFailuresHereAfter(true);
-
-               document.add(new Chunk("Below you find information that help solving the problems in this report.", f).setLocalDestination(FAILUREPAGE));
-               newLine();
-               document.add(new Paragraph(new Chunk(s, f)));
-               document.newPage();
-               DebugHelper.appendDebugInfo(writer, document, settings, stylerFactory);
-            } catch (VectorPrintException e) {
-               log.log(Level.SEVERE, null, e);
-            } catch (DocumentException e) {
-               log.log(Level.SEVERE, null, e);
-            } finally {
-               document.close();
-               writer.close();
-            }
-         } catch (UnsupportedEncodingException ex1) {
-            log.log(Level.SEVERE, null, ex1);
+            document.add(new Chunk("Below you find information that help solving the problems in this report.", f).setLocalDestination(FAILUREPAGE));
+            newLine();
+            document.add(new Paragraph(new Chunk(s, f)));
+            document.newPage();
+            DebugHelper.appendDebugInfo(writer, document, settings, stylerFactory);
+         } catch (VectorPrintException e) {
+            log.severe("Could not append to PDF:\n"+bo.toString());
+            log.log(java.util.logging.Level.SEVERE, null, e);
+         } catch (DocumentException e) {
+            log.severe("Could not append to PDF:\n"+bo.toString());
+            log.log(java.util.logging.Level.SEVERE, null, e);
+         } finally {
+            document.close();
+            writer.close();
          }
       }
 
@@ -508,7 +500,7 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
       StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(elementProducer, settings);
       StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(stylerFactory, settings);
       StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(eventHelper, settings);
-      itextHelper=new ItextHelper();
+      itextHelper = new ItextHelper();
       StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(itextHelper, settings);
    }
 
@@ -713,12 +705,12 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
 
       if (!settings.containsKey(DocumentSettings.TOCTABLEKEY)) {
          float tot = ItextHelper.ptsToMm(document.getPageSize().getWidth() - document.leftMargin() - document.rightMargin());
-         settings.put(DocumentSettings.TOCTABLEKEY, new String[] {"Table(columns=2,widths="+
-             (Math.round(tot * ds.getValue(DocumentSettings.TOCLEFTWIDTH, Float.class)))+'|'+
-             (Math.round(tot * ds.getValue(DocumentSettings.TOCRIGHTWIDTH, Float.class)))+')',
-             "AddCell(data=Table of Contents,styleclass=toccaption)",
-             "AddCell(data=title,styleclass=tocheader)",
-             "AddCell(data=page,styleclass=tocheader)"}
+         settings.put(DocumentSettings.TOCTABLEKEY, new String[]{"Table(columns=2,widths="
+            + (Math.round(tot * ds.getValue(DocumentSettings.TOCLEFTWIDTH, Float.class))) + '|'
+            + (Math.round(tot * ds.getValue(DocumentSettings.TOCRIGHTWIDTH, Float.class))) + ')',
+            "AddCell(data=Table of Contents,styleclass=toccaption)",
+            "AddCell(data=title,styleclass=tocheader)",
+            "AddCell(data=page,styleclass=tocheader)"}
          );
       }
    }
@@ -822,8 +814,8 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
 
    public <E extends Element> E createAndAddElement(Object data, List<? extends BaseStyler> stylers, Class<E> elementClass) throws VectorPrintException, InstantiationException, IllegalAccessException, DocumentException {
       E e = createElement(data, elementClass, stylers);
-      if (e==null) {
-         if (stylers!=null&&!stylers.isEmpty()) {
+      if (e == null) {
+         if (stylers != null && !stylers.isEmpty()) {
             if (!(stylers.get(0) instanceof com.vectorprint.report.itext.style.stylers.Image) && stylers.get(0).creates()) {
                throw new VectorPrintRuntimeException(String.format("this styler did not create an element: %s.", stylers.get(0)));
             } else {
@@ -867,7 +859,7 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
 
    @Override
    public Image loadImage(URL image, float opacity) throws VectorPrintException {
-      return elementProducer.loadImage(image,opacity);
+      return elementProducer.loadImage(image, opacity);
    }
 
    @Override
@@ -888,7 +880,7 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
     */
    @Override
    public Image loadImage(InputStream image, float opacity) throws VectorPrintException {
-      return elementProducer.loadImage(image,opacity);
+      return elementProducer.loadImage(image, opacity);
    }
 
    @Override
@@ -938,10 +930,11 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
    /**
     * looks for configuration of data mapping to process data
     *
-    * @see DatamappingHelper#toDataConfig(java.lang.Class, com.vectorprint.report.itext.jaxb.Datamappingstype)
-    *
-    * @param o
+    * @param dw
     * @param containers
+    * @see DatamappingHelper#toDataConfig(java.lang.Class, java.lang.String,
+    * com.vectorprint.report.itext.jaxb.Datamappingstype)
+    *
     * @throws VectorPrintException
     * @throws DocumentException
     */
@@ -949,8 +942,8 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
       Object o = dw.getData();
       Class dataClass = o.getClass();
 
-      if (log.isLoggable(Level.FINE)) {
-         log.log(Level.FINE, "processing {0}", dataClass.getName());
+      if (log.isLoggable(java.util.logging.Level.FINE)) {
+         log.log(java.util.logging.Level.FINE, "processing {0}", dataClass.getName());
       }
 
       try {
@@ -1020,7 +1013,8 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
 
    /**
     * When {@link ReportDataHolder#getData() } is a {@link BlockingQueue} uses {@link BlockingQueue#take() } to process
-    * objects and stops processing when a {@link QUEUECONTROL#END} is found on the queue, otherwise {@link Queue#poll() } is used.
+    * objects and stops processing when a {@link QUEUECONTROL#END} is found on the queue, otherwise {@link Queue#poll()
+    * } is used.
     *
     * @param dataHolder
     * @throws VectorPrintException
@@ -1066,8 +1060,8 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
    }
 
    /**
-    * When messages of level {@link DataCollectionMessages.Level error} are present, put these in the document and
-    * return false. Otherwise log messages and return true.
+    * When messages of level {@link Level error} are present, put these in the document and return false. Otherwise log
+    * messages and return true.
     *
     * @param messages
     * @param document

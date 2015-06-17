@@ -24,7 +24,6 @@ package com.vectorprint.report.itext.style;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.vectorprint.VectorPrintException;
-import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.parameters.Parameter;
 import com.vectorprint.configuration.parameters.Parameterizable;
 import com.vectorprint.report.itext.BaseReportGenerator;
@@ -38,11 +37,10 @@ import java.util.Set;
 //~--- JDK imports ------------------------------------------------------------
 /**
  * Stylers are responsible for styling iText building blocks (Elements, fields) for reports. Stylers can be found using
- * a {@link StylerFactory}, after finding them stylers can be used as argument calling a {@link ElementProducer#createElement(java.lang.Object, java.util.Collection, java.lang.Class)
- * }, the returned element can then be added to the document, see {@link BaseReportGenerator#createAndAddElement(java.lang.Object, java.lang.Class, java.lang.String...)}.
+ * a {@link StylerFactory}, after finding them stylers can be used as argument calling a {@link ElementProducer#createElement(java.lang.Object, java.lang.Class, java.util.List) }, the returned element can then be added to the document, see {@link BaseReportGenerator#createAndAddElement(java.lang.Object, java.lang.Class, java.lang.String...)}.
  *
  * @author Eduard Drenth at VectorPrint.nl
- * @see BaseReportGenerator#createAndAddElement(java.lang.Object, java.util.Collection, java.lang.Class)
+ * @see BaseReportGenerator#createAndAddElement(java.lang.Object, java.lang.Class, java.lang.String...) 
  */
 public interface BaseStyler extends Parameterizable, DocumentAware {
 
@@ -257,7 +255,7 @@ public interface BaseStyler extends Parameterizable, DocumentAware {
     * @see DefaultStylerFactory
     * @param className
     */
-   BaseStyler setStyleClass(String key);
+   BaseStyler setStyleClass(String className);
 
    /**
     * get the key in the configuration that declared this styler
@@ -265,16 +263,6 @@ public interface BaseStyler extends Parameterizable, DocumentAware {
     * @return
     */
    String getStyleClass();
-
-   /**
-    * Return a String that can be appended to a line in a config file.
-    *
-    * @see EnhancedMap
-    * @see ObjectParser
-    * @see StylerFactory
-    * @return
-    */
-   String toConfig();
 
    /**
     * Get the css equivalent for a parameter.

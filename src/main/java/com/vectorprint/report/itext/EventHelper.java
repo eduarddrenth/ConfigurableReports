@@ -243,7 +243,7 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
     * when failure information is appended to the report, a header on each page will be printed refering to this
     * information.
     *
-    * @param writer
+    * @param template
     * @param x
     * @param y
     */
@@ -257,9 +257,8 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
     * When the setting {@link ReportConstants#PRINTFOOTER} is true prints the total number of pages on each page when
     * the document is closed. Note that
     *
-    * @see #getTotalPageNumberFont()
-    * @param writer
-    * @param font
+    * @param template
+    * @see #PAGEFOOTERSTYLEKEY
     * @param x
     * @param y
     */
@@ -273,7 +272,7 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
    /**
     * prints a failure and / or a debug header when applicable.
     *
-    * @see #getTemplateImage()
+    * @see #getTemplateImage(com.itextpdf.text.pdf.PdfTemplate)
     * @param writer
     * @param document
     * @throws DocumentException
@@ -308,7 +307,7 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
    }
 
    /**
-    * calls {@link #printTotalPages(com.itextpdf.text.pdf.PdfTemplate, com.itextpdf.text.Font, float, float) }
+    * calls {@link #printTotalPages(com.itextpdf.text.pdf.PdfTemplate, float, float)  }
     * with {@link #PAGEFOOTERSTYLE a font from setup}, document.right() and the calculated bottom of the footertable.
     * Clears the layermanager. When applicable calls {@link #printFailureHeader(com.itextpdf.text.pdf.PdfTemplate, float, float)
     * }
@@ -339,7 +338,7 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
     * creates a footer cell using an instance of {@link com.vectorprint.report.itext.styleAndAddToReport.stylers.Font}
     *
     * @see #PAGEFOOTERSTYLEKEY
-    * @see StylerFactory#getStylers(java.lang.String)
+    * @see StylerFactory#getStylers(java.lang.String...) 
     * @param val
     * @return
     * @throws VectorPrintException
@@ -424,8 +423,8 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
     * @param document
     * @param rect
     * @param genericTag
-    * @see #addDelayedStyler(java.lang.String, java.util.Collection)
-    * @see Advanced#addDelayedData(java.lang.String, java.lang.String, java.lang.Object, com.itextpdf.text.Chunk, int)
+    * @see #addDelayedStyler(java.lang.String, java.util.Collection, com.itextpdf.text.Chunk) 
+    * @see Advanced#addDelayedData(java.lang.String, com.itextpdf.text.Chunk)
     * @see VectorPrintDocument
     */
    @Override
@@ -523,10 +522,6 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
    @Setting(keys = "yPositionImageFix")
    private Integer Y_POSITION_FIX = 2;
 
-   /**
-    *
-    * @param configurable the value of configurable
-    */
    @Override
    public EnhancedMap getSettings() {
       return stylerFactory.getSettings();
@@ -586,7 +581,7 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
     * @param tag
     * @param advanced
     * @param chunk used when debugging, for placing debug info at the right position in the pdf
-    * @see also Chunk#Chunk(com.itextpdf.text.Image, float, float, boolean)
+    * @see Chunk#Chunk(com.itextpdf.text.Image, float, float, boolean)
     */
    public void addDelayedStyler(String tag, Collection<Advanced> advanced, Chunk chunk) {
       addDelayedStyler(tag, advanced, chunk, null);
@@ -600,7 +595,7 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
     * @param advanced
     * @param chunk used when debugging, for placing debug info at the right position in the pdf
     * @param img the value of rect
-    * @see also Chunk#Chunk(com.itextpdf.text.Image, float, float, boolean)
+    * @see Chunk#Chunk(com.itextpdf.text.Image, float, float, boolean)
     */
    public void addDelayedStyler(String tag, Collection<Advanced> advanced, Chunk chunk, Image img) {
       doOnGenericTag.put(tag, advanced);

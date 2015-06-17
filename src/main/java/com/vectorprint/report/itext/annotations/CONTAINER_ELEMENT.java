@@ -23,7 +23,6 @@ package com.vectorprint.report.itext.annotations;
 
 
 import com.itextpdf.text.Anchor;
-import com.itextpdf.text.Element;
 import com.itextpdf.text.List;
 import com.itextpdf.text.ListItem;
 import com.itextpdf.text.Paragraph;
@@ -55,19 +54,14 @@ public enum CONTAINER_ELEMENT {
     */
    NESTED_TABLE(PdfPCell.class),
    /**
-    * a chapter or section, see {@link ContainerStart#sectionLevel() } and {@link ElementProducer#getIndex(java.lang.String, int, java.util.Collection)
-    * }. The title for a section will be taken from the data
+    * a chapter or section, see {@link ContainerStart#sectionLevel() } and {@link ElementProducer#getIndex(java.lang.String, int, java.util.List) }. The title for a section will be taken from the data
     */
    SECTION(Section.class),
    PARAGRAPH(Paragraph.class),
    PHRASE(Phrase.class),
    ANCHOR(Anchor.class),
    LIST(List.class),
-   LISTITEM(ListItem.class),
-   /**
-    * needed as default for {@link Element#startContainer() }
-    */
-   NOCONTAINER(Element.class);
+   LISTITEM(ListItem.class);
    private Class iTextClass;
 
    private CONTAINER_ELEMENT(Class iTextClass) {

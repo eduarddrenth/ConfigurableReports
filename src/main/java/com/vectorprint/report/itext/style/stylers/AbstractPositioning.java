@@ -33,6 +33,7 @@ import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.parameters.BooleanParameter;
 import com.vectorprint.configuration.parameters.ColorParameter;
+import com.vectorprint.report.itext.EventHelper;
 import com.vectorprint.report.itext.ItextHelper;
 import com.vectorprint.report.itext.style.parameters.FloatParameter;
 import java.awt.Color;
@@ -41,7 +42,7 @@ import java.util.logging.Level;
 
 /**
  * This styler is meant to draw near an Chunk using the generic tag mechanism of Chunk.
- * @see PageHelper#onGenericTag(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document, com.itextpdf.text.Rectangle, java.lang.String) 
+ * @see EventHelper#onGenericTag(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document, com.itextpdf.text.Rectangle, java.lang.String)  
  * @author Eduard Drenth at VectorPrint.nl
  */
 public abstract class AbstractPositioning<DATATYPE> extends AdvancedImpl<DATATYPE> {
@@ -78,7 +79,7 @@ public abstract class AbstractPositioning<DATATYPE> extends AdvancedImpl<DATATYP
     * @param rect
     * @param genericTag passed on to abstract method
     * @throws VectorPrintException 
-    * @see PageHelper#onGenericTag(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document, com.itextpdf.text.Rectangle, java.lang.String) 
+ * @see EventHelper#onGenericTag(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document, com.itextpdf.text.Rectangle, java.lang.String)  
     */
    @Override
    public final void draw(Rectangle rect, String genericTag) throws VectorPrintException {

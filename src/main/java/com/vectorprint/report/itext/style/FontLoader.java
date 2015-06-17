@@ -25,7 +25,6 @@ import com.itextpdf.text.FontFactory;
 import com.vectorprint.IOHelper;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.report.ReportConstants;
-import com.vectorprint.report.itext.BaseReportGenerator;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.GraphicsEnvironment;
@@ -59,7 +58,7 @@ public class FontLoader {
    /**
     * for feedback on the loading of fonts.
     *
-    * @see #loadFont(java.lang.String, java.lang.String, boolean)
+    * @see #loadFont(java.lang.String) 
     */
    public enum LOADSTATUS {
 
@@ -75,11 +74,10 @@ public class FontLoader {
    }
 
    /**
-    * calls {@link #loadFont(java.io.InputStream, java.lang.String, java.lang.String) } with the file extension from the
+    * calls {@link #loadFont(java.io.InputStream, java.lang.String) } with the file extension from the
     * URL
     *
     * @param url
-    * @param family
     * @return
     * @throws IOException
     */
@@ -90,7 +88,7 @@ public class FontLoader {
 
    /**
     * allows loading font from a stream by first saving the bytes from the stream to a tempfile and then calling
-	 * {@link #loadFont(java.lang.String, java.lang.String, boolean) }.
+	 * {@link #loadFont(java.lang.String)  }.
     *
     * @param in
     * @param extension e.g. .ttf
@@ -110,8 +108,7 @@ public class FontLoader {
     * Bottleneck method for loading fonts, calls {@link FontFactory#register(java.lang.String) } for iText, {@link GraphicsEnvironment#registerFont(java.awt.Font) }
     * for awt.
     * @param path the path to the font file 
-    * @param family will always be converted to lower case
-    * @param reload when false and {@link FontFactory#isRegistered(java.lang.String) } returns true, iText fonts will not be reloaded
+ed
     * @return
     * @throws VectorPrintException 
     */

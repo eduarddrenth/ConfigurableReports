@@ -54,7 +54,7 @@ import java.util.logging.Level;
 /**
  * Class for adding images (pdf (first page), tiff (first page) or other formats supported by the default awt toolkit)
  * to a report. Adding can be done through setup, {@link BaseReportGenerator#createAndAddElement(java.lang.Object, java.lang.Class, java.lang.String[])
- * } and {@link #style(com.itextpdf.text.Element, java.lang.Object) }, or by
+ * } and {@link #style(java.lang.Object, java.lang.Object)  }, or by
  * {@link #draw(com.itextpdf.text.Rectangle, java.lang.String)}. This class initializes an image by retrieving data from
  * the URL parameter, or by trying to construct an URL from {@link #style(java.lang.Object, java.lang.Object) data}.
  *
@@ -92,7 +92,7 @@ public class Image<DATATYPE> extends AbstractPositioning<DATATYPE> implements Im
    /**
     * Calls {@link #createImage(com.itextpdf.text.pdf.PdfContentByte, java.lang.Object, float) }, {@link #applySettings(com.itextpdf.text.Image) },
     * {@link com.itextpdf.text.Image#setAbsolutePosition(float, float) } and 
-    * {@link #addToCanvas(java.lang.float[], com.itextpdf.text.Image, com.itextpdf.text.pdf.PdfContentByte) }.
+    * {@link #addToCanvas(float[], com.itextpdf.text.Image, com.itextpdf.text.pdf.PdfContentByte)  }.
     *
     * @param canvas
     * @param x
@@ -160,7 +160,7 @@ public class Image<DATATYPE> extends AbstractPositioning<DATATYPE> implements Im
 
    /**
     * Calls {@link #initURL(String) }, {@link #createImage(com.itextpdf.text.pdf.PdfContentByte, java.lang.Object, float) },
-    * {@link #applySettings(com.itextpdf.text.Image) . Calls {@link VectorPrintDocument#addHook(com.vectorprint.report.itext.VectorPrintDocument.AddElementHook) } for
+    * {@link #applySettings(com.itextpdf.text.Image) }. Calls {@link VectorPrintDocument#addHook(com.vectorprint.report.itext.VectorPrintDocument.AddElementHook) } for
     * drawing image shadow and for drawing near this image.
     *
     * @param <E>
@@ -230,7 +230,7 @@ public class Image<DATATYPE> extends AbstractPositioning<DATATYPE> implements Im
 
    /**
     * This implementation downloads an image from the URL taken from {@link #getUrl() }, which may be initialized by
-    * {@link #initURL(java.lang.Object) }.
+    * {@link #initURL(java.lang.String)  }.
     *
     * @param canvas
     * @param data
@@ -319,7 +319,7 @@ public class Image<DATATYPE> extends AbstractPositioning<DATATYPE> implements Im
    }
 
    /**
-    * when true and {@link StylingCondition}s allow styling {@link #style(com.itextpdf.text.Element, java.lang.Object) }
+    * when true and {@link StylingCondition}s allow styling {@link #style(java.lang.Object, java.lang.Object)  }
     * will be called and an image will be returned by it.
     *
     * @return

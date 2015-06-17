@@ -35,6 +35,8 @@ import com.itextpdf.text.pdf.PdfPCellEvent;
 import com.itextpdf.text.pdf.PdfPTableEvent;
 import com.itextpdf.text.pdf.PdfPageEventHelper;
 import com.vectorprint.VectorPrintException;
+import com.vectorprint.report.itext.EventHelper;
+import com.vectorprint.report.itext.VectorPrintDocument;
 import com.vectorprint.report.itext.style.BaseStyler;
 
 /**
@@ -42,6 +44,8 @@ import com.vectorprint.report.itext.style.BaseStyler;
  * configure elements later to be added to the document. By adding an Advanced styler to the chain of stylers it is
  * able to draw based on information about the element styled, the data it contains
  * (only for {@link Chunk} and {@link TextElementArray}) and the document.
+ * 
+ * @see VectorPrintDocument.AddElementHook
  *
  * @author Eduard Drenth at VectorPrint.nl
  */
@@ -140,7 +144,6 @@ public interface Advanced<DATATYPE> extends BaseStyler, PdfPTableEvent, PdfPCell
     *
     * @see #draw(com.itextpdf.text.Rectangle, java.lang.String)
     * @param genericTag
-    * @param dataComplete 
     * @param c
     */
    void addDelayedData(String genericTag, Chunk c);
@@ -158,7 +161,7 @@ public interface Advanced<DATATYPE> extends BaseStyler, PdfPTableEvent, PdfPCell
     *
     * @see PdfPageEventHelper#onGenericTag(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document,
     * com.itextpdf.text.Rectangle, java.lang.String)
-    * @see PageHelper#addDelayedStyler(com.vectorprint.report.itext.style.stylers.Advanced)
+    * @see EventHelper#addDelayedStyler(java.lang.String, java.util.Collection, com.itextpdf.text.Chunk) 
     * @see #getDelayed(java.lang.String)
     * @param rect the rectangle where the text was printed
     * @param genericTag  the genericTag event that was fired
@@ -182,7 +185,7 @@ public interface Advanced<DATATYPE> extends BaseStyler, PdfPTableEvent, PdfPCell
    /**
     * get a canvas for drawing, prepared according to settings
     *
-    * @see #draw(com.itextpdf.text.pdf.PdfContentByte)
+    * @see #draw(com.itextpdf.text.Rectangle, java.lang.String) 
     * @see #resetCanvas(com.itextpdf.text.pdf.PdfContentByte) 
     * @return
     */

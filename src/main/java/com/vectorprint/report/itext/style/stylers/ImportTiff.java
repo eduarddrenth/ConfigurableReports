@@ -233,7 +233,7 @@ public class ImportTiff extends Image<Object> implements ImageProcessor {
    }
 
    /**
-    * This styler will process images and call {@link #style(com.itextpdf.text.Element, java.lang.Object) } using all
+    * This styler will process images and call {@link #style(java.lang.Object, java.lang.Object)  } using all
     * stylers configured after this styler.
     *
     * @param bs

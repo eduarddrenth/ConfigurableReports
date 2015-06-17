@@ -40,8 +40,8 @@ import java.lang.annotation.Target;
  * This annotation indicates a container is to be ended. When the requested container to end is a {@link Chapter} or a
  * {@link ColumnText} it will be added to the report after it has been removed from the stack of containers
  *
- * @see Container
- * @see ElementProducer#createElement(java.lang.Object, java.util.Collection, java.lang.Class)
+ * @see ContainerStart
+ * @see ElementProducer#createElement(java.lang.Object, java.lang.Class, java.util.List) 
  * @see StylerFactory#getStylers(java.lang.String[])
  * @author Eduard Drenth at VectorPrint.nl
  */
@@ -56,7 +56,6 @@ public @interface ContainerEnd {
    /**
     * when ending a container of a certain type, this indicates the depth in the nesting of containers
     *
-    * @see #containerToEnd()
     * @return
     */
    public int depthToEnd() default 1;

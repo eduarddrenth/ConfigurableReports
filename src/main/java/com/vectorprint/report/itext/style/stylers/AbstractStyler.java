@@ -147,7 +147,7 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
    }
 
    /**
-    * returns false when a condition is present for which {@link StylingCondition#shouldStyle(java.lang.Object) }
+    * returns false when a condition is present for which {@link StylingCondition#shouldStyle(java.lang.Object, java.lang.Object)  }
     * is false
     *
     * @param data
@@ -240,17 +240,6 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
          } catch (RuntimeException ex) {
             throw new VectorPrintRuntimeException(ex);
          }
-      }
-   }
-
-   @Override
-   public String toConfig() {
-      StringWriter sw = new StringWriter();
-      try {
-         BINDING_FACTORY.getSerializer().serialize(this, sw);
-         return sw.toString();
-      } catch (IOException ex) {
-         throw new VectorPrintRuntimeException(ex);
       }
    }
 

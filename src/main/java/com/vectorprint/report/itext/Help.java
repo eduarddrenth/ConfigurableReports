@@ -64,7 +64,7 @@ public class Help {
    private static final Logger log = Logger.getLogger(Help.class.getName());
 
    /**
-    * calls {@link #printHelp(java.io.PrintStream) or prints available css parameters (see {@link #CSS_PARAM_ARGS})
+    * calls {@link #printHelp(java.io.PrintStream)} or prints available css parameters (see {@link #CSS_PARAM_ARGS})
     * @param args
     * @throws Exception 
     */
@@ -182,7 +182,7 @@ public class Help {
    }
 
    /**
-    * Calls {@link #getParameterizables(java.lang.Package, java.lang.Class) } to collect {@link ElementStyler}s and
+    * Calls {@link #getParameterizables(java.lang.Package, java.lang.Class) } to collect {@link BaseStyler}s and
     * {@link FormFieldStyler}s.
     *
     * @return

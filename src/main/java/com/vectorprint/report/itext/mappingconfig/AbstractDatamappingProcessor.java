@@ -278,7 +278,7 @@ public abstract class AbstractDatamappingProcessor implements DatamappingProcess
 
    /**
     * removes containers from the stack upto and including the n-th container of the given dataType. When the container
-    * to end is a {@link MultiColumnText} or it was the last on the stack it is added to the document.
+    * to end is a {@link SimpleColumns} or it is the last on the stack it is added to the document.
     *
     * @param container
     * @param depth
