@@ -67,6 +67,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.vectorprint.report.itext.style.parameters.ReportBindingHelper;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import org.xml.sax.SAXException;
 
 /**
@@ -77,7 +78,7 @@ import org.xml.sax.SAXException;
  * <li>file path containing xml settings declaration</li>
  * <li>file path containing settings</li>
  * <li>default file path ({@link #CONFIG_FILE}) containing settings</li>
- * <li>String argument containing settings</li>
+ * <li>String argument in build methods containing settings</li>
  * </ul>
  *
  * @param <RD> the type of data for the Runner
@@ -117,12 +118,12 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
 
    /**
     * Called from {@link #buildReport(java.lang.String[]) } and {@link #buildReport(java.lang.String[], java.io.OutputStream) }. Uses 
-    * at most 2 arguments the last containing settings in the current syntax, the first, if present, containing the path to a file.
-    * When this report runner does not have any settings yet initialize them using {@link #initSettingsFromArg(java.lang.String) }, when settings
+    * at most 2 arguments the first containing the path to a file, the second containing the path to a file. Both arguments are optional.
+    * When this report runner does not have any settings yet initialize them using {@link #initSettingsFromFile(java.lang.String) }, when settings
     * are still not found instantiate new settings.
     * If there is an argument containing settings {@link EnhancedMapParser#parse(com.vectorprint.configuration.EnhancedMap) } will be called.
     * 
-    * @param args only 
+    * @param args at most two are used, may be null
     * @throws Exception when a failure occurs, also when settings are not initialized properly
     */
    protected void initSettings(String[] args) throws Exception {
@@ -130,7 +131,7 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
          int secondArg = 0;
          boolean needSettingsArg = false;
          if (settings == null) {
-            settings = initSettingsFromArg(args[0]);
+            settings = initSettingsFromFile(args[0]);
             if (settings != null) {
                secondArg = 1;
             } else {
@@ -144,13 +145,11 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
             bindingFactory.getParser(new StringReader(args[secondArg])).parse(settings);
          } else if (needSettingsArg) {
             System.out.println(SETTINGS_HELP);
-            Help.printHelp(System.out);
             System.exit(EXITNOSETTINGS);
          }
       }
       if (settings == null) {
          System.out.println(SETTINGS_HELP);
-         Help.printHelp(System.out);
          System.exit(EXITNOSETTINGS);
       }
    }
@@ -304,7 +303,12 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
     * @see #main(java.lang.String[])
     */
    public static final String CONFIG_FILE = "report.properties";
-   public static final String SETTINGS_HELP = "provide path to your settingsfile as an argument, or put " + CONFIG_FILE + " in the current working directory or in the root one of your jars\n";
+   public static final String SETTINGS_HELP = "Provide the path to your settingsfile as argument. "
+       + "A settingsfile contains either xml (xsd available in Config jar) declaring settings or it contains settings.\n"
+       + "You can also just put " + CONFIG_FILE + " in the current working directory or in the root one of your jars.\n"
+       + "In Your settings you must at least provide the name of your " + DataCollector.class.getName()
+       + "in a setting \"" + ReportConstants.DATACLASS + "\".\nFurthermore you probably want to provide styling information"
+       + "for the data yielded by your collector.\n";
 
    /**
     * looks for {@link #CONFIG_FILE} in the working directory or in the classpath ({@link ClassLoader#getResourceAsStream(java.lang.String)
@@ -319,7 +323,7 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
       } else {
          InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream('/' + CONFIG_FILE);
          if (in != null) {
-            return new CachingProperties(new ParsingProperties(new Settings(), CONFIG_FILE));
+            return new CachingProperties(new ParsingProperties(new Settings(), new InputStreamReader(in)));
          }
       }
       return null;
@@ -328,14 +332,15 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
    /**
     * When the argument is null call {@link #findSettings() }. When the argument is a file that exists it is assumed to
     * either be an xml file declaring settings or a file holding setting. Either {@link SettingsFromJAXB#fromJaxb(java.io.Reader)
-    * } or {@link ParsingProperties#ParsingProperties(com.vectorprint.configuration.EnhancedMap, java.net.URL...) } will
+    * } or {@link ParsingProperties#ParsingProperties(com.vectorprint.configuration.EnhancedMap, java.lang.String...)  } will
     * be called.
-    *
+    * 
+    * @see SettingsXMLHelper#XSD
     * @param arg name of a file or null
     * @return settings or null
     * @throws Exception
     */
-   public static EnhancedMap initSettingsFromArg(String arg) throws Exception {
+   public static EnhancedMap initSettingsFromFile(String arg) throws Exception {
       if (arg != null) {
          if (new File(arg).canRead()) {
             try {

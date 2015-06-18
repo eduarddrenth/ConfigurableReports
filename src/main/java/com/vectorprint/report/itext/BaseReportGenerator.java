@@ -87,6 +87,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.Key;
 import java.security.KeyStoreException;
@@ -928,17 +929,17 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
    private final DatamappingHelper dmh = new DatamappingHelper();
 
    /**
-    * looks for configuration of data mapping to process data
+    * looks for configuration of data mapping ({@link DatamappingHelper#toDataConfig(java.lang.Class, java.lang.String, com.vectorprint.report.itext.jaxb.Datamappingstype) })
+    * and calls {@link AbstractDatamappingProcessor} methods accordingly.
     *
     * @param dw
     * @param containers
-    * @see DatamappingHelper#toDataConfig(java.lang.Class, java.lang.String,
-    * com.vectorprint.report.itext.jaxb.Datamappingstype)
+    * @param dmt
     *
     * @throws VectorPrintException
     * @throws DocumentException
     */
-   protected void processDataObject(IdData dw, Deque containers) throws VectorPrintException, DocumentException {
+   protected void processDataObject(IdData dw, Deque containers, Datamappingstype dmt) throws VectorPrintException, DocumentException {
       Object o = dw.getData();
       Class dataClass = o.getClass();
 
@@ -947,14 +948,6 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
       }
 
       try {
-         Datamappingstype dmt = null;
-         if (settings.containsKey(ReportConstants.DATAMAPPINGXML)) {
-            dmt = DatamappingHelper.fromXML(
-                new InputStreamReader(
-                    settings.getURLProperty(null, ReportConstants.DATAMAPPINGXML).openStream()
-                )
-            );
-         }
 
          DataMapping dataMapping = dmh.toDataConfig(dataClass, dw.getId(), dmt);
 
@@ -991,10 +984,6 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
          } else {
             throw new VectorPrintException(String.format("no datamapping configuration found for %s", dataClass.getName()));
          }
-      } catch (IOException ex) {
-         throw new VectorPrintException(ex);
-      } catch (JAXBException ex) {
-         throw new VectorPrintException(ex);
       } catch (ClassNotFoundException ex) {
          throw new VectorPrintException(ex);
       } catch (NoSuchMethodException ex) {
@@ -1012,9 +1001,8 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
    }
 
    /**
-    * When {@link ReportDataHolder#getData() } is a {@link BlockingQueue} uses {@link BlockingQueue#take() } to process
-    * objects and stops processing when a {@link QUEUECONTROL#END} is found on the queue, otherwise {@link Queue#poll()
-    * } is used.
+    * Processes the queue in the data holder to call 
+    * {@link #processDataObject(com.vectorprint.report.data.ReportDataHolder.IdData, java.util.Deque, com.vectorprint.report.itext.jaxb.Datamappingstype)}. For a BlockingQueue stops processing when a {@link QUEUECONTROL#END} is found on the queue.
     *
     * @param dataHolder
     * @throws VectorPrintException
@@ -1023,6 +1011,22 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
    @Override
    public final void processData(RD dataHolder) throws VectorPrintException, DocumentException {
       Deque containers = new LinkedList();
+      Datamappingstype dmt = null;
+      if (settings.containsKey(ReportConstants.DATAMAPPINGXML)) {
+         try {
+            dmt = DatamappingHelper.fromXML(
+                new InputStreamReader(
+                    settings.getURLProperty(null, ReportConstants.DATAMAPPINGXML).openStream()
+                )
+            );
+         } catch (JAXBException ex) {
+            throw new VectorPrintException(ex);
+         } catch (MalformedURLException ex) {
+            throw new VectorPrintException(ex);
+         } catch (IOException ex) {
+            throw new VectorPrintException(ex);
+         }
+      }
       if (dataHolder.getData() instanceof BlockingQueue) {
          try {
             BlockingQueue<IdData> bq = (BlockingQueue<IdData>) dataHolder.getData();
@@ -1038,7 +1042,7 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
                } else if (o instanceof Throwable) {
                   throw new VectorPrintException((Throwable) o);
                }
-               processDataObject(dw, containers);
+               processDataObject(dw, containers, dmt);
             }
          } catch (InterruptedException ex) {
             throw new VectorPrintException(ex);
@@ -1046,7 +1050,7 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
       } else {
          IdData dw;
          while ((dw = (IdData) dataHolder.getData().poll()) != null) {
-            processDataObject(dw, containers);
+            processDataObject(dw, containers, dmt);
          }
       }
       // process any containers not added to the document yet
