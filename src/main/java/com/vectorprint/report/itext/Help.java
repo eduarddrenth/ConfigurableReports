@@ -33,6 +33,7 @@ import com.itextpdf.text.Phrase;
 import com.vectorprint.ClassHelper;
 import com.vectorprint.configuration.parameters.Parameter;
 import com.vectorprint.configuration.parameters.Parameterizable;
+import com.vectorprint.report.ReportConstants;
 import com.vectorprint.report.data.DataCollectorImpl;
 import com.vectorprint.report.itext.annotations.ContainerStart;
 import com.vectorprint.report.itext.style.BaseStyler;
@@ -91,18 +92,21 @@ public class Help {
    public static void printHelpHeader(PrintStream out) {
       out.println("Getting started.");
       out.println("----------------\n");
-      out.println("  1 create a properties file with stylinginformation, example in junit test");
+      out.println("  0 optionally create a settings configuration file (xsd available), examples in junit test");
+      out.println("  1 create a settings file with stylinginformation (using current syntax, see step 0), examples in junit test");
       out.println("  2 create an xml config file for the translation of java objects to report parts (xsd in .jar and in GUI); and/or");
       out.println("  3 annotate your dataclasses ("+ContainerStart.class.getPackage().getName() +"), examples in junit tests");
       out.println("  4 extend " + DataCollectorImpl.class.getName() + ", example in junit test");
       out.println("  5 setup your classpath to include your classes, VectorPrintReport*.jar and dependent jars (see lib folder in binary distribution)");
 
-      out.println("  6 java -cp <cp> " + ReportRunner.class.getName() + " <properties file> -dataclass <data class from step 3>\n");
-      out.println("  You can look at the junit tests to see a working example\n");
+      out.println("  6 java -cp <cp> " + ReportRunner.class.getName() + "<settings configuration file> or <settings file> <settings in corrrect syntax>\n");
+      out.println("  Settings must contain "+ReportConstants.DATACLASS+", look at "+ReportConstants.class.getName()+" for more available settings\n");
+      out.println("  You can look at the junit tests to see working examples\n");
       out.println("  Javadoc is recommended as a source for further details\n");
-      out.println("Available stylers that can be configured in a properties file, together with parameters that may be used.");
+      out.println("Available stylers that can be configured in a settings file, together with parameters that may be used.");
       out.println("---------------------------------------------------------------------------------------------------------\n");
-      out.println("  All parameters mentioned below can take defaults through properties in the form <(Parent)Class.getSimpleName().parameterName>=<value>\n");
+      out.println("  All parameters mentioned below can take defaults through properties in the current syntax\n"
+          + "by default <(Parent)Class.getSimpleName().parameterName>=<value>\n");
    }
 
    public static void printHelpFooter(Document document, com.itextpdf.text.Font f) throws IOException, FileNotFoundException, ClassNotFoundException, InstantiationException, IllegalAccessException, DocumentException, NoSuchMethodException, InvocationTargetException {

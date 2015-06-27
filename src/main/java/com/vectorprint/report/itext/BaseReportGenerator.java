@@ -699,8 +699,8 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
       if (!settings.containsKey(DocumentSettings.TOCCAPTIONKEY)) {
          settings.put(DocumentSettings.TOCCAPTIONKEY, DocumentSettings.TOCCAPTION);
       }
-      settings.remove(DefaultStylerFactory.DEFAULTSTYLERSFIRST);
-      settings.remove(DefaultStylerFactory.DEFAULTSTYLERSLAST);
+      settings.remove(DefaultStylerFactory.PRESTYLERS);
+      settings.remove(DefaultStylerFactory.POSTSTYLERS);
       settings.remove(DefaultStylerFactory.PAGESTYLERS);
       settings.put(ReportConstants.PRINTFOOTER, "false");
 

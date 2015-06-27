@@ -63,15 +63,15 @@ public class DefaultStylerFactory implements StylerFactory {
    /**
     * name of the optional property containing stylers that will be executed before all other stylers
     *
-    * @see #DOFIRSTLAST
+    * @see #PREANDPOSTSTYLE
     */
-   public static final String DEFAULTSTYLERSFIRST = "DEFAULTSTYLERSFIRST";
+   public static final String PRESTYLERS = "PRESTYLERS";
    /**
     * name of the optional property containing stylers that will be executed after all other stylers
     *
-    * @see #DOFIRSTLAST
+    * @see #PREANDPOSTSTYLE
     */
-   public static final String DEFAULTSTYLERSLAST = "DEFAULTSTYLERSLAST";
+   public static final String POSTSTYLERS = "POSTSTYLERS";
    /**
     * The default document will be A4 with margins of 25 mm when a setting {@link ReportConstants#DOCUMENTSETTINGS} is
     * not defined
@@ -92,10 +92,10 @@ public class DefaultStylerFactory implements StylerFactory {
    private LayerManager layerManager;
    private static final ParameterizableBindingFactory BINDING_FACTORY = ParameterizableBindingFactoryImpl.getDefaultFactory();
    /**
-    * name of the boolean setting use {@link #DEFAULTSTYLERSFIRST} and {@link #DEFAULTSTYLERSLAST} or not
+    * name of the boolean setting use {@link #PRESTYLERS} and {@link #POSTSTYLERS} or not
     */
-   public static final String DOFIRSTLAST = "dofirstlast";
-   @Setting(keys = DOFIRSTLAST)
+   public static final String PREANDPOSTSTYLE = "preandpoststyle";
+   @Setting(keys = PREANDPOSTSTYLE)
    private boolean doFirstLast = true;
 
    private ParameterizableParser getParser(StringReader sr) {
@@ -240,15 +240,15 @@ public class DefaultStylerFactory implements StylerFactory {
                cache.put(clazz, stylers);
             }
          }
-         int s = (settings.containsKey(DEFAULTSTYLERSLAST))
-             ? (settings.containsKey(DEFAULTSTYLERSFIRST)) ? 2 : 1
-             : (settings.containsKey(DEFAULTSTYLERSFIRST)) ? 1 : 0;
+         int s = (settings.containsKey(POSTSTYLERS))
+             ? (settings.containsKey(PRESTYLERS)) ? 2 : 1
+             : (settings.containsKey(PRESTYLERS)) ? 1 : 0;
          String[] styleNames = Arrays.copyOf(styleClasses, styleClasses.length + s);
-         if (settings.containsKey(DEFAULTSTYLERSFIRST)) {
-            styleNames[styleClasses.length] = DEFAULTSTYLERSFIRST;
+         if (settings.containsKey(PRESTYLERS)) {
+            styleNames[styleClasses.length] = PRESTYLERS;
          }
-         if (settings.containsKey(DEFAULTSTYLERSLAST)) {
-            styleNames[styleClasses.length + 1] = DEFAULTSTYLERSLAST;
+         if (settings.containsKey(POSTSTYLERS)) {
+            styleNames[styleClasses.length + 1] = POSTSTYLERS;
          }
          DebugStyler ds = debugStylers(styleNames);
 
@@ -300,11 +300,11 @@ public class DefaultStylerFactory implements StylerFactory {
    private boolean containsFirstLast(String... styleClasses) {
       boolean containsFirstLast = false;
       for (String n : styleClasses) {
-         if (DEFAULTSTYLERSFIRST.equals(n)) {
+         if (PRESTYLERS.equals(n)) {
             containsFirstLast = true;
             break;
          }
-         if (DEFAULTSTYLERSLAST.equals(n)) {
+         if (POSTSTYLERS.equals(n)) {
             containsFirstLast = true;
             break;
          }
@@ -314,15 +314,15 @@ public class DefaultStylerFactory implements StylerFactory {
 
    private <B extends BaseStyler> List<B> preStyle(List<B> stylers, String... styleClasses) throws VectorPrintException {
 
-      if (doFirstLast && !containsFirstLast(styleClasses) && settings.containsKey(DEFAULTSTYLERSFIRST)) {
-         stylers.addAll((Collection<? extends B>) getStylers(DEFAULTSTYLERSFIRST, STYLERPACKAGENAME));
+      if (doFirstLast && !containsFirstLast(styleClasses) && settings.containsKey(PRESTYLERS)) {
+         stylers.addAll((Collection<? extends B>) getStylers(PRESTYLERS, STYLERPACKAGENAME));
       }
       return stylers;
    }
 
    private <B extends BaseStyler> void postStyle(List<B> stylers, String... styleClasses) throws VectorPrintException {
-      if (doFirstLast && !containsFirstLast(styleClasses) && settings.containsKey(DEFAULTSTYLERSLAST)) {
-         stylers.addAll((Collection<? extends B>) getStylers(DEFAULTSTYLERSLAST, STYLERPACKAGENAME));
+      if (doFirstLast && !containsFirstLast(styleClasses) && settings.containsKey(POSTSTYLERS)) {
+         stylers.addAll((Collection<? extends B>) getStylers(POSTSTYLERS, STYLERPACKAGENAME));
       }
 
       impdf.clear();

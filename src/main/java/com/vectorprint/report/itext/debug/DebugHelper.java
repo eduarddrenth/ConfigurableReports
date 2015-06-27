@@ -187,7 +187,7 @@ public class DebugHelper {
 
    static String getFirstNotDefaultStyleClass(Collection<String> styleClasses) {
       for (String s : styleClasses) {
-         if (!DefaultStylerFactory.DEFAULTSTYLERSFIRST.equals(s) && !DefaultStylerFactory.DEFAULTSTYLERSLAST.equals(s)) {
+         if (!DefaultStylerFactory.PRESTYLERS.equals(s) && !DefaultStylerFactory.POSTSTYLERS.equals(s)) {
             return s;
          }
       }
