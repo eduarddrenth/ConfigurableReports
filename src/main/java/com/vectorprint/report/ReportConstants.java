@@ -61,7 +61,7 @@ public interface ReportConstants {
     * setting to configure how many bytes used in Buffered streams.
     */
    public static final String BUFFERSIZE = "buffersize";
-   public static final int DEFAULTBUFFERSIZE = 256000;
+   public static final int DEFAULTBUFFERSIZE = 102400;
    /**
     * commandline argument to give visual feedback in the report and other debugging information. Also
     * the name of the layer group containing debugging info.

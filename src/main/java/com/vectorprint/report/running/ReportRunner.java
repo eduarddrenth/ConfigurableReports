@@ -451,8 +451,8 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
 
          throw exception;
       } finally {
-         log.info(String.format("Settings (%s) not used sofar: %s", getSettings().getId(), getSettings().getUnusedKeys()));
-         log.info(String.format("Settings (%s) not present, default used: %s", getSettings().getId(), getSettings().getKeysNotPresent()));
+         log.info(String.format("Settings (from %s) not used sofar: %s", getSettings().getId(), getSettings().getUnusedKeys()));
+         log.info(String.format("Settings (from %s) not present, for which a default was used: %s", getSettings().getId(), getSettings().getKeysNotPresent()));
          if (out != null) {
             out.close();
          }
