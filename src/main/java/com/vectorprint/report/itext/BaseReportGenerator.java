@@ -78,8 +78,8 @@ import com.vectorprint.report.itext.style.StylerFactoryHelper;
 import com.vectorprint.report.itext.style.stylers.SimpleColumns;
 import com.vectorprint.report.itext.style.stylers.DocumentSettings;
 import java.awt.Color;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -100,7 +100,6 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.logging.Logger;
 import javax.xml.bind.JAXBException;
@@ -206,13 +205,10 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
     * @throws com.vectorprint.VectorPrintException
     */
    @Override
-   public final int generate(RD data, OutputStream outputStream) throws VectorPrintException {
-      OutputStream out = null;
+   public final int generate(RD data, OutputStream out) throws VectorPrintException {
       try {
          DocumentStyler ds = stylerFactory.getDocumentStyler();
          ds.setReportDataHolder(data);
-
-         out = (out instanceof BufferedOutputStream) ? outputStream : new BufferedOutputStream(outputStream, bufferSize);
 
          wasDebug = getSettings().getBooleanProperty(Boolean.FALSE, DEBUG);
          if (ds.getValue(DocumentSettings.TOC, Boolean.class)) {
@@ -868,6 +864,17 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
       elementProducer.loadPdf(pdf, writer, password, imageProcessor, pages);
    }
 
+   @Override
+   public void loadPdf(File pdf, PdfWriter writer, byte[] password, ImageProcessor imageProcessor, int... pages) throws VectorPrintException {
+      elementProducer.loadPdf(pdf, writer, password, imageProcessor, pages);
+   }
+
+   @Override
+   public void loadTiff(File tiff, ImageProcessor imageProcessor, int... pages) throws VectorPrintException {
+      elementProducer.loadTiff(tiff, imageProcessor, pages);
+   }
+
+   
    @Override
    public void loadPdf(InputStream pdf, PdfWriter writer, Certificate certificate, Key key, String securityProvider, ImageProcessor imageProcessor, int... pages) throws VectorPrintException {
       elementProducer.loadPdf(pdf, writer, certificate, key, securityProvider, imageProcessor, pages);

@@ -63,6 +63,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Observable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -233,9 +234,11 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
       return conditions;
    }
 
+   
    @Override
-   protected void parameterChanged(Parameter o) {
-      if (CONDITONS.equals(o.getKey()) && o.getValue() != null) {
+   public void update(Observable o, Object arg) {
+      Parameter p = (Parameter) o;
+      if (CONDITONS.equals(p.getKey()) && p.getValue() != null) {
          try {
             initConditions();
          } catch (VectorPrintException ex) {

@@ -33,6 +33,7 @@ import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Section;
 import com.itextpdf.text.TextElementArray;
+import com.itextpdf.text.io.RandomAccessSourceFactory;
 import com.itextpdf.text.pdf.ColumnText;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfLayer;
@@ -65,7 +66,6 @@ import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -90,7 +90,7 @@ import javax.imageio.ImageIO;
  *
  * @author Eduard Drenth at VectorPrint.nl
  */
-public class DefaultElementProducer implements ElementProducer, LayerManager {
+public class DefaultElementProducer implements ElementProducer {
 
    private static final Logger log = Logger.getLogger(DefaultElementProducer.class.getName());
    /**
@@ -101,7 +101,7 @@ public class DefaultElementProducer implements ElementProducer, LayerManager {
    /**
     * prefix for generic tags used for {@link Advanced advanced stylers}.
     *
-    * @see EventHelper#addDelayedStyler(java.lang.String, java.util.Collection, com.itextpdf.text.Chunk) 
+    * @see EventHelper#addDelayedStyler(java.lang.String, java.util.Collection, com.itextpdf.text.Chunk)
     */
    public static final String ADV = "adv";
    @Setting(keys = ReportConstants.DEBUG)
@@ -360,7 +360,8 @@ public class DefaultElementProducer implements ElementProducer, LayerManager {
    }
 
    /**
-    * When data is an instance of {@link ReportValue},  {@link Formatter#formatValue(com.vectorprint.report.data.types.ReportValue) }
+    * When data is an instance of {@link ReportValue},  {@link Formatter#formatValue(com.vectorprint.report.data.types.ReportValue)
+    * }
     * is called, otherwise String.valueOf is used.
     *
     * @param data
@@ -411,7 +412,17 @@ public class DefaultElementProducer implements ElementProducer, LayerManager {
       }
    }
 
+   /**
+    * returns a transparent image when opacity &lt; 1
+    *
+    * @param source
+    * @param opacity
+    * @return
+    */
    public static BufferedImage makeImageTranslucent(BufferedImage source, float opacity) {
+      if (opacity == 1) {
+         return source;
+      }
       BufferedImage translucent = new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TRANSLUCENT);
       Graphics2D g = translucent.createGraphics();
       g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
@@ -422,10 +433,28 @@ public class DefaultElementProducer implements ElementProducer, LayerManager {
 
    @Override
    public void loadPdf(InputStream pdf, PdfWriter writer, byte[] password, ImageProcessor imageProcessor, int... pages) throws VectorPrintException {
-      BufferedInputStream in = null;
+      File f = null;
       try {
-         in = new BufferedInputStream(pdf, settings.getIntegerProperty(ReportConstants.DEFAULTBUFFERSIZE, ReportConstants.BUFFERSIZE));
-         PdfReader reader = new PdfReader(in, password);
+         f = File.createTempFile("pdf.", "pdf");
+         f.deleteOnExit();
+         IOHelper.load(pdf, new FileOutputStream(f), ReportConstants.DEFAULTBUFFERSIZE, true);
+         loadPdf(f, writer, password, imageProcessor, pages);
+      } catch (IOException ex) {
+         throw new VectorPrintException(String.format("unable to load pdf"), ex);
+      } finally {
+         if (f != null) {
+            f.delete();
+         }
+      }
+   }
+
+   @Override
+   public void loadPdf(File pdf, PdfWriter writer, byte[] password, ImageProcessor imageProcessor, int... pages) throws VectorPrintException {
+      RandomAccessFileOrArray ra = null;
+      try {
+         RandomAccessSourceFactory rasf = new RandomAccessSourceFactory();
+         ra = new RandomAccessFileOrArray(rasf.createBestSource(pdf.getPath()));
+         PdfReader reader = new PdfReader(ra, password);
          if (pages == null) {
             for (int i = 0; i < reader.getNumberOfPages();) {
                imageProcessor.processImage(Image.getInstance(writer.getImportedPage(reader, ++i)));
@@ -442,9 +471,9 @@ public class DefaultElementProducer implements ElementProducer, LayerManager {
       } catch (IOException ex) {
          throw new VectorPrintException(String.format("unable to load image %s", pdf.toString()), ex);
       } finally {
-         if (in != null) {
+         if (ra != null) {
             try {
-               in.close();
+               ra.close();
             } catch (IOException ex) {
             }
          }
@@ -454,7 +483,6 @@ public class DefaultElementProducer implements ElementProducer, LayerManager {
    @Override
    public void loadPdf(InputStream pdf, PdfWriter writer, Certificate certificate, Key key, String securityProvider, ImageProcessor imageProcessor, int... pages) throws VectorPrintException {
       // first download, then load
-      BufferedInputStream in = null;
       File f = null;
       try {
          f = File.createTempFile("pdf.", "pdf");
@@ -477,12 +505,6 @@ public class DefaultElementProducer implements ElementProducer, LayerManager {
       } catch (IOException ex) {
          throw new VectorPrintException(String.format("unable to load image %s", pdf.toString()), ex);
       } finally {
-         if (in != null) {
-            try {
-               in.close();
-            } catch (IOException ex) {
-            }
-         }
          if (f != null) {
             f.delete();
          }
@@ -608,55 +630,67 @@ public class DefaultElementProducer implements ElementProducer, LayerManager {
    }
 
    @Override
-   public void loadTiff(InputStream tiff, ImageProcessor imageProcessor, int... pages) throws VectorPrintException {
-      BufferedInputStream in = null;
-      File f = null;
+   public void loadTiff(File tiff, ImageProcessor imageProcessor, int... pages) throws VectorPrintException {
       RandomAccessFileOrArray ra = null;
       try {
-         f = File.createTempFile("tiff.", "tiff");
-         f.deleteOnExit();
-         IOHelper.load(tiff, new FileOutputStream(f), ReportConstants.DEFAULTBUFFERSIZE, true);
-         ra = new RandomAccessFileOrArray(f.getPath());
-         int p = TiffImage.getNumberOfPages(ra);
+         RandomAccessSourceFactory rasf = new RandomAccessSourceFactory();
+         ra = new RandomAccessFileOrArray(rasf.createBestSource(tiff.getPath()));
          if (pages == null) {
-            for (int i = 0; i < p;) {
+            for (int i = 0; i < TiffImage.getNumberOfPages(ra);) {
                imageProcessor.processImage(TiffImage.getTiffImage(ra, ++i));
-               if (p > 1) {
-                  ra.close();
-                  ra = new RandomAccessFileOrArray(f.getPath());
-               }
             }
          } else {
             for (int i : pages) {
                imageProcessor.processImage(TiffImage.getTiffImage(ra, i));
-               if (p > 1) {
-                  ra.close();
-                  ra = new RandomAccessFileOrArray(f.getPath());
-               }
             }
          }
 
       } catch (IOException ex) {
          throw new VectorPrintException(String.format("unable to load tiff %s", tiff.toString()), ex);
       } finally {
-         if (in != null) {
-            try {
-               in.close();
-            } catch (IOException ex) {
-            }
-         }
          if (ra != null) {
             try {
                ra.close();
             } catch (IOException ex) {
             }
          }
+      }
+
+   }
+
+   /**
+    * Creates tempfile and calls {@link loadTiff(File, ImageProcessor, int...) }
+    *
+    * @param tiff
+    * @param imageProcessor
+    * @param pages
+    * @throws VectorPrintException
+    */
+   @Override
+   public void loadTiff(InputStream tiff, ImageProcessor imageProcessor, int... pages) throws VectorPrintException {
+      File f = null;
+      try {
+         f = File.createTempFile("tiff.", "tiff");
+         f.deleteOnExit();
+         IOHelper.load(tiff, new FileOutputStream(f), ReportConstants.DEFAULTBUFFERSIZE, true);
+         loadTiff(f, imageProcessor, pages);
+      } catch (IOException ex) {
+         throw new VectorPrintException(String.format("unable to load tiff"), ex);
+      } finally {
          if (f != null) {
             f.delete();
          }
       }
    }
 
+   /**
+    * Calls {@link loadTiff(InputStream, ImageProcessor, int... ) }
+    *
+    * @param tiff
+    * @param imageProcessor
+    * @param pages
+    * @throws VectorPrintException
+    */
    @Override
    public void loadTiff(URL tiff, ImageProcessor imageProcessor, int... pages) throws VectorPrintException {
       try {
@@ -681,8 +715,8 @@ public class DefaultElementProducer implements ElementProducer, LayerManager {
 
    /**
     * Creates a ColumnText, adds the data using addText and returns the {@link SimpleColumns} that can be used to
-    * {@link SimpleColumns#write() write out} or to {@link SimpleColumns#addContent(java.lang.Object, java.lang.String...) add more data} to the
-    * document.
+    * {@link SimpleColumns#write() write out} or to
+    * {@link SimpleColumns#addContent(java.lang.Object, java.lang.String...) add more data} to the document.
     *
     * @param stylers
     * @return

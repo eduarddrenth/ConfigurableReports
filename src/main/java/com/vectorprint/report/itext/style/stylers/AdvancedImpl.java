@@ -24,6 +24,7 @@ package com.vectorprint.report.itext.style.stylers;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
+import com.itextpdf.awt.geom.AffineTransform;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
@@ -50,7 +51,6 @@ import com.vectorprint.report.itext.style.StylingCondition;
 import com.vectorprint.report.itext.style.parameters.BlendParameter;
 import com.vectorprint.report.itext.style.parameters.EventModeParameter;
 import com.vectorprint.report.itext.style.parameters.FloatParameter;
-import java.awt.geom.AffineTransform;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -137,20 +137,22 @@ public class AdvancedImpl<DATATYPE> extends AbstractStyler implements Advanced<D
       PdfContentByte canvas = (tableForeground != null) ? tableForeground : (isBg())
           ? getWriter().getDirectContentUnder()
           : getWriter().getDirectContent();
+      String layerName = getLayerName();
+      BLENDMODE blend = getBlend();
       if (getWriter().getPDFXConformance() == PdfWriter.PDFX1A2001) {
          // check blend, opacity, layers
-         if (!PdfGState.BM_NORMAL.equals(getBlend().getBlend()) && !PdfGState.BM_COMPATIBLE.equals(getBlend().getBlend())) {
-            throw new VectorPrintRuntimeException("blend not supported in PDF/X-1a: " + getBlend());
+         if (!PdfGState.BM_NORMAL.equals(blend.getBlend()) && !PdfGState.BM_COMPATIBLE.equals(blend.getBlend())) {
+            throw new VectorPrintRuntimeException("blend not supported in PDF/X-1a: " + blend);
          }
-         if (getLayerName() != null) {
-            throw new VectorPrintRuntimeException("layers not supported in PDF/X-1a: " + getLayerName());
+         if (layerName != null) {
+            throw new VectorPrintRuntimeException("layers not supported in PDF/X-1a: " + layerName);
          }
          if (opacity < 1) {
             throw new VectorPrintRuntimeException("opacity not supported in PDF/X-1a: " + opacity);
          }
       }
-      if (getLayerName() != null) {
-         layerManager.startLayerInGroup(getLayerName(), canvas);
+      if (layerName != null) {
+         layerManager.startLayerInGroup(layerName, canvas);
       }
 //					 pgs.setAlphaIsShape(true);
       if (opacity <= 1) {
@@ -163,13 +165,13 @@ public class AdvancedImpl<DATATYPE> extends AbstractStyler implements Advanced<D
          pgs.setStrokeOpacity(opacity);
          canvas.setGState(pgs);
       }
-      if (!BLENDMODE.NORMAL.equals(getBlend())) {
+      if (!BLENDMODE.NORMAL.equals(blend)) {
          if (!needRestore) {
             canvas.saveState();
             needRestore = true;
          }
          PdfGState pgs = new PdfGState();
-         pgs.setBlendMode(getBlend().getBlend());
+         pgs.setBlendMode(blend.getBlend());
          canvas.setGState(pgs);
       }
       if (getTransform() != null && !(this instanceof Image)) {

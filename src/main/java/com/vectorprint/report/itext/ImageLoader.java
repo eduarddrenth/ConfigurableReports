@@ -28,6 +28,7 @@ package com.vectorprint.report.itext;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.vectorprint.VectorPrintException;
+import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.security.Key;
@@ -78,6 +79,8 @@ public interface ImageLoader {
     * @throws VectorPrintException
     */
    void loadPdf(InputStream pdf, PdfWriter writer, byte[] password,  ImageProcessor imageProcessor, int... pages) throws VectorPrintException;
+   
+   void loadPdf(File pdf, PdfWriter writer, byte[] password,  ImageProcessor imageProcessor, int... pages) throws VectorPrintException;
 
    /**
     * Load pages in a tiff as images from a stream and call an imageProcessor to process them
@@ -96,6 +99,15 @@ public interface ImageLoader {
     * @throws VectorPrintException
     */
    void loadTiff(URL tiff, ImageProcessor imageProcessor, int... pages) throws VectorPrintException;
+   
+   /**
+    * Load pages in a tiff as images from a File and call an imageProcessor to process them
+    *
+    * @param tiff
+    * @param pages when null assume all pages
+    * @throws VectorPrintException
+    */
+   void loadTiff(File tiff, ImageProcessor imageProcessor, int... pages) throws VectorPrintException;
    
    /**
     * read a certificate protected pdf.

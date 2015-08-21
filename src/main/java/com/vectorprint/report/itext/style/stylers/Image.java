@@ -33,6 +33,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.EnhancedMap;
+import com.vectorprint.configuration.binding.BindingHelper;
 import com.vectorprint.configuration.parameters.BooleanParameter;
 import com.vectorprint.configuration.parameters.PasswordParameter;
 import com.vectorprint.configuration.parameters.URLParameter;
@@ -217,9 +218,9 @@ public class Image<DATATYPE> extends AbstractPositioning<DATATYPE> implements Im
             log.fine(String.format("url parameter is null, trying to construct one from %s", data));
          }
          try {
-            setUrl(new URL(data));
+            setUrl(BindingHelper.URL_PARSER.convert(data));
             return true;
-         } catch (MalformedURLException ex) {
+         } catch (VectorPrintRuntimeException ex) {
             if (log.isLoggable(Level.WARNING)) {
                log.warning(String.format("no url: %s", data));
             }

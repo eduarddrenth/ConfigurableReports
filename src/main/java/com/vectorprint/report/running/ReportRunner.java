@@ -30,6 +30,7 @@ import com.vectorprint.VectorPrintException;
 import com.vectorprint.VersionInfo;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.Settings;
+import com.vectorprint.configuration.binding.BindingHelper;
 import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactoryImpl;
 import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactory;
 import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactoryImpl;
@@ -196,15 +197,12 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
 
             String to = settings.getProperty(OUTPUT);
 
-            if (to.indexOf(':') == -1) {
-               to = "file:" + to;
-            }
+            File f = new File(to);
 
-            URL u = new URL(to);
-
-            if ("file".equals(u.getProtocol())) {
-               return buildReport(null, new FileOutputStream(u.getFile()));
+            if (f.canRead()) {
+               return buildReport(null, new FileOutputStream(f));
             } else {
+               URL u = BindingHelper.URL_PARSER.convert(to);
                URLConnection conn = u.openConnection();
 
                conn.setDoOutput(true);
