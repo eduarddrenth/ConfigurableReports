@@ -860,6 +860,11 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
    }
 
    @Override
+   public Image loadImage(File image, float opacity) throws VectorPrintException {
+      return elementProducer.loadImage(image, opacity);
+   }
+
+   @Override
    public void loadPdf(InputStream pdf, PdfWriter writer, byte[] password, ImageProcessor imageProcessor, int... pages) throws VectorPrintException {
       elementProducer.loadPdf(pdf, writer, password, imageProcessor, pages);
    }

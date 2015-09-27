@@ -44,20 +44,20 @@ import com.vectorprint.report.itext.LayerManager;
 import com.vectorprint.report.itext.debug.DebugHelper;
 import com.vectorprint.report.itext.ImageLoaderAware;
 import com.vectorprint.report.itext.VectorPrintDocument;
+import com.vectorprint.report.itext.style.BaseStyler;
 import com.vectorprint.report.itext.style.StylerFactoryHelper;
 import com.vectorprint.report.itext.style.StylingCondition;
 import static com.vectorprint.report.itext.style.stylers.AbstractStyler.log;
 import java.awt.Color;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Level;
 
 /**
  * Class for adding images (pdf (first page), tiff (first page) or other formats supported by the default awt toolkit)
- * to a report. Adding can be done through setup, {@link BaseReportGenerator#createAndAddElement(java.lang.Object, java.lang.Class, java.lang.String[])
- * } and {@link #style(java.lang.Object, java.lang.Object)  }, or by
- * {@link #draw(com.itextpdf.text.Rectangle, java.lang.String)}. This class initializes an image by retrieving data from
- * the URL parameter, or by trying to construct an URL from {@link #style(java.lang.Object, java.lang.Object) data}.
+ * to a report. This class initializes an image by retrieving data from the URL parameter, by trying to construct a URL
+ * from {@link #style(java.lang.Object, java.lang.Object) data} or from {@link #setData(java.lang.Object) }. Subclasses
+ * (example: {@link Barcode}) may choose to override {@link #createImage(com.itextpdf.text.pdf.PdfContentByte, java.lang.Object, float)
+ * } when the data argument contains image data instead of a url.
  *
  * @author Eduard Drenth at VectorPrint.nl
  */
@@ -77,13 +77,13 @@ public class Image<DATATYPE> extends AbstractPositioning<DATATYPE> implements Im
    }
 
    private void initParams() {
-      addParameter(new BooleanParameter(PDF, "is image a pdf"),Image.class);
-      addParameter(new BooleanParameter(TIFF, "is image a tiff"),Image.class);
-      addParameter(new URLParameter(URLPARAM, "url"),Image.class);
-      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(SCALE, "scales your image (percentage)").setDefault(100f),Image.class);
-      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(ROTATE, "rotates your image (degrees)"),Image.class);
-      addParameter(new PasswordParameter(DocumentSettings.PASSWORD, "password for a pdf"),Image.class);
-      addParameter(new BooleanParameter(DOSTYLE, "when true be part of regular styling"),Image.class);
+      addParameter(new BooleanParameter(PDF, "is image a pdf"), Image.class);
+      addParameter(new BooleanParameter(TIFF, "is image a tiff"), Image.class);
+      addParameter(new URLParameter(URLPARAM, "url (or file path)"), Image.class);
+      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(SCALE, "scales your image (percentage)").setDefault(100f), Image.class);
+      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(ROTATE, "rotates your image (degrees)"), Image.class);
+      addParameter(new PasswordParameter(DocumentSettings.PASSWORD, "password for a pdf"), Image.class);
+      addParameter(new BooleanParameter(DOSTYLE, "when true be part of regular styling"), Image.class);
    }
 
    public Image() {
@@ -93,7 +93,8 @@ public class Image<DATATYPE> extends AbstractPositioning<DATATYPE> implements Im
    /**
     * Calls {@link #createImage(com.itextpdf.text.pdf.PdfContentByte, java.lang.Object, float) }, {@link #applySettings(com.itextpdf.text.Image) },
     * {@link com.itextpdf.text.Image#setAbsolutePosition(float, float) } and 
-    * {@link #addToCanvas(float[], com.itextpdf.text.Image, com.itextpdf.text.pdf.PdfContentByte)  }.
+    * {@link #addToCanvas(float[], com.itextpdf.text.Image, com.itextpdf.text.pdf.PdfContentByte)
+    * }.
     *
     * @param canvas
     * @param x
@@ -161,8 +162,8 @@ public class Image<DATATYPE> extends AbstractPositioning<DATATYPE> implements Im
 
    /**
     * Calls {@link #initURL(String) }, {@link #createImage(com.itextpdf.text.pdf.PdfContentByte, java.lang.Object, float) },
-    * {@link #applySettings(com.itextpdf.text.Image) }. Calls {@link VectorPrintDocument#addHook(com.vectorprint.report.itext.VectorPrintDocument.AddElementHook) } for
-    * drawing image shadow and for drawing near this image.
+    * {@link #applySettings(com.itextpdf.text.Image) }. Calls {@link VectorPrintDocument#addHook(com.vectorprint.report.itext.VectorPrintDocument.AddElementHook)
+    * } for drawing image shadow and for drawing near this image.
     *
     * @param <E>
     * @param element
@@ -178,7 +179,7 @@ public class Image<DATATYPE> extends AbstractPositioning<DATATYPE> implements Im
           always call createImage when styling, subclasses may do their own document writing etc. in createImage
           */
          com.itextpdf.text.Image img = createImage(getWriter().getDirectContent(), (data != null) ? convert(data) : getData(), getValue(OPACITY, Float.class));
-         if (data!=null) {
+         if (data != null) {
             setData(convert(data));
          }
          applySettings(img);
@@ -209,7 +210,8 @@ public class Image<DATATYPE> extends AbstractPositioning<DATATYPE> implements Im
    /**
     * when {@link #getUrl() } is null try to convert the data argument to a URL and call {@link #setUrl(java.net.URL) }.
     *
-    * @param data
+    * @param data the data from {@link BaseStyler#style(java.lang.Object, java.lang.Object) } or from {@link #getData()
+    * }
     * @return true when a url was successfully constructed from the argument
     */
    protected boolean initURL(String data) {
@@ -231,7 +233,8 @@ public class Image<DATATYPE> extends AbstractPositioning<DATATYPE> implements Im
 
    /**
     * This implementation downloads an image from the URL taken from {@link #getUrl() }, which may be initialized by
-    * {@link #initURL(java.lang.String)  }.
+    * {@link #initURL(java.lang.String)}. Override this method if you want to construct an image from the data argument in
+    * another way.
     *
     * @param canvas
     * @param data
@@ -261,7 +264,7 @@ public class Image<DATATYPE> extends AbstractPositioning<DATATYPE> implements Im
     * @param img
     */
    protected void applySettings(com.itextpdf.text.Image img) {
-      if (img==null) {
+      if (img == null) {
          return;
       }
       img.scalePercent(getScale());
@@ -320,7 +323,7 @@ public class Image<DATATYPE> extends AbstractPositioning<DATATYPE> implements Im
    }
 
    /**
-    * when true and {@link StylingCondition}s allow styling {@link #style(java.lang.Object, java.lang.Object)  }
+    * when true and {@link StylingCondition}s allow styling {@link #style(java.lang.Object, java.lang.Object) }
     * will be called and an image will be returned by it.
     *
     * @return

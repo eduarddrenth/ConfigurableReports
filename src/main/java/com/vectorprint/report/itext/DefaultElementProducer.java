@@ -530,6 +530,25 @@ public class DefaultElementProducer implements ElementProducer {
       }
    }
 
+   /**
+    *
+    * @param image the value of image
+    * @param opacity the value of opacity
+    * @throws VectorPrintException
+    */
+   @Override
+   public Image loadImage(File image, float opacity) throws VectorPrintException {
+      try {
+         BufferedImage awtim = makeImageTranslucent(ImageIO.read(image), opacity);
+         Image img = Image.getInstance(awtim, null);
+         return img;
+      } catch (BadElementException ex) {
+         throw new VectorPrintException(ex);
+      } catch (IOException ex) {
+         throw new VectorPrintException(ex);
+      }
+   }
+
    @Override
    public <E extends Element> E createElement(Object data, Class<E> elementClass, List<? extends BaseStyler> stylers)
        throws VectorPrintException, InstantiationException, IllegalAccessException {

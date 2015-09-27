@@ -30,7 +30,6 @@ import com.vectorprint.VectorPrintException;
 import com.vectorprint.VersionInfo;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.Settings;
-import com.vectorprint.configuration.binding.BindingHelper;
 import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactoryImpl;
 import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactory;
 import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactoryImpl;
@@ -73,7 +72,8 @@ import org.xml.sax.SAXException;
 
 /**
  * This implementation does not depend on iText and may be subclassed to generate reports of other tastes. A
- * ReportRunner needs settings for example to initialize styling for the report. Settings can originate from (in this order):
+ * ReportRunner needs settings for example to initialize styling for the report. Settings can originate from (in this
+ * order):
  * <ul>
  * <li>constructor argument</li>
  * <li>file path containing xml settings declaration</li>
@@ -118,12 +118,12 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
    }
 
    /**
-    * Called from {@link #buildReport(java.lang.String[]) } and {@link #buildReport(java.lang.String[], java.io.OutputStream) }. Uses 
-    * at most 2 arguments the first containing the path to a file, the second containing the path to a file. Both arguments are optional.
-    * When this report runner does not have any settings yet initialize them using {@link #initSettingsFromFile(java.lang.String) }, when settings
-    * are still not found instantiate new settings.
-    * If there is an argument containing settings {@link EnhancedMapParser#parse(com.vectorprint.configuration.EnhancedMap) } will be called.
-    * 
+    * Called from {@link #buildReport(java.lang.String[]) } and {@link #buildReport(java.lang.String[], java.io.OutputStream)
+    * }. Uses at most 2 arguments the first containing the path to a file, the second containing the path to a file.
+    * Both arguments are optional. When this report runner does not have any settings yet initialize them using {@link #initSettingsFromFile(java.lang.String)
+    * }, when settings are still not found instantiate new settings. If there is an argument containing settings {@link EnhancedMapParser#parse(com.vectorprint.configuration.EnhancedMap)
+    * } will be called.
+    *
     * @param args at most two are used, may be null
     * @throws Exception when a failure occurs, also when settings are not initialized properly
     */
@@ -166,65 +166,65 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
    @Override
    public final int buildReport(String[] args) throws Exception {
 
-      try {
-         initSettings(args);
+      initSettings(args);
 
-         if (settings.containsKey(VERSION)) {
-            for (VersionInfo.VersionInformation mi : VersionInfo.getVersionInfo().values()) {
-               System.out.println(mi);
-            }
-
-            return EXITFROMPROPERTYCODE;
+      if (settings.containsKey(VERSION)) {
+         for (VersionInfo.VersionInformation mi : VersionInfo.getVersionInfo().values()) {
+            System.out.println(mi);
          }
 
-         if (settings.containsKey(HELP)) {
-            showHelp(settings);
+         return EXITFROMPROPERTYCODE;
+      }
 
-            return EXITFROMPROPERTYCODE;
+      if (settings.containsKey(HELP)) {
+         showHelp(settings);
+
+         return EXITFROMPROPERTYCODE;
+      }
+
+      if (STREAM.equals(settings.getProperty(STREAM, OUTPUT))) {
+         OutputStream o = System.out;
+
+         System.setOut(new PrintStream(settings.getProperty(getClass().getSimpleName() + ".out", SYSOUT),
+             "UTF-8"));
+         log.info("printing report to standard output");
+
+         // stream
+         return buildReport(null, o);
+      } else {
+         log.info(String.format("printing report to %s", settings.getProperty(OUTPUT)));
+
+         String to = settings.getProperty(OUTPUT);
+
+         if (to.indexOf(':') == -1) {
+            to = "file:" + to;
          }
 
-         if (STREAM.equals(settings.getProperty(OUTPUT))) {
-            OutputStream o = System.out;
+         URL u = new URL(to);
 
-            System.setOut(new PrintStream(settings.getProperty(getClass().getSimpleName() + ".out", SYSOUT),
-                "UTF-8"));
-            log.info("printing report to standard output");
-
-            // stream
-            return buildReport(null, o);
+         if ("file".equals(u.getProtocol())) {
+            // output file url not supported in java
+            return buildReport(null, new FileOutputStream(u.getPath()));
          } else {
-            log.info(String.format("printing report to %s", settings.getProperty(OUTPUT)));
+            URLConnection conn = u.openConnection();
 
-            String to = settings.getProperty(OUTPUT);
-
-            File f = new File(to);
-
-            if (f.canRead()) {
-               return buildReport(null, new FileOutputStream(f));
-            } else {
-               URL u = BindingHelper.URL_PARSER.convert(to);
-               URLConnection conn = u.openConnection();
-
-               conn.setDoOutput(true);
-               conn.setDoInput(false);
-               return buildReport(null, conn.getOutputStream());
-            }
-
+            conn.setDoOutput(true);
+            conn.setDoInput(false);
+            return buildReport(null, conn.getOutputStream());
          }
-      } catch (Exception exception) {
-         log.log(Level.SEVERE, exception.getMessage(), exception);
 
-         throw exception;
       }
    }
 
    /**
-    * Key of the setting that determines the output when calling {@link #buildReport(java.lang.String[]) }
+    * Key of the setting that determines the output when calling {@link #buildReport(java.lang.String[]) }, defaults to
+    * {@link #STREAM}.
     */
    public static final String OUTPUT = "output";
 
    /**
-    * called when a setting {@link ReportConstants#HELP} is present, calls {@link Help#printHelp(java.io.PrintStream) } and {@link EnhancedMap#printHelp()
+    * called when a setting {@link ReportConstants#HELP} is present, calls {@link Help#printHelp(java.io.PrintStream) }
+    * and {@link EnhancedMap#printHelp()
     * }.
     *
     * @param properties
@@ -303,7 +303,7 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
    public static final String CONFIG_FILE = "report.properties";
    public static final String SETTINGS_HELP = "Provide the path to your settingsfile as argument. "
        + "A settingsfile contains either xml (xsd available in Config jar) declaring settings or it contains settings.\n"
-       + "You can also just put " + CONFIG_FILE + " in the current working directory or in the root one of your jars.\n"
+       + "You can also just put " + CONFIG_FILE + " in the current working directory or in the root of one of your jars.\n"
        + "In Your settings you must at least provide the name of your " + DataCollector.class.getName()
        + "in a setting \"" + ReportConstants.DATACLASS + "\".\nFurthermore you probably want to provide styling information"
        + "for the data yielded by your collector.\n";
@@ -330,9 +330,9 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
    /**
     * When the argument is null call {@link #findSettings() }. When the argument is a file that exists it is assumed to
     * either be an xml file declaring settings or a file holding setting. Either {@link SettingsFromJAXB#fromJaxb(java.io.Reader)
-    * } or {@link ParsingProperties#ParsingProperties(com.vectorprint.configuration.EnhancedMap, java.lang.String...)  } will
-    * be called.
-    * 
+    * } or {@link ParsingProperties#ParsingProperties(com.vectorprint.configuration.EnhancedMap, java.lang.String...) }
+    * will be called.
+    *
     * @see SettingsXMLHelper#XSD
     * @param arg name of a file or null
     * @return settings or null

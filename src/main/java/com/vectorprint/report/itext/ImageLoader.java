@@ -51,6 +51,16 @@ public interface ImageLoader {
    Image loadImage(URL image, float opacity) throws VectorPrintException;
 
    /**
+    * Load an image from a File
+    *
+    * @param image
+    * @param opacity the value of opacity
+    * @throws VectorPrintException
+    * @return the com.itextpdf.text.Image
+    */
+   Image loadImage(File image, float opacity) throws VectorPrintException;
+
+   /**
     *
     * @param image the value of image
     * @param opacity the value of opacity

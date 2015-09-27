@@ -197,7 +197,7 @@ public class ConfigurableReportBuilderTest {
       PrintStream orig = System.out;
       ByteArrayOutputStream bo = new ByteArrayOutputStream(50 * 1024);
       System.setOut(new PrintStream(bo));
-      instance.buildReport(new String[]{"output=" + ReportConstants.STREAM});
+      instance.buildReport(null);
       System.setOut(orig);
       assertTrue(TestableReportGenerator.isDidCreate());
       System.out.println("Bytes written: " + bo.toByteArray().length);
