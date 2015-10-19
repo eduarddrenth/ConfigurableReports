@@ -37,6 +37,7 @@ import com.itextpdf.text.pdf.security.PrivateKeySignature;
 import com.vectorprint.ArrayHelper;
 import com.vectorprint.IOHelper;
 import com.vectorprint.VectorPrintException;
+import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.certificates.CertificateHelper;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.parameters.BooleanParameter;
@@ -95,7 +96,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
    /**
     * the default stylers used for styling the titles of the table of contents
     */
-   public static final String[] TOCTITLESTYLE = new String[] {"Font(size=12)","Padding(padding=0)","Border(position=none)"};
+   public static final String[] TOCTITLESTYLE = new String[]{"Font(size=12)", "Padding(padding=0)", "Border(position=none)"};
    /**
     * key for looking up stylers in the settings that will be used for styling the page numbers of the table of contents
     */
@@ -103,7 +104,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
    /**
     * the default stylers used for styling the page numbers of the table of contents
     */
-   public static final String[] TOCNRSTYLE = new String[] {"Font(size=12)","Alignment(align=RIGHT)","Border(position=none)"};
+   public static final String[] TOCNRSTYLE = new String[]{"Font(size=12)", "Alignment(align=RIGHT)", "Border(position=none)"};
    /**
     * key for looking up stylers in the settings that will be used for styling the table of contents table. The default
     * value for this will be calculated based on document measures
@@ -131,7 +132,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
    /**
     * default style for the header in the table of contents table.
     */
-   public static final String[] TOCHEADER = new String[] {"Font(style=bold)","Padding(position=bottom,padding=3)","Padding(position=top,padding=5)","Border(position=none)"};
+   public static final String[] TOCHEADER = new String[]{"Font(style=bold)", "Padding(position=bottom,padding=3)", "Padding(position=top,padding=5)", "Border(position=none)"};
    /**
     * key for looking up stylers in the settings that will be used for the caption of the table of contents.
     */
@@ -139,7 +140,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
    /**
     * default style for the caption of the table of contents.
     */
-   public static final String[] TOCCAPTION = new String[] {"Font(style=bold,size=14)","Padding(position=bottom,padding=3)","Border(position=none)","Alignment(align=center_middle)","ColRowSpan(colspan=2)"};
+   public static final String[] TOCCAPTION = new String[]{"Font(style=bold,size=14)", "Padding(position=bottom,padding=3)", "Border(position=none)", "Alignment(align=center_middle)", "ColRowSpan(colspan=2)"};
    /**
     * parameter to print a table of contents or not
     */
@@ -182,10 +183,10 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
 
    /**
     * adds a visible signature of 200 / 100 at top left of the first page of the pdf with "verify origin" as reason, the
-    * localhost name as location.
-    * Uses MakeSignature.signDetached(psa, as, pks, certificateChain, null, null, null, 0, MakeSignature.CryptoStandard.CMS)
+    * localhost name as location. Uses MakeSignature.signDetached(psa, as, pks, certificateChain, null, null, null, 0,
+    * MakeSignature.CryptoStandard.CMS)
     *
-    * @see #loadKeyStore(char[]) 
+    * @see #loadKeyStore(char[])
     * @see #getKey(java.security.KeyStore, java.lang.String, char[]) }
     * @param psa
     * @throws KeyStoreException
@@ -229,7 +230,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
     * If your settings contain a key {@link #FONTS} it is assumed to be a list of directory names where fonts are loaded
     * from.
     *
-    * @see EnhancedMap#getStringProperties(java.lang.String..., java.lang.String...) 
+    * @see EnhancedMap#getStringProperties(java.lang.String..., java.lang.String...)
     * @see FontFactory#registerDirectory(java.lang.String)
     * @throws VectorPrintException
     */
@@ -272,7 +273,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
       if (ownerpassword == null) {
          ownerpassword = password;
       }
-      int permissions = ((PermissionsParameter)getParameter(PERMISSIONS, PERMISSION[].class)).getPermission();
+      int permissions = ((PermissionsParameter) getParameter(PERMISSIONS, PERMISSION[].class)).getPermission();
       ENCRYPTION encryption = getValue(ENCRYPTION_PARAM, ENCRYPTION.class);
       if (userpassword != null) {
          int enc = encryption != null ? encryption.encryption : PdfWriter.ENCRYPTION_AES_128;
@@ -347,6 +348,18 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
 
    @Override
    public <E extends Document> E styleAfterOpen(E element, Object data) throws VectorPrintException {
+      if (isPdfa()) {
+         try {
+            if (getSettings().containsKey(ReportConstants.ICCCOLORPROFILE)) {
+               itextHelper.loadICC(getSettings().getURLProperty(null, ReportConstants.ICCCOLORPROFILE).openStream());
+            } else {
+               itextHelper.loadICC(DocumentSettings.class.getResourceAsStream(ReportConstants.DEFAULTICCPROFILE));
+            }
+            writer.setOutputIntents("Custom", "", "http://www.color.org", "sRGB IEC61966-2.1", itextHelper.getiCC_Profile());
+         } catch (IOException ex) {
+            throw new VectorPrintRuntimeException(ex);
+         }
+      }
       return (E) document;
    }
 
@@ -418,38 +431,38 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
    }
 
    private void initParams() {
-      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_top.name(), "float"),DocumentSettings.class);
-      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_right.name(), "float "),DocumentSettings.class);
-      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_bottom.name(), "float "),DocumentSettings.class);
-      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_left.name(), "float "),DocumentSettings.class);
-      addParameter(new EncryptionParameter(ENCRYPTION_PARAM, "type of encryption to use when protecting with a password or a certificate: " + Arrays.asList(ENCRYPTION.values()).toString()),DocumentSettings.class);
-      addParameter(new FloatParameter(WIDTH, "float ").setDefault(ItextHelper.mmToPts(210)),DocumentSettings.class);
-      addParameter(new FloatParameter(HEIGHT, "float ").setDefault(ItextHelper.mmToPts(297)),DocumentSettings.class);
-      addParameter(new BooleanParameter(PDFA, "wordt dit een pdf die voldoet aan de PDF/X-1a standaard"),DocumentSettings.class);
-      addParameter(new PasswordParameter(USER_PASSWORD, "a user password for the document and permissions"),DocumentSettings.class);
-      addParameter(new PasswordParameter(PASSWORD, "a password for the document and permissions"),DocumentSettings.class);
-      addParameter(new PasswordParameter(OWNER_PASSWORD, "an owner password for the owner of document and permissions"),DocumentSettings.class);
-      addParameter(new URLParameter(CERTIFICATE, "the certificate to use for document encryption and permissions"),DocumentSettings.class);
-      addParameter(new URLParameter(KEYSTORE, "the keystore (.p12, .pfx, .jks) to use for document signing"),DocumentSettings.class);
-      addParameter(new CharPasswordParameter(KEYSTORE_PASSWORD, "the password for the signing keystore and key", false),DocumentSettings.class);
-      addParameter(new KeyStoreParameter(KEYSTORETYPE_PARAM, "the type of the signing certificate: " + Arrays.asList(KEYSTORETYPE.values()).toString()).setDefault(KEYSTORETYPE.pkcs12),DocumentSettings.class);
-      addParameter(new DigestParameter(DIGESTPARAM, "the alorithm for a signature: " + Arrays.asList(DIGESTALGORITHM.values()).toString()).setDefault(DIGESTALGORITHM.SHA1),DocumentSettings.class);
+      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_top.name(), "float"), DocumentSettings.class);
+      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_right.name(), "float "), DocumentSettings.class);
+      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_bottom.name(), "float "), DocumentSettings.class);
+      addParameter(new FloatParameter(ReportConstants.MARGIN.margin_left.name(), "float "), DocumentSettings.class);
+      addParameter(new EncryptionParameter(ENCRYPTION_PARAM, "type of encryption to use when protecting with a password or a certificate: " + Arrays.asList(ENCRYPTION.values()).toString()), DocumentSettings.class);
+      addParameter(new FloatParameter(WIDTH, "float ").setDefault(ItextHelper.mmToPts(210)), DocumentSettings.class);
+      addParameter(new FloatParameter(HEIGHT, "float ").setDefault(ItextHelper.mmToPts(297)), DocumentSettings.class);
+      addParameter(new BooleanParameter(PDFA, "wordt dit een pdf die voldoet aan de PDF/X-1a standaard"), DocumentSettings.class);
+      addParameter(new PasswordParameter(USER_PASSWORD, "a user password for the document and permissions"), DocumentSettings.class);
+      addParameter(new PasswordParameter(PASSWORD, "a password for the document and permissions"), DocumentSettings.class);
+      addParameter(new PasswordParameter(OWNER_PASSWORD, "an owner password for the owner of document and permissions"), DocumentSettings.class);
+      addParameter(new URLParameter(CERTIFICATE, "the certificate to use for document encryption and permissions"), DocumentSettings.class);
+      addParameter(new URLParameter(KEYSTORE, "the keystore (.p12, .pfx, .jks) to use for document signing"), DocumentSettings.class);
+      addParameter(new CharPasswordParameter(KEYSTORE_PASSWORD, "the password for the signing keystore and key", false), DocumentSettings.class);
+      addParameter(new KeyStoreParameter(KEYSTORETYPE_PARAM, "the type of the signing certificate: " + Arrays.asList(KEYSTORETYPE.values()).toString()).setDefault(KEYSTORETYPE.pkcs12), DocumentSettings.class);
+      addParameter(new DigestParameter(DIGESTPARAM, "the alorithm for a signature: " + Arrays.asList(DIGESTALGORITHM.values()).toString()).setDefault(DIGESTALGORITHM.SHA1), DocumentSettings.class);
       addParameter(new PermissionsParameter(PERMISSIONS, "permissions for the pdf, use in conjunction with password / encryption: "
-          + Arrays.asList(PERMISSION.values()).toString()),DocumentSettings.class);
-      addParameter(new StringParameter(TITLE, "a title for the document").setDefault(""),DocumentSettings.class);
-      addParameter(new StringParameter(SUBJECT, "a subject for the document").setDefault(""),DocumentSettings.class);
-      addParameter(new StringParameter(KEYWORDS, "comma separated keywords for the document").setDefault(""),DocumentSettings.class);
-      addParameter(new StringParameter(CREATOR, "creator").setDefault("VectorPrint"),DocumentSettings.class);
-      addParameter(new StringParameter(AUTHOR, "author").setDefault(""),DocumentSettings.class);
+          + Arrays.asList(PERMISSION.values()).toString()), DocumentSettings.class);
+      addParameter(new StringParameter(TITLE, "a title for the document").setDefault(""), DocumentSettings.class);
+      addParameter(new StringParameter(SUBJECT, "a subject for the document").setDefault(""), DocumentSettings.class);
+      addParameter(new StringParameter(KEYWORDS, "comma separated keywords for the document").setDefault(""), DocumentSettings.class);
+      addParameter(new StringParameter(CREATOR, "creator").setDefault("VectorPrint"), DocumentSettings.class);
+      addParameter(new StringParameter(AUTHOR, "author").setDefault(""), DocumentSettings.class);
       for (PDFBOX b : PDFBOX.values()) {
-         addParameter(new FloatArrayParameter(b.name(), "llx, lly, urx, ury for this pdf box"),DocumentSettings.class);
+         addParameter(new FloatArrayParameter(b.name(), "llx, lly, urx, ury for this pdf box"), DocumentSettings.class);
       }
-      addParameter(new BooleanParameter(TOC, "print table of contents"),DocumentSettings.class);
-      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(TOCLEFTWIDTH, "width percentage of the left column in table of contents").setDefault(0.9f),DocumentSettings.class);
-      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(TOCRIGHTWIDTH, "width percentage of the right column in table of contents").setDefault(0.1f),DocumentSettings.class);
-      addParameter(new BooleanParameter(TOCAPPEND, "print table of contents at the end of the document"),DocumentSettings.class);
-      addParameter(new BooleanParameter(TOCDOTS, "print dots between titles and page numbers in the table of contents").setDefault(Boolean.TRUE),DocumentSettings.class);
-      addParameter(new IntParameter(TOCMAXDEPTH, "the maximum depth to show in the table of contents"),DocumentSettings.class);
+      addParameter(new BooleanParameter(TOC, "print table of contents"), DocumentSettings.class);
+      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(TOCLEFTWIDTH, "width percentage of the left column in table of contents").setDefault(0.9f), DocumentSettings.class);
+      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(TOCRIGHTWIDTH, "width percentage of the right column in table of contents").setDefault(0.1f), DocumentSettings.class);
+      addParameter(new BooleanParameter(TOCAPPEND, "print table of contents at the end of the document"), DocumentSettings.class);
+      addParameter(new BooleanParameter(TOCDOTS, "print dots between titles and page numbers in the table of contents").setDefault(Boolean.TRUE), DocumentSettings.class);
+      addParameter(new IntParameter(TOCMAXDEPTH, "the maximum depth to show in the table of contents"), DocumentSettings.class);
    }
 
    public DocumentSettings() {
@@ -478,7 +491,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
    }
 
    /**
-    * loads a keystore using {@link #getSignKeystore()  } and {@link #getKeystoretype() }, uses configured
+    * loads a keystore using {@link #getSignKeystore() } and {@link #getKeystoretype() }, uses configured
     * {@link #KEYSTORE_PASSWORD keystorepassword}.
     *
     * @return
@@ -530,7 +543,8 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
    }
 
    /**
-    * called as the last step from {@link #style(java.lang.Object, java.lang.Object) }, calls {@link #builtInFontHack() } which is necessary when creating PDF/X-1a with iText.
+    * called as the last step from {@link #style(java.lang.Object, java.lang.Object) }, calls {@link #builtInFontHack()
+    * } which is necessary when creating PDF/X-1a with iText.
     *
     * @param writer
     * @throws IOException
@@ -665,7 +679,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
    }
 
    public int getPermissions() {
-      return ((PermissionsParameter)getParameters().get(PERMISSIONS)).getPermission();
+      return ((PermissionsParameter) getParameters().get(PERMISSIONS)).getPermission();
    }
 
    public void setPermissions(int permissions) {

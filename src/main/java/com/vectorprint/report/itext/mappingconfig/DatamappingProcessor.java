@@ -26,7 +26,6 @@ package com.vectorprint.report.itext.mappingconfig;
  * #L%
  */
 
-import com.itextpdf.text.Chapter;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.vectorprint.VectorPrintException;

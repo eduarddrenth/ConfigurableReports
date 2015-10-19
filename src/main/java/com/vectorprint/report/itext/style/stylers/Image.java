@@ -259,7 +259,8 @@ public class Image<DATATYPE> extends AbstractPositioning<DATATYPE> implements Im
    }
 
    /**
-    * apply settings according to the capabilities of this Image Styler
+    * apply settings according to the capabilities of this Image Styler. This implementation sets scale and rotation and
+    * calls {@link DebugHelper#debugImage(com.itextpdf.text.pdf.PdfContentByte, com.itextpdf.text.Image, java.awt.Color, java.lang.String, java.lang.String, com.vectorprint.configuration.EnhancedMap, com.vectorprint.report.itext.LayerManager, com.vectorprint.report.itext.VectorPrintDocument) } when applicable.
     *
     * @param img
     */

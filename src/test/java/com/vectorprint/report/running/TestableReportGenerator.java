@@ -219,7 +219,7 @@ public class TestableReportGenerator extends BaseReportGenerator<ReportDataHolde
          createAndAddElement(
              getText("dit is een hele lange \ntext met een kleine\nregelhoogte"), Phrase.class, "narrow");
          document.newPage();
-         getAndAddIndex("Nest 1", 2, "niveau1");
+         getAndAddIndex("Nest € 1", 2, "niveau1");
          createAndAddElement("Link", Anchor.class, "empty");
          newLine();
          getAndAddIndex("Nest 1", 3, "niveau2", "link");
@@ -238,7 +238,7 @@ public class TestableReportGenerator extends BaseReportGenerator<ReportDataHolde
          long d = new Date().getTime();
          createAndAddElement(getPeriod(d, d + 1000 * 60 * 60 * 48), Phrase.class, "header");
          newLine();
-         document.add(getIndex("Tweede", 1, "chapter"));
+         document.add(getIndex("Twéede", 1, "chapter"));
          com.vectorprint.report.itext.style.stylers.Image ims
              = new com.vectorprint.report.itext.style.stylers.Image(this, this, document, writer, getSettings());
          // the setters here could also be done from setup

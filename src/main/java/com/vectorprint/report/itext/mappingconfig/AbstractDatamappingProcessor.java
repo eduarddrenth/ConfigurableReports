@@ -37,7 +37,6 @@ import com.vectorprint.VectorPrintException;
 import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.report.data.types.ReportValue;
 import com.vectorprint.report.itext.annotations.CONTAINER_ELEMENT;
-import com.vectorprint.report.itext.jaxb.Datamappingstype;
 import com.vectorprint.report.itext.mappingconfig.model.DataConfig;
 import com.vectorprint.report.itext.mappingconfig.model.ElementConfig;
 import com.vectorprint.report.itext.mappingconfig.model.StartContainerConfig;
@@ -57,8 +56,6 @@ import java.util.logging.Logger;
 public abstract class AbstractDatamappingProcessor implements DatamappingProcessor {
 
    private static final Logger log = Logger.getLogger(AbstractDatamappingProcessor.class.getName());
-
-   private Datamappingstype dataMappingConfig;
 
    protected void removePreviousChapter(Deque<Element> stack) throws DocumentException {
       Element toRemove;

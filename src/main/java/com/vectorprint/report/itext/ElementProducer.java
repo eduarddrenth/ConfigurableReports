@@ -29,6 +29,8 @@ import com.itextpdf.text.Section;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.report.data.types.Formatter;
 import com.vectorprint.report.data.types.ReportValue;
+import com.vectorprint.report.itext.mappingconfig.DatamappingHelper;
+import com.vectorprint.report.itext.mappingconfig.DatamappingProcessor;
 import com.vectorprint.report.itext.style.BaseStyler;
 import com.vectorprint.report.itext.style.StyleHelper;
 import com.vectorprint.report.itext.style.stylers.SimpleColumns;
@@ -45,8 +47,10 @@ public interface ElementProducer extends ImageLoader, LayerManager {
    
 
    /**
-    * Create an Element of a certain class, style it and add data to the element.
-    *
+    * Create an Element of a certain class, style it and add data to the element. Data may originate from your own
+    * classes, see {@link BaseReportGenerator#processData(com.vectorprint.report.data.ReportDataHolder) }.
+    * @see com.vectorprint.report.itext.annotations
+    * @see DatamappingHelper#fromXML(java.io.Reader) 
     * @param <E>
     * @param data
     * @param stylers

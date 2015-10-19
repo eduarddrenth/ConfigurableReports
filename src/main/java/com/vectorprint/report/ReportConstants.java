@@ -123,7 +123,10 @@ public interface ReportConstants {
     * @see ICC_Profile#getInstance(java.io.InputStream) 
     */
    public static final String ICCCOLORPROFILE = "icccolorprofile";
-   
+   /**
+    * built in srgb color profile
+    */
+   public static final String DEFAULTICCPROFILE = "/sRGB_IEC61966-2-1_black_scaled.icc";
    /**
     * name of a boolean setting that may be used. Setting this to false will try to write the stacktrace
     * to the report.
