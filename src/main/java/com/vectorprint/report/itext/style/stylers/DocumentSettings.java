@@ -348,13 +348,20 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
 
    @Override
    public <E extends Document> E styleAfterOpen(E element, Object data) throws VectorPrintException {
-      if (isPdfa()) {
+      boolean icc = false;
+      if (getSettings().containsKey(ReportConstants.ICCCOLORPROFILE)) {
          try {
-            if (getSettings().containsKey(ReportConstants.ICCCOLORPROFILE)) {
-               itextHelper.loadICC(getSettings().getURLProperty(null, ReportConstants.ICCCOLORPROFILE).openStream());
-            } else {
-               itextHelper.loadICC(DocumentSettings.class.getResourceAsStream(ReportConstants.DEFAULTICCPROFILE));
-            }
+            itextHelper.loadICC(getSettings().getURLProperty(null, ReportConstants.ICCCOLORPROFILE).openStream());
+            writer.setOutputIntents("Custom", "", "http://www.color.org",
+                getSettings().getProperty("sRGB IEC61966-2.1", ReportConstants.ICCINFO), itextHelper.getiCC_Profile());
+            icc = true;
+         } catch (IOException ex) {
+            throw new VectorPrintRuntimeException(ex);
+         }
+      }
+      if (isPdfa() && !icc) {
+         try {
+            itextHelper.loadICC(DocumentSettings.class.getResourceAsStream(ReportConstants.DEFAULTICCPROFILE));
             writer.setOutputIntents("Custom", "", "http://www.color.org", "sRGB IEC61966-2.1", itextHelper.getiCC_Profile());
          } catch (IOException ex) {
             throw new VectorPrintRuntimeException(ex);

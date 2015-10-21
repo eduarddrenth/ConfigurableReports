@@ -128,6 +128,10 @@ public interface ReportConstants {
     */
    public static final String DEFAULTICCPROFILE = "/sRGB_IEC61966-2-1_black_scaled.icc";
    /**
+    * name of the setting to provide info about the icc profile used
+    */
+   public static final String ICCINFO = "iccinfo";
+   /**
     * name of a boolean setting that may be used. Setting this to false will try to write the stacktrace
     * to the report.
     */

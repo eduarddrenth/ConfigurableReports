@@ -29,7 +29,6 @@ import com.itextpdf.text.Document;
 import com.itextpdf.text.pdf.PdfSignatureAppearance;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.certificates.CertificateHelper;
-import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.parameters.Parameterizable;
 import com.vectorprint.report.ReportGenerator;
 import com.vectorprint.report.data.ReportDataAware;
