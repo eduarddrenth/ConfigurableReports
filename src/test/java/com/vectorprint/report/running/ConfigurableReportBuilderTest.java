@@ -299,6 +299,10 @@ public class ConfigurableReportBuilderTest {
             System.err.println("\nyou may need to install 'unlimitted strength policy' from oracle\n");
             return;
          }
+         if (ex.getCause().getMessage().contains("No installed provider supports this key")) {
+            System.err.println("\nyou may need to install 'unlimitted strength policy' from oracle\n");
+            return;
+         }
       }
       assertTrue(TestableReportGenerator.isDidCreate());
 
