@@ -66,13 +66,14 @@ public class Help {
 
    /**
     * calls {@link #printHelp(java.io.PrintStream)} or prints available css parameters (see {@link #CSS_PARAM_ARGS})
+    *
     * @param args
-    * @throws Exception 
+    * @throws Exception
     */
    public static void main(String[] args) throws Exception {
       if (args != null && args.length > 0 && args[0].equals(CSS_PARAM_ARGS)) {
          for (Class<?> c : ClassHelper.fromPackage(Font.class.getPackage())) {
-            if (!Modifier.isAbstract(c.getModifiers())&&BaseStyler.class.isAssignableFrom(c)) {
+            if (!Modifier.isAbstract(c.getModifiers()) && BaseStyler.class.isAssignableFrom(c)) {
                BaseStyler bs = (BaseStyler) c.newInstance();
                for (Parameter p : bs.getParameters().values()) {
                   System.out.println("# " + p.getHelp());
@@ -85,7 +86,8 @@ public class Help {
       }
    }
    /**
-    * when the first argument to {@link #main(java.lang.String[]) } equals this constant css parameters for stylers are printed
+    * when the first argument to {@link #main(java.lang.String[]) } equals this constant css parameters for stylers are
+    * printed
     */
    public static final String CSS_PARAM_ARGS = "cssParams";
 
@@ -95,12 +97,12 @@ public class Help {
       out.println("  0 optionally create a settings configuration file (xsd available), examples in junit test");
       out.println("  1 create a settings file with stylinginformation (using current syntax, see step 0), examples in junit test");
       out.println("  2 create an xml config file for the translation of java objects to report parts (xsd in .jar and in GUI); and/or");
-      out.println("  3 annotate your dataclasses ("+ContainerStart.class.getPackage().getName() +"), examples in junit tests");
+      out.println("  3 annotate your dataclasses (" + ContainerStart.class.getPackage().getName() + "), examples in junit tests");
       out.println("  4 extend " + DataCollectorImpl.class.getName() + ", example in junit test");
       out.println("  5 setup your classpath to include your classes, VectorPrintReport*.jar and dependent jars (see lib folder in binary distribution)");
 
       out.println("  6 java -cp <cp> " + ReportRunner.class.getName() + "<settings configuration file> or <settings file> <settings in corrrect syntax>\n");
-      out.println("  Settings must contain "+ReportConstants.DATACLASS+", look at "+ReportConstants.class.getName()+" for more available settings\n");
+      out.println("  Settings must contain " + ReportConstants.DATACLASS + ", look at " + ReportConstants.class.getName() + " for more available settings\n");
       out.println("  You can look at the junit tests to see working examples\n");
       out.println("  Javadoc is recommended as a source for further details\n");
       out.println("Available stylers that can be configured in a settings file, together with parameters that may be used.");
@@ -296,11 +298,4 @@ public class Help {
       }
    }
 
-   public static String getParamInfo(Parameterizable p) {
-      StringBuilder sb = new StringBuilder(p.getParameters().size() * 20).append("\n");
-      for (Parameter e : p.getParameters().values()) {
-         sb.append(e.toString()).append("\n");
-      }
-      return sb.toString();
-   }
 }

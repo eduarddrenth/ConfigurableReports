@@ -24,7 +24,6 @@ package com.vectorprint.report.itext.debug;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-
 import com.itextpdf.text.Annotation;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
@@ -43,8 +42,9 @@ import com.itextpdf.text.pdf.PdfAction;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.vectorprint.VectorPrintException;
-import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.EnhancedMap;
+import com.vectorprint.configuration.parameters.Parameter;
+import com.vectorprint.configuration.parameters.Parameterizable;
 import com.vectorprint.report.ReportConstants;
 import static com.vectorprint.report.ReportConstants.DEBUG;
 import static com.vectorprint.report.itext.BaseReportGenerator.DEBUGPAGE;
@@ -96,8 +96,8 @@ public class DebugHelper {
    }
 
    /**
-    * When in debugging mode, adds a border to the image and calls {@link VectorPrintDocument#addHook(com.vectorprint.report.itext.VectorPrintDocument.AddElementHook)  } to 
-    * be able to print debugging info and link for the image
+    * When in debugging mode, adds a border to the image and calls {@link VectorPrintDocument#addHook(com.vectorprint.report.itext.VectorPrintDocument.AddElementHook)
+    * } to be able to print debugging info and link for the image
     *
     * @param canvas
     * @param img
@@ -121,21 +121,22 @@ public class DebugHelper {
          document.addHook(new VectorPrintDocument.AddElementHook(VectorPrintDocument.AddElementHook.INTENTION.DEBUGIMAGE, img, null, styleClass));
       }
    }
-   
+
    /**
     * adding a link (annotation) to information about the styleClass used
+    *
     * @param rectangle the value of rectangle
     * @param styleClass the value of styleClass
     * @param writer the value of writer
     */
    public static void debugAnnotation(Rectangle rectangle, String styleClass, PdfWriter writer) {
-         if (styleClass == null) {
-            log.warning("not showing link to styleClass because there is no styleClass");
-            return;
-         }
-         // only now we can define a goto action, we know the position of the image
-         PdfAction act = PdfAction.gotoLocalPage(styleClass, true);
-         writer.getDirectContent().setAction(act, rectangle.getLeft(), rectangle.getBottom(), rectangle.getRight(), rectangle.getTop());
+      if (styleClass == null) {
+         log.warning("not showing link to styleClass because there is no styleClass");
+         return;
+      }
+      // only now we can define a goto action, we know the position of the image
+      PdfAction act = PdfAction.gotoLocalPage(styleClass, true);
+      writer.getDirectContent().setAction(act, rectangle.getLeft(), rectangle.getBottom(), rectangle.getRight(), rectangle.getTop());
    }
 
    public static BaseFont debugFont(PdfContentByte canvas, EnhancedMap settings) {
@@ -207,7 +208,7 @@ public class DebugHelper {
       canvas.setColorFill(itextHelper.fromColor(settings.getColorProperty(Color.MAGENTA, ReportConstants.DEBUGCOLOR)));
       canvas.setColorStroke(itextHelper.fromColor(settings.getColorProperty(Color.MAGENTA, ReportConstants.DEBUGCOLOR)));
 
-      Font f = FontFactory.getFont(FontFactory.COURIER,8);
+      Font f = FontFactory.getFont(FontFactory.COURIER, 8);
 
       f.setColor(itextHelper.fromColor(settings.getColorProperty(Color.MAGENTA, ReportConstants.DEBUGCOLOR)));
 
@@ -239,7 +240,7 @@ public class DebugHelper {
       canvas.rectangle(left + 80, top - 63, left + 80, 8);
       canvas.closePathStroke();
       document.add(Chunk.NEWLINE);
-      
+
       document.add(new Phrase("fonts available: " + FontFactory.getRegisteredFonts(), f));
 
       document.add(Chunk.NEWLINE);
@@ -252,28 +253,30 @@ public class DebugHelper {
 
       Font b = new Font(f);
       b.setStyle("bold");
-      Set<Map.Entry<String,String>> entrySet = stylerFactory.getStylerSetup().entrySet();
+      Set<Map.Entry<String, String>> entrySet = stylerFactory.getStylerSetup().entrySet();
       for (Map.Entry<String, String> styleInfo : entrySet) {
          String key = styleInfo.getKey();
          document.add(new Chunk(key, b).setLocalDestination(key));
          document.add(new Chunk(": " + styleInfo.getValue(), f));
          document.add(Chunk.NEWLINE);
          document.add(new Phrase("   styling configured by " + key + ": ", f));
-         for (BaseStyler st : (Collection<BaseStyler>)stylerFactory.getBaseStylersFromCache((key))) {
+         for (BaseStyler st : (Collection<BaseStyler>) stylerFactory.getBaseStylersFromCache((key))) {
             document.add(Chunk.NEWLINE);
             document.add(new Chunk("      ", f));
             document.add(new Chunk(st.getClass().getSimpleName(), DebugHelper.debugFontLink(canvas, settings)).setLocalGoto(st.getClass().getSimpleName()));
             document.add(new Chunk(":", f));
             document.add(Chunk.NEWLINE);
-            document.add(new Phrase("         parameters used: " + Help.getParamInfo(st), f));
+            document.add(new Phrase("         non default parameters for " + st.getClass().getSimpleName() + ": " + getParamInfo(st), f));
             document.add(Chunk.NEWLINE);
-            document.add(new Phrase("      conditions for this styler: ", f));
+            if (!st.getConditions().isEmpty()) {
+               document.add(new Phrase("      conditions for this styler: ", f));
+            }
             for (StylingCondition sc : (Collection<StylingCondition>) st.getConditions()) {
                document.add(Chunk.NEWLINE);
                document.add(new Chunk("         ", f));
                document.add(new Chunk(sc.getClass().getSimpleName(), DebugHelper.debugFontLink(canvas, settings)).setLocalGoto(sc.getClass().getSimpleName()));
                document.add(Chunk.NEWLINE);
-               document.add(new Phrase("            parameters used: " + Help.getParamInfo(sc), f));
+               document.add(new Phrase("            non default parameters for " + sc.getClass().getSimpleName() + ": " + getParamInfo(sc), f));
             }
          }
          document.add(Chunk.NEWLINE);
@@ -318,5 +321,21 @@ public class DebugHelper {
       } catch (InvocationTargetException ex) {
          log.log(Level.SEVERE, null, ex);
       }
+   }
+
+   /**
+    * Call {@link Parameter#toString() } for parameters that have a non null, non default value, separated by newline.
+    *
+    * @param p
+    * @return
+    */
+   public static String getParamInfo(Parameterizable p) {
+      StringBuilder sb = new StringBuilder(p.getParameters().size() * 20);
+      for (Parameter e : p.getParameters().values()) {
+         if (e.getValue() != null && !e.getValue().equals(e.getDefault())) {
+            sb.append(e.toString()).append("\n");
+         }
+      }
+      return sb.toString();
    }
 }
