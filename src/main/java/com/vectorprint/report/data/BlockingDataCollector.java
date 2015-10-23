@@ -35,9 +35,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Implementation of a DataCollector that uses a {@link BlockingDeque} for collecting and processing data, so it starts
- * processing data immediately after it becomes available. This implementation makes it possible to use a separate
- * Thread for collecting data and processing data.
+ * Implementation of a DataCollector that uses a {@link BlockingDeque} for collecting and processing data.
+ * This implementation makes it possible to use a separate thread for collecting data and processing data, so your report
+ * can be generated in a pipe, without the need to first collect all data.
  *
  * @see BaseReportGenerator#processData(com.vectorprint.report.data.ReportDataHolder)
  * @author Eduard Drenth at VectorPrint.nl

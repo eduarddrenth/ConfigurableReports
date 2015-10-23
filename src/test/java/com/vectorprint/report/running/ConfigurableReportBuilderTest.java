@@ -90,6 +90,8 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.bind.JAXBException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.After;
@@ -103,6 +105,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.ExpectedSystemExit;
@@ -135,9 +138,12 @@ public class ConfigurableReportBuilderTest {
       }
    }
 
-   @AfterClass
-   public static void tearDownClass() {
+   @BeforeClass
+   public static void setupClass() {
+      Logger.getLogger(Settings.class.getName()).setLevel(Level.SEVERE);
    }
+   
+   
 
    @Before
    public void setUp() throws IOException, VectorPrintException, JAXBException {

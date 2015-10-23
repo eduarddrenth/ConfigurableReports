@@ -64,7 +64,6 @@ import com.vectorprint.report.itext.style.stylers.Link;
 import com.vectorprint.report.itext.style.stylers.NoWrap;
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
-import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -382,14 +381,18 @@ public class DefaultElementProducer implements ElementProducer {
          if (log.isLoggable(Level.FINE)) {
             log.fine(String.format("loading pdf from %s", String.valueOf(pdf)));
          }
-         loadPdf(pdf.openStream(), writer, password, imageProcessor, pages);
+         if ("file".equals(pdf.getProtocol()))  {
+            loadPdf(new File(pdf.getFile()), writer, password, imageProcessor, pages);
+         } else {
+            loadPdf(pdf.openStream(), writer, password, imageProcessor, pages);
+         }
       } catch (IOException ex) {
          throw new VectorPrintException(String.format("unable to load image %s", pdf.toString()), ex);
       }
    }
 
    /**
-    * loads an image using {@link Toolkit#getImage(java.net.URL) }
+    * loads an image using {@link ImageIO }
     *
     * @param image
     * @param opacity the value of opacity
@@ -402,9 +405,13 @@ public class DefaultElementProducer implements ElementProducer {
          if (log.isLoggable(Level.FINE)) {
             log.fine(String.format("loading image from %s", String.valueOf(image)));
          }
-         BufferedImage awtim = makeImageTranslucent(ImageIO.read(image), opacity);
-         Image img = Image.getInstance(awtim, null);
-         return img;
+         BufferedImage awtim = null;
+         if ("file".equals(image.getProtocol()))  {
+            awtim = makeImageTranslucent(ImageIO.read(new File(image.getFile())), opacity);
+         } else {
+            awtim = makeImageTranslucent(ImageIO.read(image), opacity);
+         }
+         return Image.getInstance(awtim, null);
       } catch (BadElementException ex) {
          throw new VectorPrintException(String.format("unable to load image %s", image.toString()), ex);
       } catch (IOException ex) {
@@ -716,7 +723,11 @@ public class DefaultElementProducer implements ElementProducer {
          if (log.isLoggable(Level.FINE)) {
             log.fine(String.format("loading tiff from %s", String.valueOf(tiff)));
          }
-         loadTiff(tiff.openStream(), imageProcessor, pages);
+         if ("file".equals(tiff.getProtocol())) {
+            loadTiff(new File(tiff.getFile()), imageProcessor, pages);
+         } else {
+            loadTiff(tiff.openStream(), imageProcessor, pages);
+         }
       } catch (IOException ex) {
          throw new VectorPrintException(String.format("unable to load image %s", tiff.toString()), ex);
       }
