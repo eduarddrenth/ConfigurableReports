@@ -229,7 +229,7 @@ public interface BaseStyler extends Parameterizable, DocumentAware {
    boolean styleAfterAdding();
 
    /**
-    * add a condition to this styler to determine wether or not to style
+    * add a condition to this styler to determine whether or not to style
     *
     * @param condition
     */

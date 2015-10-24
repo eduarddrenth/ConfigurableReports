@@ -28,7 +28,6 @@ package com.vectorprint.report.itext.style.stylers;
 //~--- non-JDK imports --------------------------------------------------------
 import com.itextpdf.text.Document;
 import com.itextpdf.text.pdf.PdfWriter;
-import com.vectorprint.ArrayHelper;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.EnhancedMap;
@@ -42,7 +41,7 @@ import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFa
 import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactoryImpl;
 import com.vectorprint.configuration.binding.parameters.ParameterizableParser;
 import com.vectorprint.configuration.parameters.ParameterizableImpl;
-import com.vectorprint.configuration.parameters.StringArrayParameter;
+import com.vectorprint.configuration.parameters.StringParameter;
 import com.vectorprint.configuration.parameters.annotation.Param;
 import com.vectorprint.configuration.parameters.annotation.Parameters;
 import com.vectorprint.report.itext.style.BaseStyler;
@@ -57,9 +56,7 @@ import static com.vectorprint.report.itext.style.stylers.StylerHelper.supported;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -79,7 +76,7 @@ import java.util.logging.Logger;
        @Param(
            key = AbstractStyler.CONDITONS,
            help = "each element should point to a property declaring one or more styling conditions)",
-           clazz = StringArrayParameter.class),
+           clazz = StringParameter.class),
        @Param(
            key = AbstractStyler.STYLEAFTER,
            help = "call the style method after an element is added to the document, default is to call it before addition.",
@@ -176,19 +173,21 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
    }
 
    private static final ParameterizableBindingFactory BINDING_FACTORY = ParameterizableBindingFactoryImpl.getDefaultFactory();
+   
+   private static final String[] E = new String[0];
 
    private void initConditions() throws VectorPrintException {
-      String[] keys = getValue(CONDITONS, String[].class);
-      String[] _conditions = getSettings().getStringProperties(new String[]{}, keys);
+      String key = getValue(CONDITONS, String.class);
+      String[] _conditions = getSettings().getStringProperties(E, key);
       if (_conditions.length == 0) {
-         throw new VectorPrintException(String.format("looked for condition definitions (%s) but none found in the settings",Arrays.toString(keys)));
+         throw new VectorPrintException(String.format("looked for condition definitions (%s) but none found in the settings",key));
       } else {
          for (String sc : _conditions) {
             ParameterizableParser parser = BINDING_FACTORY.getParser(new StringReader(sc))
                 .setPackageName(PageNumberCondition.class.getPackage().getName())
                 .setSettings(getSettings());
             StylingCondition scn = (StylingCondition) parser.parseParameterizable();
-            scn.setConfigKey(Arrays.toString(keys));
+            scn.setConfigKey(key);
             StylerFactoryHelper.initStylingObject(
                 scn,
                 writer,
