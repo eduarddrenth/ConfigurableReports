@@ -43,7 +43,7 @@ import com.vectorprint.configuration.parameters.StringParameter;
 import com.vectorprint.configuration.parameters.URLParameter;
 import static com.vectorprint.report.ReportConstants.DEBUG;
 import com.vectorprint.report.itext.ElementProducer;
-import com.vectorprint.report.itext.ElementProducing;
+import com.vectorprint.report.itext.style.ElementProducing;
 import com.vectorprint.report.itext.debug.DebugHelper;
 import com.vectorprint.report.itext.debug.DebuggablePdfPCell;
 import com.vectorprint.report.itext.style.BaseStyler;
@@ -242,7 +242,6 @@ public abstract class AbstractFieldStyler extends AbstractPositioning<Object> im
 
    @Override
    protected void draw(PdfContentByte canvas, float x, float y, float width, float height, String genericTag) throws VectorPrintException {
-      StyleHelper styleHelper = elementProducer.getStyleHelper();
       Rectangle box = new Rectangle(x, y, x + width, y - height);
       PdfFormField pff = null;
       if (getValue(DocumentSettings.WIDTH, Float.class) > 0) {

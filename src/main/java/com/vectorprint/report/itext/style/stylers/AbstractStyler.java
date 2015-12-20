@@ -37,9 +37,6 @@ import com.vectorprint.configuration.decoration.PreparingProperties;
 import com.vectorprint.configuration.preparing.TrimKeyValue;
 import com.vectorprint.configuration.parameters.BooleanParameter;
 import com.vectorprint.configuration.parameters.Parameter;
-import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactory;
-import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactoryImpl;
-import com.vectorprint.configuration.binding.parameters.ParameterizableParser;
 import com.vectorprint.configuration.parameters.ParameterizableImpl;
 import com.vectorprint.configuration.parameters.StringParameter;
 import com.vectorprint.configuration.parameters.annotation.Param;
@@ -47,15 +44,15 @@ import com.vectorprint.configuration.parameters.annotation.Parameters;
 import com.vectorprint.report.itext.style.BaseStyler;
 import com.vectorprint.report.itext.DocumentAware;
 import com.vectorprint.report.itext.ItextHelper;
+import com.vectorprint.report.itext.style.ConditionFactory;
+import com.vectorprint.report.itext.style.ConditionFactoryAware;
 import com.vectorprint.report.itext.style.StyleHelper;
 import com.vectorprint.report.itext.style.StylerFactoryHelper;
 import static com.vectorprint.report.itext.style.StylerFactoryHelper.LOGGER;
 import com.vectorprint.report.itext.style.StylingCondition;
-import com.vectorprint.report.itext.style.conditions.PageNumberCondition;
 import static com.vectorprint.report.itext.style.stylers.StylerHelper.supported;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -83,7 +80,7 @@ import java.util.logging.Logger;
            clazz = BooleanParameter.class,
            defaultValue = "false")
     })
-public abstract class AbstractStyler extends ParameterizableImpl implements BaseStyler, DocumentAware {
+public abstract class AbstractStyler extends ParameterizableImpl implements BaseStyler, DocumentAware, ConditionFactoryAware {
 
    protected static final Logger log = Logger.getLogger(AbstractStyler.class.getName());
    /**
@@ -103,6 +100,7 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
     *
     */
    public static final String STYLEAFTER = "styleafteradding";
+   private ConditionFactory conditionFactory;
 
    @Override
    public Document getDocument() {
@@ -147,7 +145,8 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
    }
 
    /**
-    * returns false when a condition is present for which {@link StylingCondition#shouldStyle(java.lang.Object, java.lang.Object)  }
+    * returns false when a condition is present for which {@link StylingCondition#shouldStyle(java.lang.Object, java.lang.Object)
+    * }
     * is false
     *
     * @param data
@@ -172,31 +171,15 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
       }
    }
 
-   private static final ParameterizableBindingFactory BINDING_FACTORY = ParameterizableBindingFactoryImpl.getDefaultFactory();
-   
    private static final String[] E = new String[0];
 
    private void initConditions() throws VectorPrintException {
       String key = getValue(CONDITONS, String.class);
-      String[] _conditions = getSettings().getStringProperties(E, key);
-      if (_conditions.length == 0) {
-         throw new VectorPrintException(String.format("looked for condition definitions (%s) but none found in the settings",key));
+      if (getSettings().getStringProperties(E, key).length == 0) {
+         throw new VectorPrintException(String.format("looked for condition definitions (%s) but none found in the settings", key));
       } else {
-         for (String sc : _conditions) {
-            ParameterizableParser parser = BINDING_FACTORY.getParser(new StringReader(sc))
-                .setPackageName(PageNumberCondition.class.getPackage().getName())
-                .setSettings(getSettings());
-            StylingCondition scn = (StylingCondition) parser.parseParameterizable();
-            scn.setConfigKey(key);
-            StylerFactoryHelper.initStylingObject(
-                scn,
-                writer,
-                document,
-                null,
-                null,
-                getSettings());
-
-            addCondition(scn);
+         for (StylingCondition sc : conditionFactory.getConditions(key)) {
+            addCondition(sc);
          }
       }
    }
@@ -233,18 +216,13 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
       return conditions;
    }
 
-   
+   private boolean needConditions;
+
    @Override
    public void update(Observable o, Object arg) {
       Parameter p = (Parameter) o;
       if (CONDITONS.equals(p.getKey()) && p.getValue() != null) {
-         try {
-            initConditions();
-         } catch (VectorPrintException ex) {
-            throw new VectorPrintRuntimeException(ex);
-         } catch (RuntimeException ex) {
-            throw new VectorPrintRuntimeException(ex);
-         }
+         needConditions = true;
       }
    }
 
@@ -305,5 +283,19 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
    @Override
    public boolean styleAfterAdding() {
       return getValue(STYLEAFTER, Boolean.class);
+   }
+
+   @Override
+   public void setConditionFactory(ConditionFactory conditionFactory) {
+      this.conditionFactory = conditionFactory;
+      if (needConditions) {
+         try {
+            initConditions();
+         } catch (VectorPrintException ex) {
+            throw new VectorPrintRuntimeException(ex);
+         } catch (RuntimeException ex) {
+            throw new VectorPrintRuntimeException(ex);
+         }
+      }
    }
 }

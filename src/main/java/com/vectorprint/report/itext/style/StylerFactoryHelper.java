@@ -33,7 +33,6 @@ import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.annotation.SettingsAnnotationProcessor;
 import com.vectorprint.configuration.annotation.SettingsAnnotationProcessorImpl;
 import com.vectorprint.report.itext.ElementProducer;
-import com.vectorprint.report.itext.ElementProducing;
 import com.vectorprint.report.itext.ImageLoader;
 import com.vectorprint.report.itext.LayerManager;
 import com.vectorprint.report.itext.LayerManagerAware;
@@ -65,7 +64,7 @@ public class StylerFactoryHelper {
     * @param stylerFactory
     * @throws VectorPrintException
     */
-   public static void initStylingObject(Object s, PdfWriter writer, Document document, ImageLoader imageLoader, LayerManager layerManager, EnhancedMap settings, ElementProducer elementProducer, StylerFactory stylerFactory) throws VectorPrintException {
+   public static void initStylingObject(Object s, PdfWriter writer, Document document, ImageLoader imageLoader, LayerManager layerManager, EnhancedMap settings, ElementProducer elementProducer, StylerFactory stylerFactory, ConditionFactory conditionFactory) throws VectorPrintException {
       if (s instanceof DocumentAware) {
          ((DocumentAware) s).setDocument(document, writer);
       }
@@ -79,10 +78,13 @@ public class StylerFactoryHelper {
          ((ElementProducing)s).setElementProducer(elementProducer);
          ((ElementProducing)s).setStylerFactory(stylerFactory);
       }
+      if (s instanceof ConditionFactoryAware) {
+         ((ConditionFactoryAware)s).setConditionFactory(conditionFactory);
+      }
    }
    
    public static void initStylingObject(Object s, PdfWriter writer, Document document, ImageLoader imageLoader, LayerManager layerManager, EnhancedMap settings) throws VectorPrintException {
-      initStylingObject(s, writer, document, imageLoader, layerManager, settings, null, null);
+      initStylingObject(s, writer, document, imageLoader, layerManager, settings, null, null, null);
    }
    
    /**

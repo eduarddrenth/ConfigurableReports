@@ -4,15 +4,13 @@
  * and open the template in the editor.
  */
 
-package com.vectorprint.report.itext.style.parameters;
+package com.vectorprint.report.itext.style;
 
 /*
  * #%L
- * ConfigurableReports
- * $Id:$
- * $HeadURL:$
+ * VectorPrintReport
  * %%
- * Copyright (C) 2014 - 2015 VectorPrint
+ * Copyright (C) 2012 - 2014 VectorPrint
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -29,17 +27,12 @@ package com.vectorprint.report.itext.style.parameters;
  * #L%
  */
 
-import com.vectorprint.configuration.parameters.ParameterImpl;
-import com.vectorprint.report.itext.style.stylers.SimpleColumns;
-
 /**
  *
  * @author Eduard Drenth at VectorPrint.nl
  */
-public class ModeParameter extends ParameterImpl<SimpleColumns.MODE>{
-
-   public ModeParameter(String key, String help) {
-      super(key, help, SimpleColumns.MODE.class);
-   }
+public interface StylerFactoryAware {
+   
+   void setStylerFactory(StylerFactory stylerFactory);
 
 }

@@ -27,7 +27,7 @@ package com.vectorprint.report.itext.style.stylers;
  */
 
 import com.vectorprint.configuration.preparing.PrepareKeyValue;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,10 +61,8 @@ public class StylerHelper {
       return false;
    }
    
-   public static final java.util.List<PrepareKeyValue<String,String[]>> toList(PrepareKeyValue<String,String[]> prepareKeyValue) {
-      java.util.List<PrepareKeyValue<String,String[]>> l = new ArrayList<PrepareKeyValue<String,String[]>>(1);
-      l.add(prepareKeyValue);
-      return l;
+   public static final java.util.List<PrepareKeyValue<String,String[]>> toList(PrepareKeyValue<String,String[]>... prepareKeyValue) {
+      return Arrays.asList(prepareKeyValue);
    }
 
 }

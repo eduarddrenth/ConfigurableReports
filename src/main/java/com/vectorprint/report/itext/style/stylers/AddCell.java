@@ -36,7 +36,7 @@ import com.vectorprint.configuration.parameters.StringParameter;
 import com.vectorprint.configuration.parameters.annotation.Param;
 import com.vectorprint.configuration.parameters.annotation.Parameters;
 import com.vectorprint.report.itext.ElementProducer;
-import com.vectorprint.report.itext.ElementProducing;
+import com.vectorprint.report.itext.style.ElementProducing;
 import com.vectorprint.report.itext.style.BaseStyler;
 import com.vectorprint.report.itext.style.StylerFactory;
 import java.util.Arrays;

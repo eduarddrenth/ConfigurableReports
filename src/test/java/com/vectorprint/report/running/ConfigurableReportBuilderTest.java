@@ -238,7 +238,7 @@ public class ConfigurableReportBuilderTest {
    public void testBindingHelper() throws Exception {
       System.setProperty(ParameterizableBindingFactoryImpl.PARAMHELPER, "java.lang.Long");
       try {
-         instance.buildReport(new String[]{}, new FileOutputStream(TARGET + "testToStream.pdf"));
+         instance.buildReport(new String[]{}, new FileOutputStream(TARGET + "testBindingHelper.pdf"));
       } catch (VectorPrintException vectorPrintException) {
          assertTrue(vectorPrintException.getMessage().contains("is not a " + ReportBindingHelper.class.getName()));
       }

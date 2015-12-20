@@ -4,13 +4,15 @@
  * and open the template in the editor.
  */
 
-package com.vectorprint.report.itext;
+package com.vectorprint.report.itext.style;
 
 /*
  * #%L
- * VectorPrintReport
+ * ConfigurableReports
+ * $Id:$
+ * $HeadURL:$
  * %%
- * Copyright (C) 2012 - 2014 VectorPrint
+ * Copyright (C) 2014 - 2015 VectorPrint
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -27,16 +29,20 @@ package com.vectorprint.report.itext;
  * #L%
  */
 
-import com.vectorprint.report.itext.style.StylerFactory;
+import com.vectorprint.VectorPrintException;
+import java.util.List;
 
 /**
  *
  * @author Eduard Drenth at VectorPrint.nl
  */
-public interface ElementProducing {
-   
-   void setElementProducer(ElementProducer elementProducer);
-   
-   void setStylerFactory(StylerFactory stylerFactory);
+public interface ConditionFactory {
+   /**
+    * find Conditions
+    * @param configKey the key of the settings that declare conditions
+    * @return
+    * @throws VectorPrintException 
+    */
+   List<StylingCondition> getConditions(String configKey) throws VectorPrintException;
 
 }

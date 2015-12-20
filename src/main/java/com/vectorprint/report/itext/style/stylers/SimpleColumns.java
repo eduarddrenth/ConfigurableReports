@@ -39,7 +39,7 @@ import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.parameters.IntParameter;
 import com.vectorprint.report.ReportConstants;
 import com.vectorprint.report.itext.ElementProducer;
-import com.vectorprint.report.itext.ElementProducing;
+import com.vectorprint.report.itext.style.ElementProducing;
 import com.vectorprint.report.itext.ItextHelper;
 import com.vectorprint.report.itext.debug.DebugHelper;
 import com.vectorprint.report.itext.style.BaseStyler;

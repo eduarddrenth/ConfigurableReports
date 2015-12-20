@@ -55,18 +55,18 @@
                         <include>**/Advanced.*</include>
                         <include>**/ElementStyler.*</include>
                         <include>**/StylerFactory.*</include>
+                        <include>**/ConditionFactory.*</include>
+                        <include>**/DatamappingProcessor.*</include>
                         <include>**/StylingCondition.*</include>
                         <include>**/ImageProcessor.*</include>
                         <include>**/ImageLoader.*</include>
-                        <include>**/LayerManagerAware.*</include>
-                        <include>**/ImageLoaderAware.*</include>
-                        <include>**/DocumentAware.*</include>
+                        <include>**/*Aware.*</include>
                         <include>**/TwoPassOutputStream.*</include>
                         <include>**/DataCollectionMessages.*</include>
                         <include>**/ReportDataHolder.*</include>
-                        <include>**/ReportDataAware.*</include>
-                        <include>**/DataSelector.*</include>
-                        <include>**/DataCollector.*</include>
+                        <include>**/*DataCollector.*</include>
+                        <include>**/*Value.*</include>
+                        <include>**/Formatter.*</include>
                         <include>**/ReportBuilder.*</include>
                         <include>**/ReportGenerator.*</include>
                      </includes>

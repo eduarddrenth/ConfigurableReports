@@ -32,6 +32,7 @@ import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFa
 import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactoryImpl;
 import com.vectorprint.configuration.binding.parameters.ParameterizableParser;
 import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactoryImpl;
+import com.vectorprint.configuration.parameters.Parameterizable;
 import com.vectorprint.report.ReportConstants;
 import static com.vectorprint.report.ReportConstants.DEBUG;
 import com.vectorprint.report.itext.ElementProducer;
@@ -39,6 +40,7 @@ import com.vectorprint.report.itext.ImageLoader;
 import com.vectorprint.report.itext.LayerManager;
 import com.vectorprint.report.itext.EventHelper;
 import com.vectorprint.report.itext.debug.DebugStyler;
+import com.vectorprint.report.itext.style.conditions.AbstractCondition;
 import com.vectorprint.report.itext.style.stylers.Advanced;
 import com.vectorprint.report.itext.style.stylers.Font;
 import com.vectorprint.report.itext.style.stylers.ImportPdf;
@@ -54,7 +56,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 //~--- JDK imports ------------------------------------------------------------
-public class DefaultStylerFactory implements StylerFactory {
+public class DefaultStylerFactory implements StylerFactory, ConditionFactory {
 
    /**
     * name of the optional property containing advanced stylers that will be executed for each page
@@ -82,6 +84,10 @@ public class DefaultStylerFactory implements StylerFactory {
     * put your own stylers in this package
     */
    public static final String STYLERPACKAGENAME = Font.class.getPackage().getName();
+   /**
+    * put your own conditions in this package
+    */
+   public static final String CONDITIONPACKAGENAME = AbstractCondition.class.getPackage().getName();
    private static final Logger log = Logger.getLogger(DefaultStylerFactory.class.getName());
    private Map<String, Object> cache = new HashMap<String, Object>(100);
    @SettingsField
@@ -124,33 +130,38 @@ public class DefaultStylerFactory implements StylerFactory {
       }
    }
 
-   private final List<ImportPdf> impdf = new ArrayList<ImportPdf>(1);
-   private final List<ImportTiff> imtiff = new ArrayList<ImportTiff>(1);
-   private final List<SimpleColumns> imcol = new ArrayList<SimpleColumns>(1);
+   private final List<ImportPdf> impdf = new ArrayList<>(1);
+   private final List<ImportTiff> imtiff = new ArrayList<>(1);
+   private final List<SimpleColumns> imcol = new ArrayList<>(1);
 
-   private <S extends BaseStyler> Collection<S> getStylers(String styleClass, String pkg)
+   private <S extends Parameterizable> List<S> getStylers(String key, String pkg )
        throws VectorPrintException {
 
-      if (!cache.containsKey(styleClass)) {
+      if (!cache.containsKey(key)) {
 
-         String[] classNames = settings.getStringProperties(null, styleClass);
+         String[] classNames = settings.getStringProperties(null, key);
          if (classNames == null) {
             classNames = new String[0];
          }
-         List<S> stylers = new ArrayList<S>(classNames.length);
+         List<S> parameterizables = new ArrayList<>(classNames.length);
 
          for (String classNameWithParams : classNames) {
             if (classNameWithParams.isEmpty()) {
                continue;
             }
-
-            stylers.add((S) getStyler(classNameWithParams, pkg).setStyleClass(styleClass));
+            Parameterizable parameterizable = getParameterizable(classNameWithParams, pkg);
+            if (parameterizable instanceof BaseStyler) {
+               ((BaseStyler) parameterizable).setStyleClass(key);
+            } else {
+               ((StylingCondition) parameterizable).setConfigKey(key);
+            }
+            parameterizables.add((S) parameterizable);
          }
 
-         cache.put(styleClass, stylers);
-         return stylers;
+         cache.put(key, parameterizables);
+         return parameterizables;
       } else {
-         return (List<S>) cache.get(styleClass);
+         return (List<S>) cache.get(key);
       }
 
    }
@@ -165,30 +176,31 @@ public class DefaultStylerFactory implements StylerFactory {
     * @return
     * @throws VectorPrintException
     */
-   private <S extends BaseStyler> S getStyler(String classNameWithParams, String pkg) throws VectorPrintException {
+   private <S extends Parameterizable> S getParameterizable(String classNameWithParams, String pkg) throws VectorPrintException {
+      // TODO this will trigger a call to update in AbstractStyler where a ConditionFactory is needed but not yet provided
       S st = (S) getParser(new StringReader(classNameWithParams))
-             .setSettings(settings).setPackageName(pkg)
-             .parseParameterizable();
-      StylerFactoryHelper.initStylingObject(st, writer, document, imageLoader, layerManager, settings, (ElementProducer) imageLoader, this);
+          .setSettings(settings).setPackageName(pkg)
+          .parseParameterizable();
+      StylerFactoryHelper.initStylingObject(st, writer, document, imageLoader, layerManager, settings, (ElementProducer) imageLoader, this, this);
       if (st instanceof ImportPdf) {
          impdf.add((ImportPdf) st);
-      } else {
+      } else if (st instanceof BaseStyler) {
          for (ImportPdf ipdf : impdf) {
-            ipdf.addStyler(st);
+            ipdf.addStyler((BaseStyler) st);
          }
       }
       if (st instanceof SimpleColumns) {
          imcol.add((SimpleColumns) st);
-      } else {
+      } else if (st instanceof BaseStyler) {
          for (SimpleColumns sc : imcol) {
-            sc.addStyler(st);
+            sc.addStyler((BaseStyler) st);
          }
       }
       if (st instanceof ImportTiff) {
          imtiff.add((ImportTiff) st);
-      } else {
+      } else if (st instanceof BaseStyler) {
          for (ImportTiff ipt : imtiff) {
-            ipt.addStyler(st);
+            ipt.addStyler((BaseStyler) st);
          }
       }
       return st;
@@ -206,7 +218,7 @@ public class DefaultStylerFactory implements StylerFactory {
          StylerFactoryHelper.initStylingObject(dst, writer, document, null, layerManager, settings);
          for (String n : names) {
             dst.getStyleSetup().add(n);
-            styleSetup.put(n, EnhancedMapBindingFactoryImpl.getDefaultFactory().getBindingHelper().serializeValue(settings.getStringProperties(null,n)));
+            styleSetup.put(n, EnhancedMapBindingFactoryImpl.getDefaultFactory().getBindingHelper().serializeValue(settings.getStringProperties(null, n)));
          }
 
          return dst;
@@ -233,7 +245,7 @@ public class DefaultStylerFactory implements StylerFactory {
       return stylers;
    }
 
-   private <B extends BaseStyler> void debug(List<B> stylers, String... styleClasses) throws VectorPrintException {
+   private <B extends Parameterizable> void debug(List<B> stylers, String... styleClasses) throws VectorPrintException {
       if (settings.getBooleanProperty(false, DEBUG)) {
          for (String clazz : styleClasses) {
             if (!cache.containsKey(clazz)) {
@@ -280,7 +292,7 @@ public class DefaultStylerFactory implements StylerFactory {
                   log.warning(s.getClass().getSimpleName() + " is not an advanced styler, cannot be used for each page");
                }
             }
-            styleSetup.put(PAGESTYLERS, BINDING_FACTORY.getBindingHelper().serializeValue(settings.getStringProperties(null,PAGESTYLERS)));
+            styleSetup.put(PAGESTYLERS, BINDING_FACTORY.getBindingHelper().serializeValue(settings.getStringProperties(null, PAGESTYLERS)));
          } catch (VectorPrintException ex) {
             throw new VectorPrintRuntimeException(ex);
          }
@@ -312,7 +324,7 @@ public class DefaultStylerFactory implements StylerFactory {
       return containsFirstLast;
    }
 
-   private <B extends BaseStyler> List<B> preStyle(List<B> stylers, String... styleClasses) throws VectorPrintException {
+   private <B extends Parameterizable> List<B> preStyle(List<B> stylers, String... styleClasses) throws VectorPrintException {
 
       if (doFirstLast && !containsFirstLast(styleClasses) && settings.containsKey(PRESTYLERS)) {
          stylers.addAll((Collection<? extends B>) getStylers(PRESTYLERS, STYLERPACKAGENAME));
@@ -320,7 +332,7 @@ public class DefaultStylerFactory implements StylerFactory {
       return stylers;
    }
 
-   private <B extends BaseStyler> void postStyle(List<B> stylers, String... styleClasses) throws VectorPrintException {
+   private <B extends Parameterizable> void postStyle(List<B> stylers, String... styleClasses) throws VectorPrintException {
       if (doFirstLast && !containsFirstLast(styleClasses) && settings.containsKey(POSTSTYLERS)) {
          stylers.addAll((Collection<? extends B>) getStylers(POSTSTYLERS, STYLERPACKAGENAME));
       }
@@ -358,6 +370,11 @@ public class DefaultStylerFactory implements StylerFactory {
 
    public EnhancedMap getSettings() {
       return settings;
+   }
+
+   @Override
+   public List<StylingCondition> getConditions(String configKey) throws VectorPrintException {
+      return getStylers(configKey, CONDITIONPACKAGENAME);
    }
 
 }

@@ -40,7 +40,7 @@ import java.util.Map;
 
 /**
  * Responsible for providing {@link ReportGenerator}s and {@link ElementProducer}s
- * with stylers.
+ * to stylers.
  * @author Eduard Drenth at VectorPrint.nl
  */
 public interface StylerFactory extends DocumentAware, ImageLoaderAware, LayerManagerAware {
@@ -60,7 +60,6 @@ public interface StylerFactory extends DocumentAware, ImageLoaderAware, LayerMan
     * @throws VectorPrintException 
     */
    List<BaseStyler> getStylers(String... styleClasses) throws VectorPrintException;
-
 
    /**
     * find a document styler, based on {@link ReportConstants#DOCUMENTSETTINGS}
