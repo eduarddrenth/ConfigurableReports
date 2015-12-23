@@ -30,10 +30,11 @@ import com.vectorprint.VectorPrintException;
 import com.vectorprint.VersionInfo;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.Settings;
-import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactoryImpl;
+import com.vectorprint.configuration.binding.parameters.ParamBindingService;
+import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactory;
 import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactory;
-import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactoryImpl;
 import com.vectorprint.configuration.binding.settings.EnhancedMapParser;
+import com.vectorprint.configuration.binding.settings.SettingsBindingService;
 import com.vectorprint.configuration.decoration.CachingProperties;
 import com.vectorprint.configuration.decoration.ParsingProperties;
 import com.vectorprint.configuration.jaxb.SettingsFromJAXB;
@@ -52,6 +53,7 @@ import com.vectorprint.report.data.ReportDataHolder;
 import com.vectorprint.report.itext.BaseReportGenerator;
 import com.vectorprint.report.itext.Help;
 import com.vectorprint.report.itext.style.StylerFactoryHelper;
+import com.vectorprint.report.itext.style.parameters.ReportParameterBindingFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -65,7 +67,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import com.vectorprint.report.itext.style.parameters.ReportBindingHelper;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import org.xml.sax.SAXException;
@@ -110,11 +111,11 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
          throw new IllegalArgumentException("properties may not be null");
       }
       this.settings = properties;
-      bindingFactory = EnhancedMapBindingFactoryImpl.getDefaultFactory();
+      bindingFactory = SettingsBindingService.getInstance().getFactory();
    }
 
    public ReportRunner() {
-      bindingFactory = EnhancedMapBindingFactoryImpl.getDefaultFactory();
+      bindingFactory = SettingsBindingService.getInstance().getFactory();
    }
 
    /**
@@ -396,20 +397,9 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
             return EXITFROMPROPERTYCODE;
          }
 
+         initBindingFactory();
+
          DataCollector<RD> dc = getDataCollector();
-         // init bindinghelper now
-         String clazz = System.getProperty(ParameterizableBindingFactoryImpl.PARAMHELPER);
-         if (clazz == null) {
-            System.setProperty(ParameterizableBindingFactoryImpl.PARAMHELPER, dc.getDefaultBindingHelperClass().getName());
-         } else {
-            Class<?> forName = Class.forName(clazz);
-            if (!ReportBindingHelper.class.isAssignableFrom(forName)) {
-               throw new VectorPrintException(String.format("%s, from system property %s is not a %s", clazz, ParameterizableBindingFactoryImpl.PARAMHELPER,
-                   ReportBindingHelper.class.getName()));
-            } else {
-               System.setProperty(ParameterizableBindingFactoryImpl.PARAMHELPER, clazz);
-            }
-         }
          ReportGenerator<RD> rg = getReportGenerator();
 
          StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(rg, settings);
@@ -455,5 +445,25 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
             out.close();
          }
       }
+   }
+   
+   /**
+    * When a system property {@link ReportConstants#BINDINGFACTORYCLASSNAME} exists try to call {@link ParamBindingService#setFactoryClass(java.lang.Class) },
+    * otherwise use the spi published binding factory {@link ReportParameterBindingFactory}.
+    * @throws ClassNotFoundException
+    * @throws VectorPrintException 
+    */
+   protected void initBindingFactory() throws ClassNotFoundException, VectorPrintException {
+         String clazz = System.getProperty(ReportConstants.BINDINGFACTORYCLASSNAME);
+         if (clazz != null) {
+            // override spi mechanism
+            Class forName = Class.forName(clazz);
+            if (!ParameterizableBindingFactory.class.isAssignableFrom(forName)) {
+               throw new VectorPrintException(String.format("%s, from system property %s is not a %s", clazz, ReportConstants.BINDINGFACTORYCLASSNAME,
+                   ParameterizableBindingFactory.class.getName()));
+            } else {
+               ParamBindingService.getInstance().setFactoryClass(forName);
+            }
+         }
    }
 }

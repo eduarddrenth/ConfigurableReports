@@ -27,6 +27,7 @@ package com.vectorprint.report;
  */
 
 //~--- non-JDK imports --------------------------------------------------------
+import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactory;
 import com.vectorprint.report.data.DataCollector;
 import com.vectorprint.report.data.types.Formatter;
 import com.vectorprint.report.itext.BaseReportGenerator;
@@ -35,6 +36,8 @@ import com.vectorprint.report.itext.ItextHelper;
 import com.vectorprint.report.itext.mappingconfig.DatamappingHelper;
 import com.vectorprint.report.itext.style.DocumentStyler;
 import com.vectorprint.report.itext.style.StylerFactory;
+import com.vectorprint.report.itext.style.parameters.JsonReportParameterBindingFactory;
+import com.vectorprint.report.itext.style.parameters.ReportParameterBindingFactory;
 import java.awt.color.ICC_ColorSpace;
 import java.awt.color.ICC_Profile;
 
@@ -87,6 +90,18 @@ public interface ReportConstants {
     * name of the run property that determines the implementation of the {@link DataCollector} used
     */
    public static final String DATACLASS = "dataclass";
+   /**
+    * name of the Systen property that determines the implementation of the {@link ParameterB} used
+    */
+   public static final String BINDINGFACTORYCLASSNAME = "dataclass";
+   /**
+    * Default factory for parameter syntax binding
+    */
+   public static final Class<? extends ParameterizableBindingFactory> BINDINGFACTORYCLASS = ReportParameterBindingFactory.class;
+   /**
+    * Json factory for parameter syntax binding
+    */
+   public static final Class JSONBINDINGFACTORYCLASS = JsonReportParameterBindingFactory.class;
    /**
     * name of the run property that determines the filename where System.out will be written to when streaming the
     * report

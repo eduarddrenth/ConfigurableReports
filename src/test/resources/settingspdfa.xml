@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ns1:settings
-   xmlns:ns1='http://www.vectorprint.nl/config/settings/1.0'>
+   xmlns:ns1='http://www.vectorprint.nl/config/settings/1.5'>
    <ns1:url>src/test/resources/config/messages.properties</ns1:url>
    <ns1:url>src/test/resources/config/table.properties</ns1:url>
    <ns1:url>src/test/resources/config/chart.properties</ns1:url>

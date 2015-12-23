@@ -28,10 +28,10 @@ import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.annotation.Setting;
 import com.vectorprint.configuration.annotation.SettingsField;
+import com.vectorprint.configuration.binding.parameters.ParamBindingService;
 import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactory;
-import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactoryImpl;
 import com.vectorprint.configuration.binding.parameters.ParameterizableParser;
-import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactoryImpl;
+import com.vectorprint.configuration.binding.settings.SettingsBindingService;
 import com.vectorprint.configuration.parameters.Parameterizable;
 import com.vectorprint.report.ReportConstants;
 import static com.vectorprint.report.ReportConstants.DEBUG;
@@ -96,7 +96,7 @@ public class DefaultStylerFactory implements StylerFactory, ConditionFactory {
    private PdfWriter writer;
    private ImageLoader imageLoader;
    private LayerManager layerManager;
-   private static final ParameterizableBindingFactory BINDING_FACTORY = ParameterizableBindingFactoryImpl.getDefaultFactory();
+   private static final ParameterizableBindingFactory BINDING_FACTORY = ParamBindingService.getInstance().getFactory();
    /**
     * name of the boolean setting use {@link #PRESTYLERS} and {@link #POSTSTYLERS} or not
     */
@@ -218,7 +218,7 @@ public class DefaultStylerFactory implements StylerFactory, ConditionFactory {
          StylerFactoryHelper.initStylingObject(dst, writer, document, null, layerManager, settings);
          for (String n : names) {
             dst.getStyleSetup().add(n);
-            styleSetup.put(n, EnhancedMapBindingFactoryImpl.getDefaultFactory().getBindingHelper().serializeValue(settings.getStringProperties(null, n)));
+            styleSetup.put(n, SettingsBindingService.getInstance().getFactory().getBindingHelper().serializeValue(settings.getStringProperties(null, n)));
          }
 
          return dst;

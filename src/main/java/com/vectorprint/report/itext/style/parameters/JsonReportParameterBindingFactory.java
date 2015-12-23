@@ -1,14 +1,16 @@
 /*
- * To change this template, choose Tools | Templates
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.vectorprint.report.data;
+
+package com.vectorprint.report.itext.style.parameters;
 
 /*
  * #%L
- * VectorPrintReport4.0
+ * ConfigurableReports
  * %%
- * Copyright (C) 2012 - 2013 VectorPrint
+ * Copyright (C) 2014 - 2015 VectorPrint
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -25,24 +27,20 @@ package com.vectorprint.report.data;
  * #L%
  */
 
-import com.vectorprint.report.data.ReportDataHolder.IdData;
+import com.vectorprint.configuration.binding.parameters.ParamBindingHelper;
+import com.vectorprint.configuration.binding.parameters.json.ParameterizableBindingFactoryJson;
 
 /**
- * Default implementation of a DataCollector, uses ReportDataHolderImpl as generic parameters
+ *
  * @author Eduard Drenth at VectorPrint.nl
  */
-public abstract class DataCollectorImpl implements DataCollector<ReportDataHolderImpl> {
-
-   private ReportDataHolderImpl rd = new ReportDataHolderImpl();
-
-   @Override
-   public ReportDataHolderImpl getDataHolder() {
-      return rd;
-   }
+public class JsonReportParameterBindingFactory extends ParameterizableBindingFactoryJson {
+   
+   private static final ParamBindingHelper bindingHelper = new JsonReportBindingHelper();
 
    @Override
-   public void add(Object data, String id) {
-      getDataHolder().add(new IdData(data, id));
+   public ParamBindingHelper getBindingHelper() {
+      return bindingHelper;
    }
 
 }

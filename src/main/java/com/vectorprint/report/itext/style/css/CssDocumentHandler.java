@@ -23,12 +23,12 @@ package com.vectorprint.report.itext.style.css;
 import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.Settings;
+import com.vectorprint.configuration.binding.parameters.ParamBindingService;
 import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactory;
-import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactoryImpl;
 import com.vectorprint.configuration.binding.parameters.ParameterizableSerializer;
 import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactory;
-import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactoryImpl;
 import com.vectorprint.configuration.binding.settings.EnhancedMapSerializer;
+import com.vectorprint.configuration.binding.settings.SettingsBindingService;
 import com.vectorprint.configuration.decoration.ParsingProperties;
 import com.vectorprint.configuration.parameters.Parameter;
 import com.vectorprint.report.ReportConstants;
@@ -514,8 +514,8 @@ public class CssDocumentHandler implements CssToBaseStylers {
       return getOrCreate(selector);
    }
    
-   private static final EnhancedMapBindingFactory ENHANCED_MAP_BINDING_FACTORY = EnhancedMapBindingFactoryImpl.getDefaultFactory();
-   private static final ParameterizableBindingFactory PARAMETERIZABLE_BINDING_FACTORY = ParameterizableBindingFactoryImpl.getDefaultFactory();
+   private static final EnhancedMapBindingFactory ENHANCED_MAP_BINDING_FACTORY = SettingsBindingService.getInstance().getFactory();
+   private static final ParameterizableBindingFactory PARAMETERIZABLE_BINDING_FACTORY = ParamBindingService.getInstance().getFactory();
 
    @Override
    public void printStylers(OutputStream os) throws IOException {

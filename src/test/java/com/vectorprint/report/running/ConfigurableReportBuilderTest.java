@@ -36,15 +36,16 @@ import com.vectorprint.certificates.CertificateHelper;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.Settings;
 import com.vectorprint.configuration.binding.BindingHelper;
+import com.vectorprint.configuration.binding.parameters.ParamBindingService;
+import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactory;
 import com.vectorprint.configuration.decoration.CachingProperties;
 import com.vectorprint.configuration.decoration.FindableProperties;
 import com.vectorprint.configuration.decoration.ParsingProperties;
 import com.vectorprint.configuration.parameters.CharPasswordParameter;
 import com.vectorprint.configuration.parameters.Parameter;
-import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactoryImpl;
 import com.vectorprint.configuration.binding.parameters.ParameterizableParser;
-import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactoryImpl;
 import com.vectorprint.configuration.binding.settings.EnhancedMapParser;
+import com.vectorprint.configuration.binding.settings.SettingsBindingService;
 import com.vectorprint.configuration.jaxb.SettingsFromJAXB;
 import com.vectorprint.configuration.jaxb.SettingsXMLHelper;
 import com.vectorprint.configuration.parameters.BooleanParameter;
@@ -95,7 +96,6 @@ import java.util.logging.Logger;
 import javax.xml.bind.JAXBException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -149,7 +149,8 @@ public class ConfigurableReportBuilderTest {
    public void setUp() throws IOException, VectorPrintException, JAXBException {
       ParameterizableImpl.clearStaticSettings();
       init(true,false);
-      System.setProperty(ParameterizableBindingFactoryImpl.PARAMHELPER, ReportBindingHelper.class.getName());
+      ParamBindingService.getInstance().setFactoryClass(ReportConstants.BINDINGFACTORYCLASS);
+      System.clearProperty(ReportConstants.BINDINGFACTORYCLASSNAME);
       TestableReportGenerator.setDidCreate(false);
       TestableReportGenerator.setForceException(false);
 
@@ -236,11 +237,11 @@ public class ConfigurableReportBuilderTest {
 
    @Test
    public void testBindingHelper() throws Exception {
-      System.setProperty(ParameterizableBindingFactoryImpl.PARAMHELPER, "java.lang.Long");
+      System.setProperty(ReportConstants.BINDINGFACTORYCLASSNAME, "java.lang.Long");
       try {
          instance.buildReport(new String[]{}, new FileOutputStream(TARGET + "testBindingHelper.pdf"));
       } catch (VectorPrintException vectorPrintException) {
-         assertTrue(vectorPrintException.getMessage().contains("is not a " + ReportBindingHelper.class.getName()));
+         assertTrue(vectorPrintException.getMessage().contains("is not a " + ParameterizableBindingFactory.class.getName()));
       }
    }
 
@@ -496,8 +497,8 @@ public class ConfigurableReportBuilderTest {
    }
 
    private void setVal(Parameter parameter, EnhancedMap settings) {
-      ParameterizableParser parser = ParameterizableBindingFactoryImpl.getDefaultFactory().getParser(new StringReader(parameter.getKey() + "=" + settings.getProperty(parameter.getKey())));
-      ParameterizableBindingFactoryImpl.getDefaultFactory().getBindingHelper().setValueOrDefault(parameter, parser.parseAsParameterValue(settings.getPropertyNoDefault(parameter.getClass().getSimpleName()), parameter), false);
+      ParameterizableParser parser = ParamBindingService.getInstance().getFactory().getParser(new StringReader(parameter.getKey() + "=" + settings.getProperty(parameter.getKey())));
+      ParamBindingService.getInstance().getFactory().getBindingHelper().setValueOrDefault(parameter, parser.parseAsParameterValue(settings.getPropertyNoDefault(parameter.getClass().getSimpleName()), parameter), false);
    }
 
    @Test
@@ -522,7 +523,7 @@ public class ConfigurableReportBuilderTest {
                for (String init : testStrings) {
                   try {
                      settings.clear();
-                     EnhancedMapParser parser = EnhancedMapBindingFactoryImpl.getDefaultFactory().getParser(new StringReader(c.getSimpleName() + "=" + init));
+                     EnhancedMapParser parser = SettingsBindingService.getInstance().getFactory().getParser(new StringReader(c.getSimpleName() + "=" + init));
                      parser.parse(settings);
                      setVal(p, settings);
                      assertNotNull(p.toString(), p.getValue());
@@ -534,11 +535,11 @@ public class ConfigurableReportBuilderTest {
                         assertNull(p.getValue());
                         continue;
                      }
-                     BindingHelper stringConversion = ParameterizableBindingFactoryImpl.getDefaultFactory().getBindingHelper();
+                     BindingHelper stringConversion = ParamBindingService.getInstance().getFactory().getBindingHelper();
                      String conf = stringConversion.serializeValue(p.getValue());
 
                      if (conf != null && !"".equals(conf)) {
-                        ParameterizableBindingFactoryImpl.getDefaultFactory().getParser(new StringReader("")).parseAsParameterValue(stringConversion.serializeValue(p.getValue()), p);
+                        ParamBindingService.getInstance().getFactory().getParser(new StringReader("")).parseAsParameterValue(stringConversion.serializeValue(p.getValue()), p);
                      }
                   } catch (NumberFormatException runtimeException) {
                      System.out.println(runtimeException.getMessage());
