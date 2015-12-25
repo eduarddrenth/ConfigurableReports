@@ -1,1 +1,2 @@
-com.vectorprint.report.itext.style.parameters.ReportParameterBindingFactory
+com.vectorprint.report.itext.style.parameters.binding.ReportParameterBindingFactory
+com.vectorprint.report.itext.style.parameters.binding.JsonReportParameterBindingFactory

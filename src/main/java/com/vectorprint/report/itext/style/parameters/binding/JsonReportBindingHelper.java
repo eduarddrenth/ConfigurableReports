@@ -1,15 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package com.vectorprint.report.itext.style.parameters;
+package com.vectorprint.report.itext.style.parameters.binding;
 
 /*
  * #%L
  * ConfigurableReports
- * $Id:$
- * $HeadURL:$
  * %%
  * Copyright (C) 2014 - 2015 VectorPrint
  * %%
@@ -32,19 +25,22 @@ import com.itextpdf.text.Font;
 import com.itextpdf.text.FontFactory;
 import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.binding.parameters.AbstractParamBindingHelperDecorator;
-import com.vectorprint.configuration.binding.parameters.EscapingBindingHelper;
+import com.vectorprint.configuration.binding.parameters.json.JSONBindingHelper;
 import com.vectorprint.configuration.parameters.Parameter;
 import com.vectorprint.report.itext.ItextHelper;
+import com.vectorprint.report.itext.style.parameters.BaseFontWrapper;
+import com.vectorprint.report.itext.style.parameters.FloatArrayParameter;
+import com.vectorprint.report.itext.style.parameters.FloatParameter;
 import java.io.Serializable;
 
 /**
  *
  * @author Eduard Drenth at VectorPrint.nl
  */
-public class ReportBindingHelper extends AbstractParamBindingHelperDecorator {
+public class JsonReportBindingHelper extends AbstractParamBindingHelperDecorator {
 
-   public ReportBindingHelper() {
-      super(new EscapingBindingHelper());
+   public JsonReportBindingHelper() {
+      super(new JSONBindingHelper());
    }
 
    @Override

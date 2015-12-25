@@ -30,8 +30,6 @@ import com.vectorprint.VectorPrintException;
 import com.vectorprint.VersionInfo;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.Settings;
-import com.vectorprint.configuration.binding.parameters.ParamBindingService;
-import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactory;
 import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactory;
 import com.vectorprint.configuration.binding.settings.EnhancedMapParser;
 import com.vectorprint.configuration.binding.settings.SettingsBindingService;
@@ -53,7 +51,6 @@ import com.vectorprint.report.data.ReportDataHolder;
 import com.vectorprint.report.itext.BaseReportGenerator;
 import com.vectorprint.report.itext.Help;
 import com.vectorprint.report.itext.style.StylerFactoryHelper;
-import com.vectorprint.report.itext.style.parameters.ReportParameterBindingFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -111,11 +108,9 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
          throw new IllegalArgumentException("properties may not be null");
       }
       this.settings = properties;
-      bindingFactory = SettingsBindingService.getInstance().getFactory();
    }
 
    public ReportRunner() {
-      bindingFactory = SettingsBindingService.getInstance().getFactory();
    }
 
    /**
@@ -144,7 +139,7 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
             if (needSettingsArg) {
                settings = new CachingProperties(new Settings());
             }
-            bindingFactory.getParser(new StringReader(args[secondArg])).parse(settings);
+            SettingsBindingService.getInstance().getFactory().getParser(new StringReader(args[secondArg])).parse(settings);
          } else if (needSettingsArg) {
             System.out.println(SETTINGS_HELP);
             System.exit(EXITNOSETTINGS);
@@ -363,7 +358,6 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
       System.exit(new ReportRunner().buildReport(args));
    }
 
-   private final EnhancedMapBindingFactory bindingFactory;
 
    /**
     * Bottleneck method, writes report to stream argument, calls {@link BaseReportGenerator#generate(com.vectorprint.report.data.ReportDataHolder, java.io.OutputStream)
@@ -396,8 +390,6 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
 
             return EXITFROMPROPERTYCODE;
          }
-
-         initBindingFactory();
 
          DataCollector<RD> dc = getDataCollector();
          ReportGenerator<RD> rg = getReportGenerator();
@@ -447,23 +439,4 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
       }
    }
    
-   /**
-    * When a system property {@link ReportConstants#BINDINGFACTORYCLASSNAME} exists try to call {@link ParamBindingService#setFactoryClass(java.lang.Class) },
-    * otherwise use the spi published binding factory {@link ReportParameterBindingFactory}.
-    * @throws ClassNotFoundException
-    * @throws VectorPrintException 
-    */
-   protected void initBindingFactory() throws ClassNotFoundException, VectorPrintException {
-         String clazz = System.getProperty(ReportConstants.BINDINGFACTORYCLASSNAME);
-         if (clazz != null) {
-            // override spi mechanism
-            Class forName = Class.forName(clazz);
-            if (!ParameterizableBindingFactory.class.isAssignableFrom(forName)) {
-               throw new VectorPrintException(String.format("%s, from system property %s is not a %s", clazz, ReportConstants.BINDINGFACTORYCLASSNAME,
-                   ParameterizableBindingFactory.class.getName()));
-            } else {
-               ParamBindingService.getInstance().setFactoryClass(forName);
-            }
-         }
-   }
 }

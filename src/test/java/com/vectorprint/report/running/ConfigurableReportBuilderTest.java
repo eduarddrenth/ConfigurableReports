@@ -37,7 +37,6 @@ import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.Settings;
 import com.vectorprint.configuration.binding.BindingHelper;
 import com.vectorprint.configuration.binding.parameters.ParamBindingService;
-import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactory;
 import com.vectorprint.configuration.decoration.CachingProperties;
 import com.vectorprint.configuration.decoration.FindableProperties;
 import com.vectorprint.configuration.decoration.ParsingProperties;
@@ -64,7 +63,6 @@ import com.vectorprint.report.itext.style.FormFieldStyler;
 import com.vectorprint.report.itext.style.StylerFactoryHelper;
 import com.vectorprint.report.itext.style.parameters.AlignParameter;
 import com.vectorprint.report.itext.style.parameters.FloatArrayParameter;
-import com.vectorprint.report.itext.style.parameters.ReportBindingHelper;
 import com.vectorprint.report.itext.style.stylers.Font;
 import com.vectorprint.testing.ThreadTester;
 import java.io.ByteArrayInputStream;
@@ -149,8 +147,7 @@ public class ConfigurableReportBuilderTest {
    public void setUp() throws IOException, VectorPrintException, JAXBException {
       ParameterizableImpl.clearStaticSettings();
       init(true,false);
-      ParamBindingService.getInstance().setFactoryClass(ReportConstants.BINDINGFACTORYCLASS);
-      System.clearProperty(ReportConstants.BINDINGFACTORYCLASSNAME);
+      System.clearProperty(ReportConstants.JSON);
       TestableReportGenerator.setDidCreate(false);
       TestableReportGenerator.setForceException(false);
 
@@ -233,16 +230,6 @@ public class ConfigurableReportBuilderTest {
    public void testToStream() throws Exception {
       instance.buildReport(new String[]{}, new FileOutputStream(TARGET + "testToStream.pdf"));
       assertTrue(TestableReportGenerator.isDidCreate());
-   }
-
-   @Test
-   public void testBindingHelper() throws Exception {
-      System.setProperty(ReportConstants.BINDINGFACTORYCLASSNAME, "java.lang.Long");
-      try {
-         instance.buildReport(new String[]{}, new FileOutputStream(TARGET + "testBindingHelper.pdf"));
-      } catch (VectorPrintException vectorPrintException) {
-         assertTrue(vectorPrintException.getMessage().contains("is not a " + ParameterizableBindingFactory.class.getName()));
-      }
    }
 
    @Test

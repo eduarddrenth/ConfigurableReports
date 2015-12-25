@@ -36,8 +36,8 @@ import com.vectorprint.report.itext.ItextHelper;
 import com.vectorprint.report.itext.mappingconfig.DatamappingHelper;
 import com.vectorprint.report.itext.style.DocumentStyler;
 import com.vectorprint.report.itext.style.StylerFactory;
-import com.vectorprint.report.itext.style.parameters.JsonReportParameterBindingFactory;
-import com.vectorprint.report.itext.style.parameters.ReportParameterBindingFactory;
+import com.vectorprint.report.itext.style.parameters.binding.JsonReportParameterBindingFactory;
+import com.vectorprint.report.itext.style.parameters.binding.ReportParameterBindingFactory;
 import java.awt.color.ICC_ColorSpace;
 import java.awt.color.ICC_Profile;
 
@@ -91,17 +91,9 @@ public interface ReportConstants {
     */
    public static final String DATACLASS = "dataclass";
    /**
-    * name of the Systen property that determines the implementation of the {@link ParameterB} used
+    * if this Systen property is set {@link JsonReportParameterBindingFactory json syntax} will be used
     */
-   public static final String BINDINGFACTORYCLASSNAME = "dataclass";
-   /**
-    * Default factory for parameter syntax binding
-    */
-   public static final Class<? extends ParameterizableBindingFactory> BINDINGFACTORYCLASS = ReportParameterBindingFactory.class;
-   /**
-    * Json factory for parameter syntax binding
-    */
-   public static final Class JSONBINDINGFACTORYCLASS = JsonReportParameterBindingFactory.class;
+   public static final String JSON = "json";
    /**
     * name of the run property that determines the filename where System.out will be written to when streaming the
     * report

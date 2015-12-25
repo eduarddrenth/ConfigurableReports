@@ -24,9 +24,7 @@ import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.Settings;
 import com.vectorprint.configuration.binding.parameters.ParamBindingService;
-import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactory;
 import com.vectorprint.configuration.binding.parameters.ParameterizableSerializer;
-import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactory;
 import com.vectorprint.configuration.binding.settings.EnhancedMapSerializer;
 import com.vectorprint.configuration.binding.settings.SettingsBindingService;
 import com.vectorprint.configuration.decoration.ParsingProperties;
@@ -366,7 +364,7 @@ public class CssDocumentHandler implements CssToBaseStylers {
                   p.setValue(BaseStyler.ALIGN.valueOf((BaseStyler.ALIGN.LEFTPART + '_' + align).toUpperCase()));
                }
             } else {
-               p.setValue((Serializable) PARAMETERIZABLE_BINDING_FACTORY.getBindingHelper().convert(fromLexicalUnit(value),p.getValueClass()));
+               p.setValue((Serializable) ParamBindingService.getInstance().getFactory().getBindingHelper().convert(fromLexicalUnit(value),p.getValueClass()));
             }
          } else {
             fillParameters(bs, ps, key, value);
@@ -400,7 +398,7 @@ public class CssDocumentHandler implements CssToBaseStylers {
          // TODO values in css border are not required, need more intelligence here
          Border b = (Border) bs;
          b.setValue(Border.BORDERWIDTH, getPoints(value));
-         b.setValue(BaseStyler.COLOR_PARAM, (Serializable) PARAMETERIZABLE_BINDING_FACTORY.getBindingHelper().convert(fromLexicalUnit(value.getNextLexicalUnit().getNextLexicalUnit()),Color.class));
+         b.setValue(BaseStyler.COLOR_PARAM, (Serializable) ParamBindingService.getInstance().getFactory().getBindingHelper().convert(fromLexicalUnit(value.getNextLexicalUnit().getNextLexicalUnit()),Color.class));
          LOGGER.warning(String.format("ignoring %s", value.getNextLexicalUnit().toString()));
          return;
       } else if ("margin".equals(key)) {
@@ -514,19 +512,17 @@ public class CssDocumentHandler implements CssToBaseStylers {
       return getOrCreate(selector);
    }
    
-   private static final EnhancedMapBindingFactory ENHANCED_MAP_BINDING_FACTORY = SettingsBindingService.getInstance().getFactory();
-   private static final ParameterizableBindingFactory PARAMETERIZABLE_BINDING_FACTORY = ParamBindingService.getInstance().getFactory();
 
    @Override
    public void printStylers(OutputStream os) throws IOException {
-      EnhancedMapSerializer ems = ENHANCED_MAP_BINDING_FACTORY.getSerializer();
+      EnhancedMapSerializer ems = SettingsBindingService.getInstance().getFactory().getSerializer();
       EnhancedMap settings = new Settings(cssStylers.size());
 
       for (Map.Entry<String, Collection<BaseStyler>> e : cssStylers.entrySet()) {
          List<String> config = new ArrayList<String>(e.getValue().size());
          for (BaseStyler b : e.getValue()) {
             StringWriter sw = new StringWriter();
-            ParameterizableSerializer ps = PARAMETERIZABLE_BINDING_FACTORY.getSerializer();
+            ParameterizableSerializer ps = ParamBindingService.getInstance().getFactory().getSerializer();
             ps.serialize(b, sw);
             config.add(sw.toString());
          }

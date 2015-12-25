@@ -96,7 +96,6 @@ public class DefaultStylerFactory implements StylerFactory, ConditionFactory {
    private PdfWriter writer;
    private ImageLoader imageLoader;
    private LayerManager layerManager;
-   private static final ParameterizableBindingFactory BINDING_FACTORY = ParamBindingService.getInstance().getFactory();
    /**
     * name of the boolean setting use {@link #PRESTYLERS} and {@link #POSTSTYLERS} or not
     */
@@ -105,7 +104,7 @@ public class DefaultStylerFactory implements StylerFactory, ConditionFactory {
    private boolean doFirstLast = true;
 
    private ParameterizableParser getParser(StringReader sr) {
-      return BINDING_FACTORY.getParser(sr);
+      return ParamBindingService.getInstance().getFactory().getParser(sr);
    }
 
    @Override
@@ -292,7 +291,7 @@ public class DefaultStylerFactory implements StylerFactory, ConditionFactory {
                   log.warning(s.getClass().getSimpleName() + " is not an advanced styler, cannot be used for each page");
                }
             }
-            styleSetup.put(PAGESTYLERS, BINDING_FACTORY.getBindingHelper().serializeValue(settings.getStringProperties(null, PAGESTYLERS)));
+            styleSetup.put(PAGESTYLERS, ParamBindingService.getInstance().getFactory().getBindingHelper().serializeValue(settings.getStringProperties(null, PAGESTYLERS)));
          } catch (VectorPrintException ex) {
             throw new VectorPrintRuntimeException(ex);
          }
