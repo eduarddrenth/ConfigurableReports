@@ -10,7 +10,8 @@ import com.vectorprint.configuration.binding.parameters.ParamFactoryValidator;
 import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactory;
 
 /**
- *
+ * Validator published through SPI, validates if a ParameterizableBindingFactory is a subclass of ReportParameterBindingFactory or
+ * JsonReportParameterBindingFactory.
  * @author Eduard Drenth at VectorPrint.nl
  */
 public class FactoryValidator implements ParamFactoryValidator {

@@ -28,10 +28,11 @@ package com.vectorprint.report.itext.style.parameters.binding;
  */
 
 import com.vectorprint.configuration.binding.parameters.ParamBindingHelper;
+import com.vectorprint.configuration.binding.parameters.json.JSONSupport;
 import com.vectorprint.configuration.binding.parameters.json.ParameterizableBindingFactoryJson;
 
 /**
- *
+ * A ParameterizableBindingFactory published through SPI using {@link JSONSupport}.
  * @author Eduard Drenth at VectorPrint.nl
  */
 public class JsonReportParameterBindingFactory extends ParameterizableBindingFactoryJson {

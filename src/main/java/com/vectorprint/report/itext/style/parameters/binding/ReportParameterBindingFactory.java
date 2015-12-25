@@ -29,9 +29,10 @@ package com.vectorprint.report.itext.style.parameters.binding;
 
 import com.vectorprint.configuration.binding.parameters.ParamBindingHelper;
 import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactoryImpl;
+import com.vectorprint.configuration.generated.parser.ParameterizableParserImpl;
 
 /**
- *
+ * A ParameterizableBindingFactory published through SPI using {@link ParameterizableParserImpl}.
  * @author Eduard Drenth at VectorPrint.nl
  */
 public class ReportParameterBindingFactory extends ParameterizableBindingFactoryImpl {

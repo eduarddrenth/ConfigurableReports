@@ -11,7 +11,8 @@ import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFa
 import com.vectorprint.report.ReportConstants;
 
 /**
- *
+ * Validator published through SPI, when a system property "json" is set validates if ParameterizableBindingFactory is a
+ * subclass of JsonReportParameterBindingFactory.
  * @author Eduard Drenth at VectorPrint.nl
  */
 public class JsonFactoryValidator implements ParamFactoryValidator {
