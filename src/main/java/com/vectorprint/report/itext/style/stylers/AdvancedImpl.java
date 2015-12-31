@@ -45,7 +45,6 @@ import com.vectorprint.report.itext.LayerManager;
 import com.vectorprint.report.itext.LayerManagerAware;
 import com.vectorprint.report.itext.style.DefaultStylerFactory;
 import com.vectorprint.report.itext.style.StyleHelper;
-
 import com.vectorprint.report.itext.style.StylerFactoryHelper;
 import com.vectorprint.report.itext.style.StylingCondition;
 import com.vectorprint.report.itext.style.parameters.BlendParameter;
@@ -105,9 +104,9 @@ public class AdvancedImpl<DATATYPE> extends AbstractStyler implements Advanced<D
       addParameter(new FloatParameter(SHIFTY, "how much do we shift y from a known position"),AdvancedImpl.class);
       addParameter(new StringParameter(LAYERNAME, "name of the layer to use"),AdvancedImpl.class);
       addParameter(new StringParameter(DATA, "Textual data, input for conversion to: " + AdvancedImpl.class.getTypeParameters()[0].getName()),AdvancedImpl.class);
-      addParameter(new BooleanParameter(DYNAMICDATA, "when true override (static) DATA with (dynamic) data added to the report"),AdvancedImpl.class);
-      addParameter(new EventModeParameter(WHICHEVENT, "which event to use this styler for " + Arrays.asList(EVENTMODE.values())).setDefault(EVENTMODE.TEXT),AdvancedImpl.class);
-      addParameter(new BooleanParameter(USEPADDING, "when true take padding of a cell into account"),AdvancedImpl.class);
+      addParameter(new BooleanParameter(DYNAMICDATA, "override static (from config or code) data with dynamic (from data collector)"),AdvancedImpl.class);
+      addParameter(new EventModeParameter(WHICHEVENT, "draw content when this element is drawn: " + Arrays.asList(EVENTMODE.values())).setDefault(EVENTMODE.TEXT),AdvancedImpl.class);
+      addParameter(new BooleanParameter(USEPADDING, "position to draw calculated including padding of a cell"),AdvancedImpl.class);
    }
 
    public AdvancedImpl(Document document, PdfWriter writer, EnhancedMap settings) throws VectorPrintException {

@@ -34,7 +34,6 @@ import com.vectorprint.configuration.parameters.IntParameter;
 import com.vectorprint.report.itext.LayerManager;
 import com.vectorprint.report.itext.LayerManagerAware;
 import com.vectorprint.report.itext.style.StylerFactoryHelper;
-
 import com.vectorprint.report.itext.style.ZebraStripes;
 import java.awt.Color;
 import java.util.Arrays;
@@ -60,7 +59,7 @@ public class Zebra extends AbstractStyler implements LayerManagerAware {
 
       addParameter(new ColorParameter(ODDCOLOR, "#rgb"),Zebra.class);
       addParameter(new ColorParameter(EVENCOLOR, "#rgb"),Zebra.class);
-      addParameter(new IntParameter(ALTERNATE, "integer").setDefault(1),Zebra.class);
+      addParameter(new IntParameter(ALTERNATE, "alternate color every n (default 1) rows").setDefault(1),Zebra.class);
       addParameter(new ClassParameter(TABLEEVENTCLASS, "The class (subclass of ZebraStripes) that wil handle table events").setDefault(ZebraStripes.class),Zebra.class);
    }
 

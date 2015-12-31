@@ -28,7 +28,6 @@ package com.vectorprint.report.itext.style.stylers;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfWriter;
-import com.vectorprint.ArrayHelper;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.parameters.BooleanParameter;
@@ -37,7 +36,6 @@ import com.vectorprint.report.ReportConstants;
 import com.vectorprint.report.itext.debug.DebugHelper;
 import com.vectorprint.report.itext.style.BaseStyler;
 import static com.vectorprint.report.itext.style.BaseStyler.COLOR_PARAM;
-
 import com.vectorprint.report.itext.style.parameters.FloatArrayParameter;
 import com.vectorprint.report.itext.style.parameters.FloatParameter;
 import com.vectorprint.report.itext.style.parameters.ShapeParameter;
@@ -74,14 +72,14 @@ public class Shape<DATATYPE> extends AbstractPositioning<DATATYPE> {
       addParameter(new FloatParameter(DocumentSettings.HEIGHT, "float"),Shape.class);
       addParameter(new com.vectorprint.configuration.parameters.FloatParameter(RADIUS, "for rounded corners").setDefault(2f),Shape.class);
       addParameter(new BooleanParameter(FILL, "fill shapes or not").setDefault(Boolean.TRUE),Shape.class);
-      addParameter(new BooleanParameter(ENCLOSING, "enclosing shape rectangle, ellipse"),Shape.class);
+      addParameter(new BooleanParameter(ENCLOSING, "does the shape (rectangle or ellipse) enclose the element that triggers drawing"),Shape.class);
       addParameter(new BooleanParameter(CLOSE, "connect first and last point").setDefault(Boolean.TRUE),Shape.class);
       addParameter(new BooleanParameter(ROUNDED, "rounded line connections").setDefault(Boolean.TRUE),Shape.class);
-      addParameter(new ColorParameter(BaseStyler.COLOR_PARAM, "color").setDefault(Color.BLACK),Shape.class);
-      addParameter(new ColorParameter(BORDERCOLOR, "color").setDefault(Color.BLACK),Shape.class);
+      addParameter(new ColorParameter(BaseStyler.COLOR_PARAM, "fill color #rgb").setDefault(Color.BLACK),Shape.class);
+      addParameter(new ColorParameter(BORDERCOLOR, "border color #rgb").setDefault(Color.BLACK),Shape.class);
       addParameter(new FloatParameter(BORDERWIDTH, "float"),Shape.class);
       addParameter(new FloatParameter(PADDING, "padding for enclosing shape"),Shape.class);
-      addParameter(new FloatArrayParameter(POINTS, "line and free shapes"),Shape.class);
+      addParameter(new FloatArrayParameter(POINTS, "x / y for bezier (starting point plus multiple sets of 2 points) and free shapes (min 2 points)"),Shape.class);
 
    }
 

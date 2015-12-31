@@ -38,7 +38,6 @@ import com.vectorprint.configuration.parameters.BooleanParameter;
 import com.vectorprint.configuration.parameters.PasswordParameter;
 import com.vectorprint.configuration.parameters.URLParameter;
 import com.vectorprint.report.ReportConstants;
-import com.vectorprint.report.itext.BaseReportGenerator;
 import com.vectorprint.report.itext.ImageLoader;
 import com.vectorprint.report.itext.LayerManager;
 import com.vectorprint.report.itext.debug.DebugHelper;
@@ -83,7 +82,7 @@ public class Image<DATATYPE> extends AbstractPositioning<DATATYPE> implements Im
       addParameter(new com.vectorprint.configuration.parameters.FloatParameter(SCALE, "scales your image (percentage)").setDefault(100f), Image.class);
       addParameter(new com.vectorprint.configuration.parameters.FloatParameter(ROTATE, "rotates your image (degrees)"), Image.class);
       addParameter(new PasswordParameter(DocumentSettings.PASSWORD, "password for a pdf"), Image.class);
-      addParameter(new BooleanParameter(DOSTYLE, "when true be part of regular styling"), Image.class);
+      addParameter(new BooleanParameter(DOSTYLE, "when true the image is added to the document, otherwise it is drawn on the canvas"), Image.class);
    }
 
    public Image() {

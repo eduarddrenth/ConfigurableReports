@@ -32,7 +32,6 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.parameters.IntParameter;
-import com.vectorprint.configuration.parameters.Parameter;
 import com.vectorprint.report.itext.debug.DebuggablePdfPTable;
 import com.vectorprint.report.itext.style.parameters.FloatArrayParameter;
 import java.util.Arrays;
@@ -55,12 +54,11 @@ public class Table extends Spacing {
    public static final String RELATIVEWIDTHPARAM = "relativewidth";
 
    public Table() {
-      addParameter(new IntParameter(NUMCOLPARAM, "integer").setDefault(2),Table.class);
-      addParameter(new IntParameter(NUMFOOTERROWS, "integer"),Table.class);
-      addParameter(new IntParameter(NUMHEADERROWS, "integer"),Table.class);
-      Parameter<float[]> p = new FloatArrayParameter(WIDTHSPARAM, "float / float[] (1.2|1.3|...)").setDefault(new float[] {50f,50f});
-      addParameter(p,Table.class);
-      addParameter(new IntParameter(RELATIVEWIDTHPARAM, "integer").setDefault(100),Table.class);
+      addParameter(new IntParameter(NUMCOLPARAM, "number of colummns (2)").setDefault(2),Table.class);
+      addParameter(new IntParameter(NUMFOOTERROWS, "number of footer rows"),Table.class);
+      addParameter(new IntParameter(NUMHEADERROWS, "number of header rows"),Table.class);
+      addParameter(new FloatArrayParameter(WIDTHSPARAM, "widths of the columns (50, 50)").setDefault(new float[] {50f,50f}),Table.class);
+      addParameter(new IntParameter(RELATIVEWIDTHPARAM, "relative width of the table (percentage default 100)").setDefault(100),Table.class);
    }
 
    private PdfPTable style(PdfPTable t) throws VectorPrintException {

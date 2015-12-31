@@ -33,6 +33,7 @@ import com.itextpdf.text.FontFactory;
 import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.binding.parameters.AbstractParamBindingHelperDecorator;
 import com.vectorprint.configuration.binding.parameters.EscapingBindingHelper;
+import com.vectorprint.configuration.binding.parameters.ParamBindingHelper;
 import com.vectorprint.configuration.parameters.Parameter;
 import com.vectorprint.report.itext.ItextHelper;
 import com.vectorprint.report.itext.style.parameters.BaseFontWrapper;
@@ -49,9 +50,17 @@ public class ReportBindingHelper extends AbstractParamBindingHelperDecorator {
    public ReportBindingHelper() {
       super(new EscapingBindingHelper());
    }
+   
+   protected ReportBindingHelper(ParamBindingHelper bh) {
+      super(bh);
+   }
 
    @Override
    public <TYPE extends Serializable> void setValueOrDefault(Parameter<TYPE> parameter, TYPE value, boolean setDefault) {
+      if (value==null) {
+         super.setValueOrDefault(parameter, value, setDefault);
+         return;
+      }
       if (parameter instanceof FloatParameter) {
          Float mmToPts = ItextHelper.mmToPts((Float) value);
          super.setValueOrDefault(parameter, (TYPE) mmToPts, setDefault);
@@ -73,10 +82,16 @@ public class ReportBindingHelper extends AbstractParamBindingHelperDecorator {
    public <TYPE extends Serializable> TYPE getValueToSerialize(Parameter<TYPE> p, boolean useDefault) {
       if (p instanceof FloatParameter) {
          Float f = (Float) super.getValueToSerialize(p, useDefault);
+         if (f==null) {
+            return null;
+         }
          Float mm = ItextHelper.ptsToMm(f);
          return (TYPE) mm;
       } else if (p instanceof FloatArrayParameter) {
          float[] pts = (float[]) super.getValueToSerialize(p, useDefault);
+         if (pts==null) {
+            return null;
+         }
          float[] mm = new float[pts.length];
          int i = 0;
          for (float ff : pts) {

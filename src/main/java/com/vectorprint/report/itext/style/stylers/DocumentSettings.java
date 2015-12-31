@@ -388,7 +388,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
 
    public enum PDFBOX {
 
-      crop, trim, bleed, art
+      cropbox, trimbox, bleedbox, artbox
    }
 
    public enum ENCRYPTION {
@@ -445,15 +445,15 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
       addParameter(new EncryptionParameter(ENCRYPTION_PARAM, "type of encryption to use when protecting with a password or a certificate: " + Arrays.asList(ENCRYPTION.values()).toString()), DocumentSettings.class);
       addParameter(new FloatParameter(WIDTH, "float ").setDefault(ItextHelper.mmToPts(210)), DocumentSettings.class);
       addParameter(new FloatParameter(HEIGHT, "float ").setDefault(ItextHelper.mmToPts(297)), DocumentSettings.class);
-      addParameter(new BooleanParameter(PDFA, "wordt dit een pdf die voldoet aan de PDF/X-1a standaard"), DocumentSettings.class);
-      addParameter(new PasswordParameter(USER_PASSWORD, "a user password for the document and permissions"), DocumentSettings.class);
-      addParameter(new PasswordParameter(PASSWORD, "a password for the document and permissions"), DocumentSettings.class);
-      addParameter(new PasswordParameter(OWNER_PASSWORD, "an owner password for the owner of document and permissions"), DocumentSettings.class);
-      addParameter(new URLParameter(CERTIFICATE, "the certificate to use for document encryption and permissions"), DocumentSettings.class);
+      addParameter(new BooleanParameter(PDFA, "create a PDF/X-1a pdf"), DocumentSettings.class);
+      addParameter(new PasswordParameter(PASSWORD, "password for the document (owner and user)"), DocumentSettings.class);
+      addParameter(new PasswordParameter(USER_PASSWORD, "a user password for the document"), DocumentSettings.class);
+      addParameter(new PasswordParameter(OWNER_PASSWORD, "owner password for the document"), DocumentSettings.class);
+      addParameter(new URLParameter(CERTIFICATE, "the certificate to use for document encryption"), DocumentSettings.class);
       addParameter(new URLParameter(KEYSTORE, "the keystore (.p12, .pfx, .jks) to use for document signing"), DocumentSettings.class);
       addParameter(new CharPasswordParameter(KEYSTORE_PASSWORD, "the password for the signing keystore and key", false), DocumentSettings.class);
       addParameter(new KeyStoreParameter(KEYSTORETYPE_PARAM, "the type of the signing certificate: " + Arrays.asList(KEYSTORETYPE.values()).toString()).setDefault(KEYSTORETYPE.pkcs12), DocumentSettings.class);
-      addParameter(new DigestParameter(DIGESTPARAM, "the alorithm for a signature: " + Arrays.asList(DIGESTALGORITHM.values()).toString()).setDefault(DIGESTALGORITHM.SHA1), DocumentSettings.class);
+      addParameter(new DigestParameter(DIGESTPARAM, "the algorithm for a signature: " + Arrays.asList(DIGESTALGORITHM.values()).toString()).setDefault(DIGESTALGORITHM.SHA1), DocumentSettings.class);
       addParameter(new PermissionsParameter(PERMISSIONS, "permissions for the pdf, use in conjunction with password / encryption: "
           + Arrays.asList(PERMISSION.values()).toString()), DocumentSettings.class);
       addParameter(new StringParameter(TITLE, "a title for the document").setDefault(""), DocumentSettings.class);
@@ -714,35 +714,35 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
    }
 
    public float[] getArt() {
-      return getValue(PDFBOX.art.name(), float[].class);
+      return getValue(PDFBOX.artbox.name(), float[].class);
    }
 
    public void setArt(float[] art) {
-      setValue(PDFBOX.art.name(), art);
+      setValue(PDFBOX.artbox.name(), art);
    }
 
    public float[] getBleed() {
-      return getValue(PDFBOX.bleed.name(), float[].class);
+      return getValue(PDFBOX.bleedbox.name(), float[].class);
    }
 
    public void setBleed(float[] bleed) {
-      setValue(PDFBOX.bleed.name(), bleed);
+      setValue(PDFBOX.bleedbox.name(), bleed);
    }
 
    public float[] getCrop() {
-      return getValue(PDFBOX.crop.name(), float[].class);
+      return getValue(PDFBOX.cropbox.name(), float[].class);
    }
 
    public void setCrop(float[] crop) {
-      setValue(PDFBOX.crop.name(), crop);
+      setValue(PDFBOX.cropbox.name(), crop);
    }
 
    public float[] getTrim() {
-      return getValue(PDFBOX.trim.name(), float[].class);
+      return getValue(PDFBOX.trimbox.name(), float[].class);
    }
 
    public void setTrim(float[] trim) {
-      setValue(PDFBOX.trim.name(), trim);
+      setValue(PDFBOX.trimbox.name(), trim);
    }
    private static final Class<Object>[] classes = new Class[]{Document.class};
    private static final Set<Class> c = Collections.unmodifiableSet(new HashSet<Class>(Arrays.asList(classes)));

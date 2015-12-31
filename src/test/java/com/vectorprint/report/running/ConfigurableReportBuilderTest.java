@@ -37,17 +37,17 @@ import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.Settings;
 import com.vectorprint.configuration.binding.BindingHelper;
 import com.vectorprint.configuration.binding.parameters.ParamBindingService;
-import com.vectorprint.configuration.decoration.CachingProperties;
-import com.vectorprint.configuration.decoration.FindableProperties;
-import com.vectorprint.configuration.decoration.ParsingProperties;
-import com.vectorprint.configuration.parameters.CharPasswordParameter;
-import com.vectorprint.configuration.parameters.Parameter;
 import com.vectorprint.configuration.binding.parameters.ParameterizableParser;
 import com.vectorprint.configuration.binding.settings.EnhancedMapParser;
 import com.vectorprint.configuration.binding.settings.SettingsBindingService;
+import com.vectorprint.configuration.decoration.CachingProperties;
+import com.vectorprint.configuration.decoration.FindableProperties;
+import com.vectorprint.configuration.decoration.ParsingProperties;
 import com.vectorprint.configuration.jaxb.SettingsFromJAXB;
 import com.vectorprint.configuration.jaxb.SettingsXMLHelper;
 import com.vectorprint.configuration.parameters.BooleanParameter;
+import com.vectorprint.configuration.parameters.CharPasswordParameter;
+import com.vectorprint.configuration.parameters.Parameter;
 import com.vectorprint.configuration.parameters.ParameterImpl;
 import com.vectorprint.configuration.parameters.Parameterizable;
 import com.vectorprint.configuration.parameters.ParameterizableImpl;
@@ -466,7 +466,7 @@ public class ConfigurableReportBuilderTest {
       instance.buildReport(new String[]{"output=" + TARGET + "testBoxes.pdf\n"
          + "documentsettings=DocumentSettings("
          + "margin_top=5,margin_left=50,margin_right=5,margin_bottom=5,"
-         + "width=297,height=210,bleed=-10|-10|317|230,crop=50|50|247|160)"});
+         + "width=297,height=210,bleedbox=-10|-10|317|230,cropbox=50|50|247|160)"});
    }
 
    @Test
