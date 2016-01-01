@@ -32,7 +32,6 @@ import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.parameters.StringParameter;
 import com.vectorprint.report.itext.ImageLoader;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -83,9 +82,5 @@ public class List extends ListItem  {
    @Override
    public Set<Class> getSupportedClasses() {
       return c;
-   }
-   @Override
-   public String getHelp() {
-      return "Specify the looks of a list. " + super.getHelp(); 
    }
 }

@@ -142,6 +142,6 @@ public class Table extends Spacing {
    
    @Override
    public String getHelp() {
-      return "Specify settings and create a table. " + super.getHelp(); 
+      return "Specify settings and create a table." + " " + super.getHelp();
    }
 }

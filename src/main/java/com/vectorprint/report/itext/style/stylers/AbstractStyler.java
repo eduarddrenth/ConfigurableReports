@@ -34,16 +34,16 @@ import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.Settings;
 import com.vectorprint.configuration.decoration.ParsingProperties;
 import com.vectorprint.configuration.decoration.PreparingProperties;
-import com.vectorprint.configuration.preparing.TrimKeyValue;
 import com.vectorprint.configuration.parameters.BooleanParameter;
 import com.vectorprint.configuration.parameters.Parameter;
 import com.vectorprint.configuration.parameters.ParameterizableImpl;
 import com.vectorprint.configuration.parameters.StringParameter;
 import com.vectorprint.configuration.parameters.annotation.Param;
 import com.vectorprint.configuration.parameters.annotation.Parameters;
-import com.vectorprint.report.itext.style.BaseStyler;
+import com.vectorprint.configuration.preparing.TrimKeyValue;
 import com.vectorprint.report.itext.DocumentAware;
 import com.vectorprint.report.itext.ItextHelper;
+import com.vectorprint.report.itext.style.BaseStyler;
 import com.vectorprint.report.itext.style.ConditionFactory;
 import com.vectorprint.report.itext.style.ConditionFactoryAware;
 import com.vectorprint.report.itext.style.StyleHelper;
@@ -197,7 +197,7 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
 
    @Override
    public String getHelp() {
-      return "Supports conditional styling and limiting styling to certain iText classes.";
+      return "Conditional styling, limit styling to certain iText elements, style before or after adding to the document.";
    }
 
    @Override

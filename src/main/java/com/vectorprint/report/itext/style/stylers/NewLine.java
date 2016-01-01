@@ -30,7 +30,6 @@ import com.itextpdf.text.Chunk;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.vectorprint.VectorPrintException;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -64,6 +63,6 @@ public class NewLine extends AbstractStyler  {
 
    @Override
    public String getHelp() {
-      return "start a new line before or after some content. " + super.getHelp();
+      return "start a new line before or after some content." + " " + super.getHelp();
    }
 }

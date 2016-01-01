@@ -31,7 +31,6 @@ package com.vectorprint.report.itext.style.stylers;
 import com.itextpdf.text.Rectangle;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.parameters.ColorParameter;
-
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.Collections;
@@ -80,6 +79,6 @@ public class Background extends AbstractStyler  {
 
    @Override
    public String getHelp() {
-      return "Background color for rectangles. " + super.getHelp(); 
+      return "Background color for rectangles." + " " + super.getHelp(); 
    }
 }

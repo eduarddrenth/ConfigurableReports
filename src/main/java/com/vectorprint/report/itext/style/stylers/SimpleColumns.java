@@ -39,12 +39,11 @@ import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.parameters.IntParameter;
 import com.vectorprint.report.ReportConstants;
 import com.vectorprint.report.itext.ElementProducer;
-import com.vectorprint.report.itext.style.ElementProducing;
 import com.vectorprint.report.itext.ItextHelper;
 import com.vectorprint.report.itext.debug.DebugHelper;
 import com.vectorprint.report.itext.style.BaseStyler;
+import com.vectorprint.report.itext.style.ElementProducing;
 import com.vectorprint.report.itext.style.StylerFactory;
-
 import com.vectorprint.report.itext.style.parameters.FloatParameter;
 import com.vectorprint.report.itext.style.parameters.ModeParameter;
 import java.util.ArrayList;
@@ -336,7 +335,7 @@ public class SimpleColumns extends AdvancedImpl<Object> implements ElementProduc
 
    @Override
    public String getHelp() {
-      return "Create columns in your report. " + super.getHelp();
+      return "Create columns in your report." + " " + super.getHelp();
    }
 
    public List<Rectangle> getColumns() {

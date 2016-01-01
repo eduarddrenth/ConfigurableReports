@@ -28,12 +28,10 @@ package com.vectorprint.report.itext.style.stylers;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.itextpdf.text.Element;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.vectorprint.VectorPrintException;
-
 import com.vectorprint.report.itext.style.parameters.FloatParameter;
 import java.util.Arrays;
 import java.util.Collections;
@@ -96,6 +94,6 @@ public class Spacing extends AbstractStyler  {
    }
    @Override
    public String getHelp() {
-      return "Specify spacing for paragraphs, tables or images. " + super.getHelp(); 
+      return "Specify spacing for paragraphs, tables or images." + " " + super.getHelp();
    }
 }

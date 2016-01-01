@@ -41,8 +41,8 @@ public abstract class AbstractCondition extends ParameterizableImpl implements S
    private String key;   
 
    /**
-    *
-    *
+    * Calls !{@link #shouldStyle(java.lang.Object, java.lang.Object) } with data and null. Returns true
+    * when shouldStyle returns false vise versa.
     * @param data the value of data
     * @return the boolean
     */

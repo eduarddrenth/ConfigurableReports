@@ -28,11 +28,9 @@ package com.vectorprint.report.itext.style.stylers;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.itextpdf.text.Element;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.vectorprint.VectorPrintException;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -67,6 +65,6 @@ public class KeepTogether extends AbstractStyler  {
    }
    @Override
    public String getHelp() {
-      return "Try to keep tables and paragraphs on one page. " + super.getHelp(); 
+      return "Try to keep tables and paragraphs on one page." + " " + super.getHelp();
    }
 }

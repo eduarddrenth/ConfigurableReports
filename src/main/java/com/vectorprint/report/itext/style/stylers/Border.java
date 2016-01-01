@@ -32,7 +32,6 @@ import com.itextpdf.text.Rectangle;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.parameters.ColorParameter;
 import static com.vectorprint.report.itext.style.BaseStyler.COLOR_PARAM;
-
 import com.vectorprint.report.itext.style.parameters.FloatParameter;
 import com.vectorprint.report.itext.style.parameters.PositionParameter;
 import java.awt.Color;
@@ -105,6 +104,6 @@ public class Border extends AbstractStyler  {
    
    @Override
    public String getHelp() {
-      return "Borders for rectangles. " + super.getHelp(); 
+      return "Draw borders for rectangles." + " " + super.getHelp();
    }
 }

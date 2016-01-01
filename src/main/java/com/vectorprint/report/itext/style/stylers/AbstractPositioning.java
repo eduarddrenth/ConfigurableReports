@@ -24,7 +24,6 @@ package com.vectorprint.report.itext.style.stylers;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfContentByte;
@@ -39,19 +38,22 @@ import com.vectorprint.report.itext.style.parameters.FloatParameter;
 import java.awt.Color;
 import java.util.logging.Level;
 
-
 /**
- * This styler is meant to draw near an Chunk using the generic tag mechanism of Chunk.
- * @see EventHelper#onGenericTag(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document, com.itextpdf.text.Rectangle, java.lang.String)  
+ * This styler is meant to draw at a certain position, see {@link Advanced.EVENTMODE}.
+ * @see EventHelper#onGenericTag(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document, com.itextpdf.text.Rectangle, java.lang.String) 
+ * @see #tableLayout(com.itextpdf.text.pdf.PdfPTable, float[][], float[], int, int, com.itextpdf.text.pdf.PdfContentByte[]) 
+ * @see #cellLayout(com.itextpdf.text.pdf.PdfPCell, com.itextpdf.text.Rectangle, com.itextpdf.text.pdf.PdfContentByte[]) 
+ *
  * @author Eduard Drenth at VectorPrint.nl
  */
 public abstract class AbstractPositioning<DATATYPE> extends AdvancedImpl<DATATYPE> {
+
    public static final String SHADOW = "shadow";
    public static final String SHADOWX = "shadowx";
    public static final String SHADOWY = "shadowy";
    public static final String SHADOWOPACITY = "shadowopacity";
    public static final String SHADOWCOLOR = "shadowcolor";
-   
+
    private boolean drawShadow = false;
 
    public AbstractPositioning() {
@@ -59,11 +61,11 @@ public abstract class AbstractPositioning<DATATYPE> extends AdvancedImpl<DATATYP
    }
 
    private void initParams() {
-      addParameter(new BooleanParameter(SHADOW, "do we draw a dropshadow"),AbstractPositioning.class);
-      addParameter(new ColorParameter(SHADOWCOLOR, "color of the dropshadow, default black").setDefault(Color.BLACK),AbstractPositioning.class);
-      addParameter(new FloatParameter(SHADOWX, "x offset of the shadow, default 2mm").setDefault(ItextHelper.mmToPts(2f)),AbstractPositioning.class);
-      addParameter(new FloatParameter(SHADOWY, "y offset of the shadow, default -2mm").setDefault(ItextHelper.mmToPts(-2f)),AbstractPositioning.class);
-      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(SHADOWOPACITY, "opacity for the shadow, defaullt 0.3").setDefault(0.3f),AbstractPositioning.class);
+      addParameter(new BooleanParameter(SHADOW, "do we draw a dropshadow"), AbstractPositioning.class);
+      addParameter(new ColorParameter(SHADOWCOLOR, "color of the dropshadow, default black").setDefault(Color.BLACK), AbstractPositioning.class);
+      addParameter(new FloatParameter(SHADOWX, "x offset of the shadow, default 2mm").setDefault(ItextHelper.mmToPts(2f)), AbstractPositioning.class);
+      addParameter(new FloatParameter(SHADOWY, "y offset of the shadow, default -2mm").setDefault(ItextHelper.mmToPts(-2f)), AbstractPositioning.class);
+      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(SHADOWOPACITY, "opacity for the shadow, defaullt 0.3").setDefault(0.3f), AbstractPositioning.class);
    }
 
    public AbstractPositioning(Document document, PdfWriter writer, EnhancedMap settings) throws VectorPrintException {
@@ -72,39 +74,42 @@ public abstract class AbstractPositioning<DATATYPE> extends AdvancedImpl<DATATYP
    }
 
    /**
-    * Calls {@link #draw(com.itextpdf.text.pdf.PdfContentByte, float, float, float, float, String) } with
-    * rect.getLeft() + getShiftx(), rect.getTop() + getShifty(), rect.getWidth(), rect.getHeight(), genericTag.
-    * When {@link #isShadow() } is true {@link #isDrawShadow() } will be set to true, prior to calling
-    * {@link #draw(com.itextpdf.text.pdf.PdfContentByte, float, float, float, float, java.lang.String) } and to false afterwards.
+    * Calls {@link #draw(com.itextpdf.text.pdf.PdfContentByte, float, float, float, float, String) } with rect.getLeft()
+    * + getShiftx(), rect.getTop() + getShifty(), rect.getWidth(), rect.getHeight(), genericTag. When {@link #isShadow()
+    * } is true {@link #isDrawShadow() } will be set to true, prior to calling
+    * {@link #draw(com.itextpdf.text.pdf.PdfContentByte, float, float, float, float, java.lang.String) } and to false
+    * afterwards.
+    *
     * @param rect
     * @param genericTag passed on to abstract method
-    * @throws VectorPrintException 
- * @see EventHelper#onGenericTag(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document, com.itextpdf.text.Rectangle, java.lang.String)  
+    * @throws VectorPrintException
+    * @see EventHelper#onGenericTag(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document,
+    * com.itextpdf.text.Rectangle, java.lang.String)
     */
    @Override
    public final void draw(Rectangle rect, String genericTag) throws VectorPrintException {
       if (getValue(SHADOW, Boolean.class)) {
-         drawShadow(rect.getLeft() + getShiftx(),rect.getTop() + getShifty(), rect.getWidth(), rect.getHeight() , genericTag);
+         drawShadow(rect.getLeft() + getShiftx(), rect.getTop() + getShifty(), rect.getWidth(), rect.getHeight(), genericTag);
       }
       PdfContentByte canvas = getPreparedCanvas();
       draw(canvas, rect.getLeft() + getShiftx(), rect.getTop() + getShifty(), rect.getWidth(), rect.getHeight(), genericTag);
       resetCanvas(canvas);
    }
-   
+
    public final void drawShadow(float x, float y, float width, float height, String genericTag) throws VectorPrintException {
-         boolean bg = isBg();
-         if (isBg()) {
-            if (log.isLoggable(Level.FINE)) {
-               log.fine(String.format("possibly drawing shadow on top of content, see setting: %s", getStyleClass()));
-            }
+      boolean bg = isBg();
+      if (isBg()) {
+         if (log.isLoggable(Level.FINE)) {
+            log.fine(String.format("possibly drawing shadow on top of content, see setting: %s", getStyleClass()));
          }
-         setBg(true);
-         PdfContentByte canvas = getPreparedCanvas(getShadowOpactiy());
-         drawShadow = true;
-         draw(canvas,x + getValue(SHADOWX, Float.class), y + getValue(SHADOWY, Float.class), width, height, genericTag);
-         drawShadow = false;
-         resetCanvas(canvas);
-         setBg(bg);
+      }
+      setBg(true);
+      PdfContentByte canvas = getPreparedCanvas(getShadowOpactiy());
+      drawShadow = true;
+      draw(canvas, x + getValue(SHADOWX, Float.class), y + getValue(SHADOWY, Float.class), width, height, genericTag);
+      drawShadow = false;
+      resetCanvas(canvas);
+      setBg(bg);
    }
 
    /**
@@ -116,16 +121,14 @@ public abstract class AbstractPositioning<DATATYPE> extends AdvancedImpl<DATATYP
     * @param width width of the Chunk that was drawn or -1
     * @param height height of the Chunk that was drawn or -1
     * @param genericTag the generic tag that caused the call to this method
-    * @see Advanced#getDelayed(java.lang.String) 
+    * @see Advanced#getDelayed(java.lang.String)
     * @throws VectorPrintException
     */
-   
    protected abstract void draw(PdfContentByte canvas, float x, float y, float width, float height, String genericTag) throws VectorPrintException;
-
 
    @Override
    public String getHelp() {
-      return "Draw graphics at a certain position or near text or an image. " + super.getHelp();
+      return "Draw graphics at a certain position, supports shadow effect." + " " + super.getHelp();
    }
 
    public boolean isShadow() {
@@ -170,6 +173,6 @@ public abstract class AbstractPositioning<DATATYPE> extends AdvancedImpl<DATATYP
 
    public boolean isDrawShadow() {
       return drawShadow;
-   }   
+   }
 
 }

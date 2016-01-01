@@ -28,11 +28,9 @@ package com.vectorprint.report.itext.style.stylers;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.itextpdf.text.Element;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.vectorprint.VectorPrintException;
-
 import com.vectorprint.report.itext.style.parameters.FloatParameter;
 import static com.vectorprint.report.itext.style.stylers.DocumentSettings.HEIGHT;
 import java.util.Arrays;
@@ -81,6 +79,6 @@ public class Height extends AbstractStyler  {
    }
    @Override
    public String getHelp() {
-      return "Height of phrases or cells. " + super.getHelp(); 
+      return "Height of phrases or cells." + " " + super.getHelp();
    }
 }

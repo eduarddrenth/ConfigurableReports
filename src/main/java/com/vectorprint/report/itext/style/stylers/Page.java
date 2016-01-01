@@ -139,6 +139,6 @@ public class Page extends AdvancedImpl<Object> {
 
    @Override
    public String getHelp() {
-      return "Specify settings for the pages following. " + super.getHelp();
+      return "Specify settings for the pages following." + " " + super.getHelp();
    }
 }

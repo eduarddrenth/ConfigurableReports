@@ -45,6 +45,6 @@ public class DataNotNullCondition extends AbstractCondition{
 
    @Override
    public String getHelp() {
-      return "Don't style without any data. " + super.getHelp(); 
+      return "Don't style without any data."; 
    }
 }

@@ -31,7 +31,6 @@ package com.vectorprint.report.itext.style.stylers;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.vectorprint.VectorPrintException;
-
 import com.vectorprint.report.itext.style.parameters.AlignParameter;
 import java.util.Arrays;
 import java.util.Collections;
@@ -80,7 +79,7 @@ public class Alignment extends AbstractStyler {
 
    @Override
    public String getHelp() {
-      return "Alignment for paragraphs and cells. " + super.getHelp();
+      return "Alignment for paragraphs and cells." + " " + super.getHelp();
    }
    
    

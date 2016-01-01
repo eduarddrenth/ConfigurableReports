@@ -85,6 +85,6 @@ public class FieldBorder extends AbstractFieldStyler {
 
    @Override
    public String getHelp() {
-      return "Border of a form field. " + super.getHelp();
+      return "Border of a form field." + " " + super.getHelp();
    }
 }

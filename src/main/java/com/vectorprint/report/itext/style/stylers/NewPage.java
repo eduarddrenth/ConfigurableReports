@@ -30,7 +30,6 @@ package com.vectorprint.report.itext.style.stylers;
 
 import com.itextpdf.text.Element;
 import com.vectorprint.VectorPrintException;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -58,6 +57,6 @@ public class NewPage extends AbstractStyler  {
    }
    @Override
    public String getHelp() {
-      return "Start a new page after a certain element. " + super.getHelp(); 
+      return "Start a new page after a certain element." + " " + super.getHelp();
    }
 }

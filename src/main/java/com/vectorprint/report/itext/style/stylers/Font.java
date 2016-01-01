@@ -167,7 +167,7 @@ public class Font extends AbstractStyler {
    }
    @Override
    public String getHelp() {
-      return "Font definition for text. " + super.getHelp(); 
+      return "Font definition for text." + " " + super.getHelp();
    }
 
 }

@@ -28,13 +28,11 @@ package com.vectorprint.report.itext.style.stylers;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.itextpdf.text.Element;
 import com.itextpdf.text.List;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Section;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.vectorprint.VectorPrintException;
-
 import com.vectorprint.report.itext.style.parameters.FloatParameter;
 import java.util.Arrays;
 import java.util.Collections;
@@ -110,6 +108,6 @@ public class Indent extends AbstractStyler  {
    }
    @Override
    public String getHelp() {
-      return "Specify indentation for paragraphs, sections, cells, etc.. " + super.getHelp(); 
+      return "Indentation for paragraphs, sections, cells, etc." + " " + super.getHelp();
    }
 }

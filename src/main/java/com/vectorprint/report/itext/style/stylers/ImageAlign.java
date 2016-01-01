@@ -28,11 +28,9 @@ package com.vectorprint.report.itext.style.stylers;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.itextpdf.text.Element;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.vectorprint.VectorPrintException;
-
 import com.vectorprint.report.itext.style.parameters.AlignParameter;
 import com.vectorprint.report.itext.style.parameters.FloatParameter;
 import static com.vectorprint.report.itext.style.stylers.DocumentSettings.WIDTH;
@@ -110,6 +108,6 @@ public class ImageAlign extends AbstractStyler  {
    }
    @Override
    public String getHelp() {
-      return "Align an image in a cell. " + super.getHelp(); 
+      return "Align an image in a cell." + " " + super.getHelp(); 
    }
 }

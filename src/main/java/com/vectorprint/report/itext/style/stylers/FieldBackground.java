@@ -53,6 +53,6 @@ public class FieldBackground extends AbstractFieldStyler {
    }
    @Override
    public String getHelp() {
-      return "Background color of a form field. " + super.getHelp(); 
+      return "Background color of a form field." + " " + super.getHelp();
    }
 }

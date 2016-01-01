@@ -52,6 +52,6 @@ public class StyleCountCondition extends AbstractCondition {
    }
    @Override
    public String getHelp() {
-      return "Only style a certain amount of times. " + super.getHelp(); 
+      return "Only style a certain amount of times."; 
    }
 }

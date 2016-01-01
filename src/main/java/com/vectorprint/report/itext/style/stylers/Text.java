@@ -116,6 +116,6 @@ public class Text extends AbstractPositioning<String> {
    }
    @Override
    public String getHelp() {
-      return "Draw text at a position or near text or an image. " + super.getHelp(); 
+      return "Draw text at a position or near text, cell or table." + " " + super.getHelp();
    }
 }

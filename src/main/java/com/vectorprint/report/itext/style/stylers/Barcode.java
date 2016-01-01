@@ -205,7 +205,7 @@ public class Barcode extends com.vectorprint.report.itext.style.stylers.Image<St
 
    @Override
    public String getHelp() {
-      return "Draw a barcode at a position or near text or an image. " + super.getHelp();
+      return "Draw a barcode." + " " + super.getHelp();
    }
 
 }

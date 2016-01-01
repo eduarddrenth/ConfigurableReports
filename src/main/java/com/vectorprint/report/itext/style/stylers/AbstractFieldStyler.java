@@ -43,11 +43,10 @@ import com.vectorprint.configuration.parameters.StringParameter;
 import com.vectorprint.configuration.parameters.URLParameter;
 import static com.vectorprint.report.ReportConstants.DEBUG;
 import com.vectorprint.report.itext.ElementProducer;
-import com.vectorprint.report.itext.style.ElementProducing;
 import com.vectorprint.report.itext.debug.DebugHelper;
 import com.vectorprint.report.itext.debug.DebuggablePdfPCell;
 import com.vectorprint.report.itext.style.BaseStyler;
-
+import com.vectorprint.report.itext.style.ElementProducing;
 import com.vectorprint.report.itext.style.FormFieldStyler;
 import com.vectorprint.report.itext.style.StyleHelper;
 import com.vectorprint.report.itext.style.StylerFactory;
@@ -95,7 +94,7 @@ public abstract class AbstractFieldStyler extends AbstractPositioning<Object> im
 
    @Override
    public String getHelp() {
-      return "base class for styling form fields to pdf. " + super.getHelp();
+      return "determines type of field, dimensions and value(s)." + " " + super.getHelp();
    }
 
    @Override

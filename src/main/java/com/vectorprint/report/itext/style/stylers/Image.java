@@ -39,10 +39,10 @@ import com.vectorprint.configuration.parameters.PasswordParameter;
 import com.vectorprint.configuration.parameters.URLParameter;
 import com.vectorprint.report.ReportConstants;
 import com.vectorprint.report.itext.ImageLoader;
-import com.vectorprint.report.itext.LayerManager;
-import com.vectorprint.report.itext.debug.DebugHelper;
 import com.vectorprint.report.itext.ImageLoaderAware;
+import com.vectorprint.report.itext.LayerManager;
 import com.vectorprint.report.itext.VectorPrintDocument;
+import com.vectorprint.report.itext.debug.DebugHelper;
 import com.vectorprint.report.itext.style.BaseStyler;
 import com.vectorprint.report.itext.style.StylerFactoryHelper;
 import com.vectorprint.report.itext.style.StylingCondition;
@@ -315,7 +315,7 @@ public class Image<DATATYPE> extends AbstractPositioning<DATATYPE> implements Im
 
    @Override
    public String getHelp() {
-      return "Draw an image at a position or near text or an image. " + super.getHelp();
+      return "Draw an image." + " " + super.getHelp();
    }
 
    protected ImageLoader getImageLoader() {

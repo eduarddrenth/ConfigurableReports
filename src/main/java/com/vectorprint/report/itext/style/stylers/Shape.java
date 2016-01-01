@@ -277,6 +277,6 @@ public class Shape<DATATYPE> extends AbstractPositioning<DATATYPE> {
    }
    @Override
    public String getHelp() {
-      return "Draw a shape at a position or near text or an image. " + super.getHelp(); 
+      return "Draw a shape at a position or near text, cell or table." + " " + super.getHelp();
    }
 }

@@ -129,6 +129,6 @@ public class Zebra extends AbstractStyler implements LayerManagerAware {
 
    @Override
    public String getHelp() {
-      return "Define zebra striping for tables. " + super.getHelp();
+      return "Define zebra striping for tables." + " " + super.getHelp();
    }
 }

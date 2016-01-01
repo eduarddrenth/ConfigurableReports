@@ -28,10 +28,8 @@ package com.vectorprint.report.itext.style.stylers;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.itextpdf.text.Element;
 import com.itextpdf.text.Phrase;
 import com.vectorprint.VectorPrintException;
-
 import com.vectorprint.report.itext.style.parameters.FloatParameter;
 import java.util.Arrays;
 import java.util.Collections;
@@ -75,6 +73,6 @@ public class Leading extends AbstractStyler  {
    }
    @Override
    public String getHelp() {
-      return "Specify leading (height) of phrases. " + super.getHelp(); 
+      return "Specify leading (height) of phrases." + " " + super.getHelp();
    }
 }

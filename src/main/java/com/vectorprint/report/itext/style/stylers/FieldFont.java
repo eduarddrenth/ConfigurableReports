@@ -71,6 +71,6 @@ public class FieldFont extends AbstractFieldStyler {
 
    @Override
    public String getHelp() {
-      return "Font for a form field. " + super.getHelp();
+      return "Font for a form field." + " " + super.getHelp();
    }
 }

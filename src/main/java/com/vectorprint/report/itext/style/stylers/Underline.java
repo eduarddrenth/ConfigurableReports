@@ -27,7 +27,6 @@ package com.vectorprint.report.itext.style.stylers;
 
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
-import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.TextElementArray;
 import com.itextpdf.text.pdf.PdfContentByte;
@@ -115,7 +114,7 @@ public class Underline<DATATYPE> extends AdvancedImpl<DATATYPE> {
    }
    @Override
    public String getHelp() {
-      return "Underline text. " + super.getHelp(); 
+      return "Underline text." + " " + super.getHelp();
    }
    private static final Class<Object>[] classes = new Class[]{Chunk.class, TextElementArray.class};
    private static final Set<Class> c = Collections.unmodifiableSet(new HashSet<Class>(Arrays.asList(classes)));

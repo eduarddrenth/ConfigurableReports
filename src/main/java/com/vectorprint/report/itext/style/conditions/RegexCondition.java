@@ -56,6 +56,6 @@ public class RegexCondition extends AbstractCondition {
    }
    @Override
    public String getHelp() {
-      return "only style when a regular expression is found in the data. " + super.getHelp(); 
+      return "only style when a regular expression is found in the data."; 
    }
 }

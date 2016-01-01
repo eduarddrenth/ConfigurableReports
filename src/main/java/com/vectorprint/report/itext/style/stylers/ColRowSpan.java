@@ -31,7 +31,6 @@ package com.vectorprint.report.itext.style.stylers;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.parameters.IntParameter;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -89,6 +88,6 @@ public class ColRowSpan extends AbstractStyler  {
    }
    @Override
    public String getHelp() {
-      return "Let cells span rows and / or columns. " + super.getHelp(); 
+      return "Let cells span rows and / or columns." + " " + super.getHelp(); 
    }
 }

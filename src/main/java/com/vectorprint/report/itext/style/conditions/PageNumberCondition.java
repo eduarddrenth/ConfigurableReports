@@ -66,6 +66,6 @@ public class PageNumberCondition extends NumberCondition implements DocumentAwar
    }
    @Override
    public String getHelp() {
-      return "Only style on certain pages. " + super.getHelp(); 
+      return "Only style on certain pages."; 
    }
 }

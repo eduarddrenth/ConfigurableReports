@@ -130,7 +130,7 @@ public class Shadow<DATATYPE> extends AdvancedImpl<DATATYPE> {
 
    @Override
    public String getHelp() {
-      return "Draw a drop shadow for text. " + super.getHelp();
+      return "Draw a drop shadow for text." + " " + super.getHelp();
    }
    private static final Class<Object>[] classes = new Class[]{Chunk.class, TextElementArray.class};
    private static final Set<Class> c = Collections.unmodifiableSet(Collections.unmodifiableSet(new HashSet<Class>(Arrays.asList(classes))));

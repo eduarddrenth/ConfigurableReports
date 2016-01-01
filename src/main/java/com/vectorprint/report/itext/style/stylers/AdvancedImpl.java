@@ -58,8 +58,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * an advanced styler for directly drawing on a canvas, can be used from setup in two ways: draw (conditionally) on each
- * page, draw after a certain Chunk is drawn. Subclasses that {@link ElementStyler#creates() can create elements} can as
+ * An advanced styler for directly drawing on a canvas. If you declare stylers of this class as {@link DefaultStylerFactory#PAGESTYLERS} they will draw on each page. If you  declare stylers of this class in a regular chain of stylers, {@link EVENTMODE} will determine where and when to draw.
+ * Subclasses that {@link ElementStyler#creates() can create elements} can as
  * well be used in combination with the {@link ElementProducer} methods to add elements to the document. Furthermore an
  * advanced styler can be used programmatically, use the constructor with arguments for this and the
  * {@link #draw(com.itextpdf.text.Rectangle, java.lang.String)} method.
@@ -325,7 +325,7 @@ public class AdvancedImpl<DATATYPE> extends AbstractStyler implements Advanced<D
 
    @Override
    public String getHelp() {
-      return "Supports advanced effects (transform, transparency, etc.) and direct drawing from code. " + super.getHelp();
+      return "Advanced effects (transform, transparency, etc.), direct drawing from code and drawing near text, table or cell." + " " + super.getHelp();
    }
 
    public BLENDMODE getBlend() {
@@ -378,7 +378,7 @@ public class AdvancedImpl<DATATYPE> extends AbstractStyler implements Advanced<D
    /**
     * An advanced styler may be added as event to a table by {@link StyleHelper#style(java.lang.Object, java.lang.Object, java.util.Collection) }
     * when the element styled is a table and the {@link EVENTMODE} is ALL or TABLE. This enables drawing near a table.
-    * Calls {@link #draw(com.itextpdf.text.Rectangle, java.lang.String) } with the rectangle of the table null as genericTag.
+    * Calls {@link #draw(com.itextpdf.text.Rectangle, java.lang.String) } with the rectangle of the table and null as genericTag.
     *
     * @see EVENTMODE#TABLE
     * @param table
@@ -406,7 +406,7 @@ public class AdvancedImpl<DATATYPE> extends AbstractStyler implements Advanced<D
    /**
     * An advanced styler may be added as event to a cell by {@link StyleHelper#style(java.lang.Object, java.lang.Object, java.util.Collection) }
     * when the element styled is a table and the {@link EVENTMODE} is ALL or CELL. This enables drawing near a cell.
-    * Calls {@link #draw(com.itextpdf.text.Rectangle, java.lang.String) } with the rectangle of the cell null as genericTag. When
+    * Calls {@link #draw(com.itextpdf.text.Rectangle, java.lang.String) } with the rectangle of the cell and null as genericTag. When
     * {@link #USEPADDING} is true the rectangle is calculated taking cell padding into account.
     *
     * @see EVENTMODE#CELL

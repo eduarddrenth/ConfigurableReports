@@ -78,6 +78,6 @@ public class NumberCondition extends AbstractCondition {
 
    @Override
    public String getHelp() {
-      return "Only style when a numeric condition is met. " + super.getHelp(); 
+      return "Only style when a numeric condition is met."; 
    }
 }

@@ -121,7 +121,7 @@ public class ImportTiff extends Image<Object> implements ImageProcessor {
 
    @Override
    public String getHelp() {
-      return "Import images from tiff (or pdf via ImportPdf) near a certain element. " + super.getHelp();
+      return "Import and draw tiff images (or pdf via ImportPdf) near a certain element." + " " + super.getHelp();
    }
    
    private com.itextpdf.text.Image imageBeingProcessed = null;

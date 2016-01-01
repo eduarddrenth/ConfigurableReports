@@ -333,7 +333,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
 
    @Override
    public String getHelp() {
-      return "Manipulate document settings i.e. margins, size, signing, etc.. " + super.getHelp();
+      return "Manipulate document settings i.e. margins, size, signing, pdfa, etc." + " " + super.getHelp();
    }
 
    @Override

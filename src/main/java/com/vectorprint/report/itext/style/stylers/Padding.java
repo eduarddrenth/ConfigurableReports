@@ -28,7 +28,6 @@ package com.vectorprint.report.itext.style.stylers;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.itextpdf.text.Element;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.vectorprint.VectorPrintException;
 import static com.vectorprint.report.itext.style.BaseStyler.POSITION.BOTTOM;
@@ -46,7 +45,6 @@ import static com.vectorprint.report.itext.style.BaseStyler.POSITION.RIGHT;
 import static com.vectorprint.report.itext.style.BaseStyler.POSITION.RT;
 import static com.vectorprint.report.itext.style.BaseStyler.POSITION.TOP;
 import static com.vectorprint.report.itext.style.BaseStyler.POSITION.TRBL;
-
 import com.vectorprint.report.itext.style.parameters.FloatParameter;
 import com.vectorprint.report.itext.style.parameters.PositionParameter;
 import java.util.Arrays;
@@ -154,6 +152,6 @@ public class Padding extends AbstractStyler  {
 
    @Override
    public String getHelp() {
-      return "Specify padding for cells. " + super.getHelp(); 
+      return "Specify padding for cells." + " " + super.getHelp();
    }
 }

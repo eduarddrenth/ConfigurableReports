@@ -35,7 +35,6 @@ import com.vectorprint.configuration.parameters.StringParameter;
 import com.vectorprint.configuration.parameters.URLParameter;
 import com.vectorprint.report.itext.ImageLoader;
 import com.vectorprint.report.itext.ImageLoaderAware;
-
 import com.vectorprint.report.itext.style.StylerFactoryHelper;
 import java.net.URL;
 import java.util.Arrays;
@@ -98,6 +97,6 @@ public class ListItem extends Font implements ImageLoaderAware {
    }
    @Override
    public String getHelp() {
-      return "Specify the looks of an item in a list. " + super.getHelp(); 
+      return "Specify the looks of an item in a list." + " " + super.getHelp();
    }
 }

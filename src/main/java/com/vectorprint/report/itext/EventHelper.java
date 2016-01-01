@@ -85,10 +85,10 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
    private StylerFactory stylerFactory;
    private boolean failuresHereAfter = false, debugHereAfter = false;
    private int lastPage;
-   private java.util.List<Advanced> doForAllPages = new ArrayList<Advanced>(1);
-   private Map<String, Collection<Advanced>> doOnGenericTag = new HashMap<String, Collection<Advanced>>(10);
-   private Map<String, Chunk> imageChunks = new HashMap<String, Chunk>(10);
-   private Map<String, Image> rectangles = new HashMap<String, Image>(10);
+   private final java.util.List<Advanced> doForAllPages = new ArrayList<Advanced>(1);
+   private final Map<String, Collection<Advanced>> doOnGenericTag = new HashMap<String, Collection<Advanced>>(10);
+   private final Map<String, Chunk> imageChunks = new HashMap<String, Chunk>(10);
+   private final Map<String, Image> rectangles = new HashMap<String, Image>(10);
    private ItextHelper itextHelper;
    
    protected ElementProducer getElementProducer() {

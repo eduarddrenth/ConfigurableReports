@@ -59,6 +59,6 @@ public class ElementCondition extends AbstractCondition {
    }
    @Override
    public String getHelp() {
-      return "Only style certain iText elements. " + super.getHelp(); 
+      return "Only style certain iText elements."; 
    }
 }
