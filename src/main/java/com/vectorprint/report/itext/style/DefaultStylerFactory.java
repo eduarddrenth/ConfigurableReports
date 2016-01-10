@@ -29,16 +29,15 @@ import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.annotation.Setting;
 import com.vectorprint.configuration.annotation.SettingsField;
 import com.vectorprint.configuration.binding.parameters.ParamBindingService;
-import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactory;
 import com.vectorprint.configuration.binding.parameters.ParameterizableParser;
 import com.vectorprint.configuration.binding.settings.SettingsBindingService;
 import com.vectorprint.configuration.parameters.Parameterizable;
 import com.vectorprint.report.ReportConstants;
 import static com.vectorprint.report.ReportConstants.DEBUG;
 import com.vectorprint.report.itext.ElementProducer;
+import com.vectorprint.report.itext.EventHelper;
 import com.vectorprint.report.itext.ImageLoader;
 import com.vectorprint.report.itext.LayerManager;
-import com.vectorprint.report.itext.EventHelper;
 import com.vectorprint.report.itext.debug.DebugStyler;
 import com.vectorprint.report.itext.style.conditions.AbstractCondition;
 import com.vectorprint.report.itext.style.stylers.Advanced;
@@ -50,6 +49,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -133,7 +133,7 @@ public class DefaultStylerFactory implements StylerFactory, ConditionFactory {
    private final List<ImportTiff> imtiff = new ArrayList<>(1);
    private final List<SimpleColumns> imcol = new ArrayList<>(1);
 
-   private <S extends Parameterizable> List<S> getStylers(String key, String pkg )
+   private <S extends Parameterizable> List<S> getParameterizables(String key, String pkg )
        throws VectorPrintException {
 
       if (!cache.containsKey(key)) {
@@ -234,10 +234,13 @@ public class DefaultStylerFactory implements StylerFactory, ConditionFactory {
     */
    @Override
    public List<BaseStyler> getStylers(String... styleClasses) throws VectorPrintException {
+      if (styleClasses==null||styleClasses.length==0||styleClasses[0]==null||styleClasses[0].isEmpty()) {
+         return Collections.EMPTY_LIST;
+      }
       List<BaseStyler> stylers = preStyle(new ArrayList<BaseStyler>(styleClasses.length + 4), styleClasses);
 
       for (String name : styleClasses) {
-         stylers.addAll(getStylers(name, STYLERPACKAGENAME));
+         stylers.addAll(getParameterizables(name, STYLERPACKAGENAME));
       }
 
       postStyle(stylers, styleClasses);
@@ -283,7 +286,7 @@ public class DefaultStylerFactory implements StylerFactory, ConditionFactory {
          try {
             EventHelper ph = (EventHelper) writer.getPageEvent();
             // init page stylers
-            Collection<BaseStyler> p = getStylers(PAGESTYLERS, STYLERPACKAGENAME);
+            Collection<BaseStyler> p = getParameterizables(PAGESTYLERS, STYLERPACKAGENAME);
             for (BaseStyler s : p) {
                if (s instanceof Advanced) {
                   ph.addStylerForEachPage((Advanced) s);
@@ -326,14 +329,14 @@ public class DefaultStylerFactory implements StylerFactory, ConditionFactory {
    private <B extends Parameterizable> List<B> preStyle(List<B> stylers, String... styleClasses) throws VectorPrintException {
 
       if (doFirstLast && !containsFirstLast(styleClasses) && settings.containsKey(PRESTYLERS)) {
-         stylers.addAll((Collection<? extends B>) getStylers(PRESTYLERS, STYLERPACKAGENAME));
+         stylers.addAll((Collection<? extends B>) getParameterizables(PRESTYLERS, STYLERPACKAGENAME));
       }
       return stylers;
    }
 
    private <B extends Parameterizable> void postStyle(List<B> stylers, String... styleClasses) throws VectorPrintException {
       if (doFirstLast && !containsFirstLast(styleClasses) && settings.containsKey(POSTSTYLERS)) {
-         stylers.addAll((Collection<? extends B>) getStylers(POSTSTYLERS, STYLERPACKAGENAME));
+         stylers.addAll((Collection<? extends B>) getParameterizables(POSTSTYLERS, STYLERPACKAGENAME));
       }
 
       impdf.clear();
@@ -373,7 +376,10 @@ public class DefaultStylerFactory implements StylerFactory, ConditionFactory {
 
    @Override
    public List<StylingCondition> getConditions(String configKey) throws VectorPrintException {
-      return getStylers(configKey, CONDITIONPACKAGENAME);
+      if (configKey==null||configKey.isEmpty()) {
+         return Collections.EMPTY_LIST;
+      }
+      return getParameterizables(configKey, CONDITIONPACKAGENAME);
    }
 
 }

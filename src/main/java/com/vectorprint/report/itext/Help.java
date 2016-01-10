@@ -99,7 +99,7 @@ public class Help {
       out.println("  2 create an xml config file for the translation of java objects to report parts (xsd in .jar and in GUI); and/or");
       out.println("  3 annotate your dataclasses (" + ContainerStart.class.getPackage().getName() + "), examples in junit tests");
       out.println("  4 extend " + DataCollectorImpl.class.getName() + ", example in junit test");
-      out.println("  5 setup your classpath to include your classes, VectorPrintReport*.jar and dependent jars (see lib folder in binary distribution)");
+      out.println("  5 setup your classpath to include your classes, reporting jars and dependent jars (see lib folder in binary distribution)");
 
       out.println("  6 java -cp <cp> " + ReportRunner.class.getName() + "<settings configuration file> or <settings file> <settings in corrrect syntax>\n");
       out.println("  Settings must contain " + ReportConstants.DATACLASS + ", look at " + ReportConstants.class.getName() + " for more available settings\n");

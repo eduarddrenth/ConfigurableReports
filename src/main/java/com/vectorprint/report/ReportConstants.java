@@ -25,9 +25,9 @@ package com.vectorprint.report;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-
 //~--- non-JDK imports --------------------------------------------------------
-import com.vectorprint.configuration.binding.parameters.ParameterizableBindingFactory;
+import com.vectorprint.configuration.decoration.ParsingProperties;
+import com.vectorprint.configuration.jaxb.SettingsFromJAXB;
 import com.vectorprint.report.data.DataCollector;
 import com.vectorprint.report.data.types.Formatter;
 import com.vectorprint.report.itext.BaseReportGenerator;
@@ -37,7 +37,7 @@ import com.vectorprint.report.itext.mappingconfig.DatamappingHelper;
 import com.vectorprint.report.itext.style.DocumentStyler;
 import com.vectorprint.report.itext.style.StylerFactory;
 import com.vectorprint.report.itext.style.parameters.binding.JsonReportParameterBindingFactory;
-import com.vectorprint.report.itext.style.parameters.binding.ReportParameterBindingFactory;
+import com.vectorprint.report.running.ReportRunner;
 import java.awt.color.ICC_ColorSpace;
 import java.awt.color.ICC_Profile;
 
@@ -49,14 +49,16 @@ public interface ReportConstants {
 
    /**
     * boolean setting to print a footer on each page or not.
+    *
     * @see EventHelper#PAGEFOOTERSTYLE
     * @see EventHelper#PAGEFOOTERSTYLEKEY`
     * @see EventHelper#PAGEFOOTERTABLEKEY
-    * @see EventHelper#renderFooter(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document) 
+    * @see EventHelper#renderFooter(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document)
     */
    public static final String PRINTFOOTER = "printfooter";
    /**
     * name of the setting to change the currency symbol
+    *
     * @see Formatter#DEFAULTCURRENCYSYMBOL
     */
    public static final String CURRENCYSYMBOL = "currencysymbol";
@@ -66,8 +68,8 @@ public interface ReportConstants {
    public static final String BUFFERSIZE = "buffersize";
    public static final int DEFAULTBUFFERSIZE = 102400;
    /**
-    * commandline argument to give visual feedback in the report and other debugging information. Also
-    * the name of the layer group containing debugging info.
+    * commandline argument to give visual feedback in the report and other debugging information. Also the name of the
+    * layer group containing debugging info.
     */
    public static final String DEBUG = "debug";
    /**
@@ -107,13 +109,22 @@ public interface ReportConstants {
     * color used for debugging info
     */
    public static final String DEBUGCOLOR = "debugcolor";
-   
+
    /**
-    * name of the setting that points to a url to the xml configuration for data mapping
+    * name of the setting that holds a url to the xml configuration for data mapping
+    *
     * @see DatamappingHelper
     * @see com.vectorprint.report.itext.mappingconfig
     */
    public static final String DATAMAPPINGXML = "datamappingxml";
+   /**
+    * Name of the file containing xml (see {@link SettingsFromJAXB}) or settings (see {@link ParsingProperties}). The
+    * file will be searched in the current working directory or in the root of the classpath. You can override the name of this file
+    * by passing a file path argument to the {@link ReportRunner} buildReport methods.
+    *
+    * @see ReportRunner#buildReport(java.lang.String[]) 
+    */
+   public static final String CONFIG_FILE = "report.properties";
 
    /**
     * names for margin properties
@@ -122,12 +133,13 @@ public interface ReportConstants {
 
       margin_top, margin_right, margin_bottom, margin_left
    }
-   
+
    /**
     * name of the setting that points to a url of a icccolorprofile to be used for outputcolors
-    * @see ItextHelper#fromColor(java.awt.Color) 
-    * @see ICC_ColorSpace#ICC_ColorSpace(java.awt.color.ICC_Profile) 
-    * @see ICC_Profile#getInstance(java.io.InputStream) 
+    *
+    * @see ItextHelper#fromColor(java.awt.Color)
+    * @see ICC_ColorSpace#ICC_ColorSpace(java.awt.color.ICC_Profile)
+    * @see ICC_Profile#getInstance(java.io.InputStream)
     */
    public static final String ICCCOLORPROFILE = "icccolorprofile";
    /**
@@ -139,8 +151,7 @@ public interface ReportConstants {
     */
    public static final String ICCINFO = "iccinfo";
    /**
-    * name of a boolean setting that may be used. Setting this to false will try to write the stacktrace
-    * to the report.
+    * name of a boolean setting that may be used. Setting this to false will try to write the stacktrace to the report.
     */
    public static final String STOPONERROR = "stoponerror";
 }

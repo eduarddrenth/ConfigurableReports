@@ -140,15 +140,12 @@ public class ConfigurableReportBuilderTest {
    public static void setupClass() {
       Logger.getLogger(Settings.class.getName()).setLevel(Level.SEVERE);
    }
-   
-   
 
    @Before
    public void setUp() throws IOException, VectorPrintException, JAXBException {
       ParameterizableImpl.clearStaticSettings();
-      init(true,false);
+      init(true, false);
       System.clearProperty(ReportConstants.JSON);
-      TestableReportGenerator.setDidCreate(false);
       TestableReportGenerator.setForceException(false);
 
    }
@@ -175,11 +172,9 @@ public class ConfigurableReportBuilderTest {
       for (BaseStyler bs : (List<BaseStyler>) bg.getStylers("field")) {
          if (i == 0) {
             assertTrue(bs instanceof Font);
-         } else {
-            if (bs instanceof FormFieldStyler) {
-               assertEquals("italic", bs.getValue(Font.STYLE_PARAM, Font.STYLE.class).name());
-               return;
-            }
+         } else if (bs instanceof FormFieldStyler) {
+            assertEquals("italic", bs.getValue(Font.STYLE_PARAM, Font.STYLE.class).name());
+            return;
          }
          i++;
       }
@@ -203,7 +198,6 @@ public class ConfigurableReportBuilderTest {
       System.setOut(new PrintStream(bo));
       instance.buildReport(null);
       System.setOut(orig);
-      assertTrue(TestableReportGenerator.isDidCreate());
       System.out.println("Bytes written: " + bo.toByteArray().length);
       assertTrue(bo.toByteArray().length > 0);
    }
@@ -223,13 +217,13 @@ public class ConfigurableReportBuilderTest {
    @Test
    public void testDefaultStylerSettings() throws Exception {
       instance.buildReport(new String[]{"output=" + TARGET + "style.pdf\nFont.color.set_default=#eeeeee"});
-      assertTrue(TestableReportGenerator.isDidCreate());
+
    }
 
    @Test
    public void testToStream() throws Exception {
       instance.buildReport(new String[]{}, new FileOutputStream(TARGET + "testToStream.pdf"));
-      assertTrue(TestableReportGenerator.isDidCreate());
+
    }
 
    @Test
@@ -241,7 +235,7 @@ public class ConfigurableReportBuilderTest {
    @Test
    public void testToc() throws Exception {
       instance.buildReport(new String[]{"output=" + TARGET + "testToc.pdf\nDocumentSettings.toc=true\ndebug=false"});
-      assertTrue(TestableReportGenerator.isDidCreate());
+
    }
 
    @Test
@@ -274,7 +268,7 @@ public class ConfigurableReportBuilderTest {
    @Test
    public void testEncryption() throws Exception {
       instance.buildReport(new String[]{"output=" + TARGET + "testEncryption.pdf\ndocumentsettings=DocumentSettings(margin_top=5,margin_left=50,margin_right=5,margin_bottom=5,width=297,height=210,password=password,ownerpassword=password)"});
-      assertTrue(TestableReportGenerator.isDidCreate());
+
       try {
          PdfReader pdfReader = new PdfReader(TARGET + "testEncryption.pdf");
          fail("setting password and encryption failed");
@@ -298,7 +292,6 @@ public class ConfigurableReportBuilderTest {
             return;
          }
       }
-      assertTrue(TestableReportGenerator.isDidCreate());
 
       try {
          PdfReader pdfReader = new PdfReader(TARGET + "testCertificate.pdf");
@@ -319,10 +312,10 @@ public class ConfigurableReportBuilderTest {
    @Test
    public void testBuildNoEmptyValues() throws Exception {
       try {
-         init(false,false);
+         init(false, false);
          fail("exception expected for empty value");
          instance.buildReport(new String[]{"-output", TARGET + "testBuildNoEmptyValues.pdf"});
-         assertTrue(TestableReportGenerator.isDidCreate());
+
       } catch (VectorPrintRuntimeException ex) {
          // expected
       }
@@ -332,14 +325,12 @@ public class ConfigurableReportBuilderTest {
    public void testPrintVersion() throws Exception {
       int res = instance.buildReport(new String[]{VERSION + "="});
       assertEquals(ReportRunner.EXITFROMPROPERTYCODE, res);
-      assertFalse(TestableReportGenerator.isDidCreate());
    }
 
    @Test
    public void testPrintHelp() throws Exception {
       int res = instance.buildReport(new String[]{HELP + "="});
       assertEquals(ReportRunner.EXITFROMPROPERTYCODE, res);
-      assertFalse(TestableReportGenerator.isDidCreate());
    }
 
    @Test
@@ -347,7 +338,6 @@ public class ConfigurableReportBuilderTest {
       TestableReportGenerator.setContinueAfterError(false);
       NonQueueingTestableDataCollector.setProduceError(true);
       instance.buildReport(new String[]{"output=" + TARGET + "testStopAfterErrors.pdf"});
-      assertFalse(TestableReportGenerator.isDidCreate());
    }
 
    @Test
@@ -355,14 +345,14 @@ public class ConfigurableReportBuilderTest {
       TestableReportGenerator.setContinueAfterError(true);
       NonQueueingTestableDataCollector.setProduceError(true);
       instance.buildReport(new String[]{"output=" + TARGET + "testContinueAfterErrors.pdf"});
-      assertTrue(TestableReportGenerator.isDidCreate());
+
    }
 
    @Test
    public void testBuildDebug() throws Exception {
       NonQueueingTestableDataCollector.setProduceError(false);
       instance.buildReport(new String[]{"output=" + TARGET + "testBuildDebug.pdf\ndebug=true"});
-      assertTrue(TestableReportGenerator.isDidCreate());
+
    }
 
    @Test
@@ -380,7 +370,6 @@ public class ConfigurableReportBuilderTest {
       });
       assertNotSame(TARGET + "testBuildInChildThread.pdf", instance.getSettings().get("output"));
 
-      assertTrue(TestableReportGenerator.isDidCreate());
    }
 
    @Test
@@ -389,7 +378,7 @@ public class ConfigurableReportBuilderTest {
          @Override
          public void run() {
             try {
-               init(true,false);
+               init(true, false);
             } catch (Exception ex) {
                fail("failed to init");
             }
@@ -424,7 +413,7 @@ public class ConfigurableReportBuilderTest {
       } catch (VectorPrintRuntimeException ex) {
          // expected
       }
-      assertTrue(TestableReportGenerator.isDidCreate());
+
       try {
          PdfReader pdfReader = new PdfReader(TARGET + "testExceptionStop.pdf");
          fail("pdf should be invalid");
@@ -436,7 +425,7 @@ public class ConfigurableReportBuilderTest {
    @Test
    public void testSign() throws Exception {
       instance.buildReport(new String[]{"output=" + TARGET + "testSign.pdf\ndocumentsettings=DocumentSettings(margin_top=5,margin_left=50,margin_right=5,margin_bottom=5,width=297,height=210,keystore=file:src/test/resources/config/eduarddrenth-TECRA-S11.pfx,keystorepassword=password)\ndebug=true"});
-      assertTrue(TestableReportGenerator.isDidCreate());
+
    }
 
    @Test
@@ -449,7 +438,7 @@ public class ConfigurableReportBuilderTest {
          ex.printStackTrace();
          fail("exception not expected");
       }
-      assertTrue(TestableReportGenerator.isDidCreate());
+
       assertTrue(new File(TARGET + "testExceptionContinue.pdf").exists());
       assertTrue(new File(TARGET + "testExceptionContinue.pdf").length() > 0);
    }
@@ -458,7 +447,7 @@ public class ConfigurableReportBuilderTest {
    public void testPdfA1A() throws Exception {
       init(true, true);
       instance.buildReport(new String[]{"output=" + TARGET + "testPdfA1A.pdf\nfonts=src/test/resources/config"});
-      assertTrue(TestableReportGenerator.isDidCreate());
+
    }
 
    @Test

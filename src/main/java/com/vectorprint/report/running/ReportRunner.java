@@ -31,7 +31,6 @@ import com.vectorprint.VersionInfo;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.Settings;
 import com.vectorprint.configuration.binding.settings.EnhancedMapBindingFactory;
-import com.vectorprint.configuration.binding.settings.EnhancedMapParser;
 import com.vectorprint.configuration.binding.settings.SettingsBindingService;
 import com.vectorprint.configuration.decoration.CachingProperties;
 import com.vectorprint.configuration.decoration.ParsingProperties;
@@ -54,8 +53,10 @@ import com.vectorprint.report.itext.style.StylerFactoryHelper;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.StringReader;
@@ -64,8 +65,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.io.FileReader;
-import java.io.InputStreamReader;
 import org.xml.sax.SAXException;
 
 /**
@@ -74,10 +73,10 @@ import org.xml.sax.SAXException;
  * order):
  * <ul>
  * <li>constructor argument</li>
- * <li>file path containing xml settings declaration</li>
- * <li>file path containing settings</li>
+ * <li>file path argument containing xml settings declaration</li>
+ * <li>file path argument containing settings</li>
  * <li>default file path ({@link #CONFIG_FILE}) containing settings</li>
- * <li>String argument in build methods containing settings</li>
+ * <li>String argument containing settings</li>
  * </ul>
  *
  * @param <RD> the type of data for the Runner
@@ -113,17 +112,24 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
    public ReportRunner() {
    }
 
+   private boolean settingsInitialized = false;
+
    /**
     * Called from {@link #buildReport(java.lang.String[]) } and {@link #buildReport(java.lang.String[], java.io.OutputStream)
-    * }. Uses at most 2 arguments the first containing the path to a file, the second containing the path to a file.
-    * Both arguments are optional. When this report runner does not have any settings yet initialize them using {@link #initSettingsFromFile(java.lang.String)
-    * }, when settings are still not found instantiate new settings. If there is an argument containing settings {@link EnhancedMapParser#parse(com.vectorprint.configuration.EnhancedMap)
-    * } will be called.
+    * }. Uses two optional arguments: the path to a file and a string with settings. Settings from a string with settings will be
+    * added to settings already present. This method will only execute once.
+    *
+    * @see #initSettingsFromFile(java.lang.String)
+    * @see SettingsBindingService#getFactory()
     *
     * @param args at most two are used, may be null
     * @throws Exception when a failure occurs, also when settings are not initialized properly
     */
    protected void initSettings(String[] args) throws Exception {
+      if (settingsInitialized) {
+         return;
+      }
+      settingsInitialized = true;
       if (args != null && args.length > 0) {
          int secondArg = 0;
          boolean needSettingsArg = false;
@@ -290,16 +296,9 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
       return settings;
    }
 
-   /**
-    * when no argument is given this file will be searched in the current working directory or in the root of the
-    * classpath
-    *
-    * @see #main(java.lang.String[])
-    */
-   public static final String CONFIG_FILE = "report.properties";
    public static final String SETTINGS_HELP = "Provide the path to your settingsfile as argument. "
        + "A settingsfile contains either xml (xsd available in Config jar) declaring settings or it contains settings.\n"
-       + "You can also just put " + CONFIG_FILE + " in the current working directory or in the root of one of your jars.\n"
+       + "You can also just put " + ReportConstants.CONFIG_FILE + " in the current working directory or in the root of one of your jars.\n"
        + "In Your settings you must at least provide the name of your " + DataCollector.class.getName()
        + "in a setting \"" + ReportConstants.DATACLASS + "\".\nFurthermore you probably want to provide styling information"
        + "for the data yielded by your collector.\n";
@@ -312,10 +311,10 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
     * @throws Exception
     */
    public static EnhancedMap findSettings() throws Exception {
-      if (new File(CONFIG_FILE).canRead()) {
-         return new CachingProperties(new ParsingProperties(new Settings(), CONFIG_FILE));
+      if (new File(ReportConstants.CONFIG_FILE).canRead()) {
+         return new CachingProperties(new ParsingProperties(new Settings(), ReportConstants.CONFIG_FILE));
       } else {
-         InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream('/' + CONFIG_FILE);
+         InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream('/' + ReportConstants.CONFIG_FILE);
          if (in != null) {
             return new CachingProperties(new ParsingProperties(new Settings(), new InputStreamReader(in)));
          }
@@ -341,7 +340,7 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
                SettingsXMLHelper.validateXml(arg);
                return new SettingsFromJAXB().fromJaxb(new FileReader(arg));
             } catch (SAXException sAXException) {
-               log.warning(String.format("%s does not contain settings xml, trying to parse settings directly", arg));
+               log.log(Level.WARNING, String.format("%s does not contain settings xml, trying to parse settings directly", arg), sAXException);
             }
             return new CachingProperties(new ParsingProperties(new Settings(), arg));
          }
@@ -357,7 +356,6 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
    public static void main(String[] args) throws Exception {
       System.exit(new ReportRunner().buildReport(args));
    }
-
 
    /**
     * Bottleneck method, writes report to stream argument, calls {@link BaseReportGenerator#generate(com.vectorprint.report.data.ReportDataHolder, java.io.OutputStream)
@@ -438,5 +436,5 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
          }
       }
    }
-   
+
 }

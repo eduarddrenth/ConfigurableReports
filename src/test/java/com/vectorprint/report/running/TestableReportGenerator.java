@@ -52,20 +52,17 @@ import java.util.Date;
 public class TestableReportGenerator extends BaseReportGenerator<ReportDataHolder> {
 
    private static boolean continueAfterError = false;
-   private static boolean didCreate = false;
    private static boolean forceException = false;
    private static boolean annotations = false;
 
    public TestableReportGenerator() throws VectorPrintException {
       super(new EventHelper<ReportDataHolder>(), new DefaultElementProducer());
-      didCreate = false;
    }
    
    private static BindingHelperImpl conversion = new BindingHelperImpl();
 
    @Override
    protected void createReportBody(Document document, ReportDataHolder data, com.itextpdf.text.pdf.PdfWriter writer) throws DocumentException, VectorPrintException {
-      didCreate = true;
       if (annotations) {
          processData(data);
          return;
@@ -321,14 +318,6 @@ public class TestableReportGenerator extends BaseReportGenerator<ReportDataHolde
 
    public static void setContinueAfterError(boolean continueAfterError) {
       TestableReportGenerator.continueAfterError = !continueAfterError;
-   }
-
-   public static boolean isDidCreate() {
-      return didCreate;
-   }
-
-   public static void setDidCreate(boolean didCreate) {
-      TestableReportGenerator.didCreate = didCreate;
    }
 
    public static void setForceException(boolean forceException) {
