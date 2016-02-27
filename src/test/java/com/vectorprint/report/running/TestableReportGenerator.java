@@ -25,6 +25,7 @@ package com.vectorprint.report.running;
  * #L%
  */
 import com.itextpdf.text.Anchor;
+import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Image;
@@ -36,12 +37,14 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.vectorprint.VectorPrintException;
+import com.vectorprint.configuration.annotation.Setting;
 import com.vectorprint.configuration.binding.BindingHelperImpl;
 import com.vectorprint.report.data.DataCollectionMessages;
 import com.vectorprint.report.data.ReportDataHolder;
 import com.vectorprint.report.itext.BaseReportGenerator;
 import com.vectorprint.report.itext.DefaultElementProducer;
 import com.vectorprint.report.itext.EventHelper;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.Date;
 
@@ -51,22 +54,19 @@ import java.util.Date;
  */
 public class TestableReportGenerator extends BaseReportGenerator<ReportDataHolder> {
 
-   private static boolean continueAfterError = false;
-   private static boolean forceException = false;
-   private static boolean annotations = false;
+   @Setting(keys = "continueAfterError")
+   private boolean continueAfterError = false;
+   @Setting(keys = "forceException")
+   private boolean forceException = false;
 
    public TestableReportGenerator() throws VectorPrintException {
       super(new EventHelper<ReportDataHolder>(), new DefaultElementProducer());
    }
-   
+
    private static BindingHelperImpl conversion = new BindingHelperImpl();
 
    @Override
    protected void createReportBody(Document document, ReportDataHolder data, com.itextpdf.text.pdf.PdfWriter writer) throws DocumentException, VectorPrintException {
-      if (annotations) {
-         processData(data);
-         return;
-      }
       try {
          getAndAddIndex("Eerste", 1, "chapter");
          getAndAddIndex("Nest 1", 2, "niveau1");
@@ -76,6 +76,10 @@ public class TestableReportGenerator extends BaseReportGenerator<ReportDataHolde
          // you can add raw values to report elements, subclasses of ReportValue or format ReportValues yourself
          createAndAddElement("TestRaw", Paragraph.class, "bold", "empty");
          createAndAddElement(formatValue(getText("TestFormatted")), Paragraph.class, "bold", "empty");
+
+         createAndAddElement("m", Chunk.class, "bold");
+         createAndAddElement("3", Chunk.class, "bold", "super");
+         newLine();
 
          createAndAddElement(
              getText("dit is een hele lange \ntext met een grote\nregelhoogte"), Phrase.class, "wide");
@@ -238,8 +242,9 @@ public class TestableReportGenerator extends BaseReportGenerator<ReportDataHolde
          document.add(getIndex("Twéede", 1, "chapter"));
          com.vectorprint.report.itext.style.stylers.Image ims
              = new com.vectorprint.report.itext.style.stylers.Image(this, this, document, writer, getSettings());
+         ims.initialize(getSettings());
          // the setters here could also be done from setup
-         ims.setUrl(conversion.convert("src/test/resources/config/zon.pdf",URL.class));
+         ims.setUrl(conversion.convert("src/test/resources/config/zon.pdf", URL.class));
          ims.setPdf(true);
          ims.setShifty(50);
          ims.setTransform(new float[]{2f, 25f, 2f, 2f, 0f, 0f});
@@ -250,7 +255,7 @@ public class TestableReportGenerator extends BaseReportGenerator<ReportDataHolde
          ims.draw(new Rectangle(10, 10, 100, 100), "");
          newLine();
          if (writer.getPDFXConformance() != PdfWriter.PDFX1A2001) {
-            document.add(loadImage(conversion.convert("src/test/resources/config/pointer.png",URL.class), 1));
+            document.add(loadImage(conversion.convert("src/test/resources/config/pointer.png", URL.class), 1));
          }
          newLine();
 
@@ -292,6 +297,10 @@ public class TestableReportGenerator extends BaseReportGenerator<ReportDataHolde
          throw new VectorPrintException(ex);
       } catch (IllegalAccessException ex) {
          throw new VectorPrintException(ex);
+      } catch (NoSuchMethodException ex) {
+         throw new VectorPrintException(ex);
+      } catch (InvocationTargetException ex) {
+         throw new VectorPrintException(ex);
       }
       if (forceException) {
          writer.getDirectContent().moveTo(10, 10);
@@ -311,25 +320,9 @@ public class TestableReportGenerator extends BaseReportGenerator<ReportDataHolde
          } catch (DocumentException ex) {
             throw new VectorPrintException(ex);
          }
-         return !continueAfterError;
+         return continueAfterError;
       }
       return true;
-   }
-
-   public static void setContinueAfterError(boolean continueAfterError) {
-      TestableReportGenerator.continueAfterError = !continueAfterError;
-   }
-
-   public static void setForceException(boolean forceException) {
-      TestableReportGenerator.forceException = forceException;
-   }
-
-   public static boolean isAnnotations() {
-      return annotations;
-   }
-
-   public static void setAnnotations(boolean annotations) {
-      TestableReportGenerator.annotations = annotations;
    }
 
 }

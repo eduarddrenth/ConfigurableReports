@@ -26,7 +26,6 @@ package com.vectorprint.report.itext.style.stylers;
  */
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
-import com.itextpdf.text.Element;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.TextElementArray;
 import com.itextpdf.text.pdf.PdfContentByte;
@@ -41,6 +40,7 @@ import static com.vectorprint.report.itext.style.stylers.AbstractStyler.log;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -94,10 +94,19 @@ public class Shadow<DATATYPE> extends AdvancedImpl<DATATYPE> {
          canvas.setFontAndSize(f.getBaseFont(), f.getSize());
          canvas.setColorFill((getColor() == null) ? f.getColor() : itextHelper.fromColor(getColor()));
          canvas.setColorStroke((getColor() == null) ? f.getColor() : itextHelper.fromColor(getColor()));
+
          canvas.beginText();
-         canvas.showTextAligned(Element.ALIGN_LEFT, toPrint, rect.getLeft()
-             + calculateShift(getShiftx(), f),
-             rect.getBottom() - calculateShift(getShifty(), f), 0);
+         HashMap<String, Object> attributes = delayed.getChunk().getAttributes();
+         if (attributes != null && attributes.containsKey(Chunk.SKEW)) {
+            float[] skew = (float[]) attributes.get(Chunk.SKEW);
+            canvas.setTextMatrix(1, skew[0], skew[1], 1, rect.getLeft()
+                + calculateShift(getShiftx(), f), rect.getBottom() - calculateShift(getShifty(), f));
+         } else {
+            canvas.setTextMatrix(1, 0, 0, 1, rect.getLeft()
+                + calculateShift(getShiftx(), f), rect.getBottom() - calculateShift(getShifty(), f));
+         }
+         canvas.setTextRise(delayed.getChunk().getTextRise());
+         canvas.showText(toPrint);
          canvas.endText();
       } catch (Exception ex) {
          resetCanvas(canvas);
@@ -112,7 +121,7 @@ public class Shadow<DATATYPE> extends AdvancedImpl<DATATYPE> {
    }
 
    private void initParam() {
-      addParameter(new ColorParameter(COLOR_PARAM, "#rgb: default is font color, see also shiftx and shifty"),Shadow.class);
+      addParameter(new ColorParameter(COLOR_PARAM, "#rgb: default is font color, see also shiftx and shifty"), Shadow.class);
    }
 
    public Shadow(Document document, PdfWriter writer, EnhancedMap settings) throws VectorPrintException {
@@ -138,6 +147,6 @@ public class Shadow<DATATYPE> extends AdvancedImpl<DATATYPE> {
    @Override
    public Set<Class> getSupportedClasses() {
       return c;
-   }   
-   
+   }
+
 }

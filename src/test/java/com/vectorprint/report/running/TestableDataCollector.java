@@ -25,8 +25,9 @@ package com.vectorprint.report.running;
  * #L%
  */
 
-import com.vectorprint.report.data.DataCollectionMessages;
+import com.vectorprint.configuration.annotation.Setting;
 import com.vectorprint.report.data.BlockingDataCollector;
+import com.vectorprint.report.data.DataCollectionMessages;
 
 /**
  *
@@ -34,11 +35,8 @@ import com.vectorprint.report.data.BlockingDataCollector;
  */
 public class TestableDataCollector extends BlockingDataCollector {
 
-   private static boolean produceError = false;
-
-   public static void setProduceError(boolean produceError) {
-      TestableDataCollector.produceError = produceError;
-   }
+   @Setting(keys = "produceError")
+   private boolean produceError = false;
 
    @Override
    public void collectData() {
@@ -66,6 +64,8 @@ public class TestableDataCollector extends BlockingDataCollector {
             add(new MyEndNested(), null);
          add(new MyCell(), null);
          add(new MyEndCell(), null);
+      add(new MyParagraph(),null);
+      add(new MyInlineImage(),null);
       add(new MyChapter(), null);
       add(new MyData(), null);
       add(new MyData(), null);

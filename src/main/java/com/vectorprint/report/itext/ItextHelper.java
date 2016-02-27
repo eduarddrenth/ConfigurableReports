@@ -47,27 +47,27 @@ import java.math.BigDecimal;
  * @author Eduard Drenth at VectorPrint.nl
  */
 public class ItextHelper {
-   
+
    public static float getTextHeight(Chunk c) {
       return c.getFont().getSize();
    }
-   
+
    public static float getTextWidth(Chunk c) {
       return c.getWidthPoint();
    }
-   
+
    public static float getTextWidth(String text, Font f) {
       return getTextWidth(new Chunk(text, f));
    }
-   
+
    public static float getTextWidth(String text, BaseFont bf, float size) {
       return getTextWidth(new Chunk(text, new Font(bf, size)));
    }
-   
+
    public static float getTextHeight(String text, Font f) {
       return getTextHeight(new Chunk(text, f));
    }
-   
+
    public static float getTextHeight(String text, BaseFont bf, float size) {
       return getTextHeight(new Chunk(text, new Font(bf, size)));
    }
@@ -100,15 +100,15 @@ public class ItextHelper {
     * @return
     */
    public static float round(float f, int decimalPlace) {
-      return new BigDecimal(Float.toString(f)).setScale(decimalPlace, BigDecimal.ROUND_HALF_UP).floatValue();
+      return BigDecimal.valueOf((double) f).setScale(decimalPlace, BigDecimal.ROUND_HALF_UP).floatValue();
    }
-   
+
    public static void resetLineDash(PdfContentByte canvas) {
       canvas.setLineDash(new float[]{1, 0}, 0);
    }
-   
+
    public enum COLORSPACE {
-      
+
       RGB(ExtendedColor.TYPE_RGB),
       CMYK(ExtendedColor.TYPE_CMYK),
       DEVICEN(ExtendedColor.TYPE_DEVICEN),
@@ -118,19 +118,19 @@ public class ItextHelper {
       SHADING(ExtendedColor.TYPE_SHADING),
       PATTERN(ExtendedColor.TYPE_PATTERN);
       private int type;
-      
+
       private COLORSPACE(int type) {
          this.type = type;
       }
-      
+
    }
-   
+
    private ICC_ColorSpace icc = null;
    private com.itextpdf.text.pdf.ICC_Profile iCC_Profile = null;
-   
+
    @SettingsField
    private EnhancedMap settings;
-   
+
    public BaseColor fromColor(Color color) {
       if (settings != null && settings.containsKey(ReportConstants.ICCCOLORPROFILE)) {
          try {
@@ -148,22 +148,23 @@ public class ItextHelper {
          return new BaseColor(color.getRGB());
       }
    }
-   
+
    public void loadICC(InputStream in) throws IOException {
       if (settings != null && settings.containsKey(ReportConstants.ICCCOLORPROFILE)) {
          if (icc == null) {
             synchronized (this) {
                ByteArrayOutputStream out = new ByteArrayOutputStream();
                IOHelper.load(in, out);
-               iCC_Profile = com.itextpdf.text.pdf.ICC_Profile.getInstance(out.toByteArray());
-               icc = new ICC_ColorSpace(ICC_Profile.getInstance(out.toByteArray()));
+               byte[] iccBytes = out.toByteArray();
+               iCC_Profile = com.itextpdf.text.pdf.ICC_Profile.getInstance(iccBytes);
+               icc = new ICC_ColorSpace(ICC_Profile.getInstance(iccBytes));
             }
          }
       }
    }
-      
+
    public com.itextpdf.text.pdf.ICC_Profile getiCC_Profile() {
       return iCC_Profile;
    }
-   
+
 }

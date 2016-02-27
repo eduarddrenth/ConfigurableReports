@@ -92,7 +92,8 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
     */
    public static final int EXITFROMPROPERTYCODE = -1;
    public static final int EXITNOSETTINGS = -2;
-   public static final String DATACLASS_HELP = "annotate your dataclasses, extend " + DataCollectorImpl.class.getName() + " and provide its classname using the property " + DATACLASS;
+   public static final String DATACLASS_HELP = "annotate your dataclasses, extend " + DataCollectorImpl.class.getName() + " and provide its classname using the property " + DATACLASS + ", or extend " + BaseReportGenerator.class.getSimpleName() + "#createReportBody to not use datacollector / reportdataholder mechanism. In"
+       + " the last case provide the classname using the property " + REPORTCLASS;
    private EnhancedMap settings;
 
    /**
@@ -116,8 +117,8 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
 
    /**
     * Called from {@link #buildReport(java.lang.String[]) } and {@link #buildReport(java.lang.String[], java.io.OutputStream)
-    * }. Uses two optional arguments: the path to a file and a string with settings. Settings from a string with settings will be
-    * added to settings already present. This method will only execute once.
+    * }. Uses two optional arguments: the path to a file and a string with settings. Settings from a string with
+    * settings will be added to settings already present. This method will only execute once.
     *
     * @see #initSettingsFromFile(java.lang.String)
     * @see SettingsBindingService#getFactory()
@@ -125,9 +126,9 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
     * @param args at most two are used, may be null
     * @throws Exception when a failure occurs, also when settings are not initialized properly
     */
-   protected void initSettings(String[] args) throws Exception {
+   protected boolean initSettings(String[] args) throws Exception {
       if (settingsInitialized) {
-         return;
+         return true;
       }
       settingsInitialized = true;
       if (args != null && args.length > 0) {
@@ -146,15 +147,13 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
                settings = new CachingProperties(new Settings());
             }
             SettingsBindingService.getInstance().getFactory().getParser(new StringReader(args[secondArg])).parse(settings);
-         } else if (needSettingsArg) {
-            System.out.println(SETTINGS_HELP);
-            System.exit(EXITNOSETTINGS);
          }
       }
-      if (settings == null) {
-         System.out.println(SETTINGS_HELP);
-         System.exit(EXITNOSETTINGS);
+      boolean rv = settings != null;
+      if (!rv) {
+         log.severe(SETTINGS_HELP);
       }
+      return rv;
    }
 
    /**
@@ -168,7 +167,9 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
    @Override
    public final int buildReport(String[] args) throws Exception {
 
-      initSettings(args);
+      if (!initSettings(args)) {
+         return EXITNOSETTINGS;
+      }
 
       if (settings.containsKey(VERSION)) {
          for (VersionInfo.VersionInformation mi : VersionInfo.getVersionInfo().values()) {
@@ -247,16 +248,18 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
    }
 
    /**
-    * Instantiates a datacollector based on a property {@link ReportConstants#DATACLASS}
+    * Instantiates a datacollector based on a property {@link ReportConstants#DATACLASS}. Providing a data collector is
+    * obligatory unless you extend {@link BaseReportGenerator#createReportBody(com.itextpdf.text.Document, com.vectorprint.report.data.ReportDataHolder, com.itextpdf.text.pdf.PdfWriter)
+    * } and provide the name of this class in a setting {@link ReportConstants#REPORTCLASS}.
     *
-    * @return
+    * @return a data collector or null
     * @throws com.vectorprint.VectorPrintException
     */
    @Override
    public DataCollector<RD> getDataCollector() throws VectorPrintException {
       try {
          if (!getSettings().containsKey(DATACLASS)) {
-            throw new VectorPrintException(DATACLASS_HELP);
+            return null;
          }
          Class dataClass = Class.forName(getSettings().getProperty(DATACLASS));
 
@@ -297,11 +300,8 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
    }
 
    public static final String SETTINGS_HELP = "Provide the path to your settingsfile as argument. "
-       + "A settingsfile contains either xml (xsd available in Config jar) declaring settings or it contains settings.\n"
-       + "You can also just put " + ReportConstants.CONFIG_FILE + " in the current working directory or in the root of one of your jars.\n"
-       + "In Your settings you must at least provide the name of your " + DataCollector.class.getName()
-       + "in a setting \"" + ReportConstants.DATACLASS + "\".\nFurthermore you probably want to provide styling information"
-       + "for the data yielded by your collector.\n";
+       + "A settingsfile contains either xml declaring settings (xsd available in Config jar) or it contains settings.\n"
+       + "You can also just put " + ReportConstants.CONFIG_FILE + " in the current working directory or in the root of one of your jars.";
 
    /**
     * looks for {@link #CONFIG_FILE} in the working directory or in the classpath ({@link ClassLoader#getResourceAsStream(java.lang.String)
@@ -373,7 +373,9 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
    public int buildReport(String[] args, final OutputStream out) throws Exception {
 
       try {
-         initSettings(args);
+         if (!initSettings(args)) {
+            return EXITNOSETTINGS;
+         }
 
          if (settings.containsKey(VERSION)) {
             for (VersionInfo.VersionInformation mi : VersionInfo.getVersionInfo().values()) {
@@ -391,11 +393,18 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
 
          DataCollector<RD> dc = getDataCollector();
          ReportGenerator<RD> rg = getReportGenerator();
+         if (dc == null && rg.getClass().equals(BaseReportGenerator.class)) {
+            throw new VectorPrintException(DATACLASS_HELP);
+         } else if (dc == null) {
+            log.warning(String.format("no data collector found, assuming that %s overrides createReportBody", rg.getClass().getName()));
+         }
 
          StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(rg, settings);
-         StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(dc, settings);
+         if (dc!=null) {
+            StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(dc, settings);
+         }
 
-         return rg.generate(dc.collect(), out);
+         return rg.generate(dc == null ? null : dc.collect(), out);
       } catch (IOException exception) {
          log.log(Level.SEVERE, exception.getMessage(), exception);
 

@@ -25,9 +25,7 @@ package com.vectorprint.report.itext.style.stylers;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-
 //~--- non-JDK imports --------------------------------------------------------
-
 import com.itextpdf.text.Image;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.vectorprint.VectorPrintException;
@@ -40,17 +38,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 //~--- JDK imports ------------------------------------------------------------
-
 /**
  * align images in a cell, needed because horizontal align does not work for images in cells.
+ *
  * @author Eduard Drenth at VectorPrint.nl
  */
-public class ImageAlign extends AbstractStyler  {
+public class ImageAlign extends AbstractStyler {
 
    public ImageAlign() {
 
-      addParameter(new FloatParameter(WIDTH, "width of cell").setDefault(-1f),ImageAlign.class);
-      addParameter(new AlignParameter(ALIGNPARAM, Arrays.asList(ALIGN.values()).toString()).setDefault(ALIGN.CENTER_MIDDLE),ImageAlign.class);
+      addParameter(new FloatParameter(WIDTH, "width of cell").setDefault(-1f), ImageAlign.class);
+      addParameter(new AlignParameter(ALIGNPARAM, Arrays.asList(ALIGN.values()).toString()).setDefault(ALIGN.CENTER_MIDDLE), ImageAlign.class);
    }
 
    public PdfPCell style(PdfPCell cell, Object data) throws VectorPrintException {
@@ -63,9 +61,9 @@ public class ImageAlign extends AbstractStyler  {
       cell.setVerticalAlignment(getAlign().getVertical());
 
       float paddingLeft = (getWidth() - img.getWidth()) / 2;
-      if (getAlign().getHorizontal()==PdfPCell.ALIGN_LEFT) {
-         paddingLeft=0;
-      } else if (getAlign().getHorizontal()==PdfPCell.ALIGN_RIGHT) {
+      if (getAlign().getHorizontal() == PdfPCell.ALIGN_LEFT) {
+         paddingLeft = 0;
+      } else if (getAlign().getHorizontal() == PdfPCell.ALIGN_RIGHT) {
          paddingLeft = (getWidth() - img.getWidth());
       }
 
@@ -76,11 +74,7 @@ public class ImageAlign extends AbstractStyler  {
 
    @Override
    public <E> E style(E text, Object data) throws VectorPrintException {
-      if (text instanceof PdfPCell) {
-         return (E) style((PdfPCell) text, data);
-      }
-
-      return text;
+      return (E) style((PdfPCell) text, data);
    }
 
    private static final Class<Object>[] classes = new Class[]{PdfPCell.class};
@@ -106,8 +100,9 @@ public class ImageAlign extends AbstractStyler  {
    public void setWidth(float width) {
       setValue(WIDTH, width);
    }
+
    @Override
    public String getHelp() {
-      return "Align an image in a cell." + " " + super.getHelp(); 
+      return "Align an image in a cell." + " " + super.getHelp();
    }
 }

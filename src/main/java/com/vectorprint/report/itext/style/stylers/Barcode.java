@@ -129,6 +129,9 @@ public class Barcode extends com.vectorprint.report.itext.style.stylers.Image<St
             code.setCodeType(com.itextpdf.text.pdf.Barcode.POSTNET);
             break;
       }
+      if (data == null) {
+         throw new VectorPrintException(String.format("No barcode value for styleclass %s", getStyleClass()));
+      }
       code.setCode(data);
       if (getValue(Font.FAMILY_PARAM, BaseFontWrapper.class)!=null) {
          code.setFont(getValue(Font.FAMILY_PARAM, BaseFontWrapper.class).getBaseFont());

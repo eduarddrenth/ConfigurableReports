@@ -25,9 +25,7 @@ package com.vectorprint.report.itext.style.stylers;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-
 //~--- non-JDK imports --------------------------------------------------------
-
 import com.itextpdf.text.pdf.PdfPCell;
 import com.vectorprint.VectorPrintException;
 import static com.vectorprint.report.itext.style.BaseStyler.POSITION.BOTTOM;
@@ -53,19 +51,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 //~--- JDK imports ------------------------------------------------------------
-
 /**
  * padding for cells
+ *
  * @author Eduard Drenth at VectorPrint.nl
  */
-public class Padding extends AbstractStyler  {
+public class Padding extends AbstractStyler {
 
    public static final String PADDING = "padding";
 
    public Padding() {
 
-      addParameter(new FloatParameter(PADDING, "padding").setDefault(1f),Padding.class);
-      addParameter(new PositionParameter(TOPRIGTHBOTTOMLEFT_PARAM, Arrays.asList(POSITION.values()).toString()).setDefault(TRBL),Padding.class);
+      addParameter(new FloatParameter(PADDING, "padding").setDefault(1f), Padding.class);
+      addParameter(new PositionParameter(TOPRIGTHBOTTOMLEFT_PARAM, Arrays.asList(POSITION.values()).toString()).setDefault(TRBL), Padding.class);
    }
 
    public PdfPCell style(PdfPCell cell, Object data) {
@@ -119,11 +117,7 @@ public class Padding extends AbstractStyler  {
 
    @Override
    public <E> E style(E text, Object data) throws VectorPrintException {
-      if (text instanceof PdfPCell) {
-         return (E) style((PdfPCell) text, data);
-      }
-
-      return text;
+      return (E) style((PdfPCell) text, data);
    }
 
    private static final Class<Object>[] classes = new Class[]{PdfPCell.class};
@@ -135,7 +129,7 @@ public class Padding extends AbstractStyler  {
    }
 
    public float getPadding() {
-      return getValue(PADDING,Float.class);
+      return getValue(PADDING, Float.class);
    }
 
    public void setPadding(float padding) {
@@ -143,7 +137,7 @@ public class Padding extends AbstractStyler  {
    }
 
    public POSITION getWhichPadding() {
-      return getValue(TOPRIGTHBOTTOMLEFT_PARAM,POSITION.class);
+      return getValue(TOPRIGTHBOTTOMLEFT_PARAM, POSITION.class);
    }
 
    public void setWhichPadding(POSITION whichPadding) {

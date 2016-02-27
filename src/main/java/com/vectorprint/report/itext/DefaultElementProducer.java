@@ -59,9 +59,9 @@ import static com.vectorprint.report.itext.style.StyleHelper.toCollection;
 import com.vectorprint.report.itext.style.StylerFactory;
 import com.vectorprint.report.itext.style.StylerFactoryHelper;
 import com.vectorprint.report.itext.style.stylers.Advanced;
-import com.vectorprint.report.itext.style.stylers.SimpleColumns;
 import com.vectorprint.report.itext.style.stylers.Link;
 import com.vectorprint.report.itext.style.stylers.NoWrap;
+import com.vectorprint.report.itext.style.stylers.SimpleColumns;
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -133,7 +133,8 @@ public class DefaultElementProducer implements ElementProducer {
    public <E extends Element> E createElementByStyler(Collection<? extends BaseStyler> stylers, Object data, Class<E> clazz) throws VectorPrintException {
 
       // pdfptable, Section and others do not have a default constructor, a styler creates it
-      return styleHelper.style(clazz, data, stylers);
+      E e = null;
+      return styleHelper.style(e, data, stylers);
    }
 
    /**
@@ -167,12 +168,10 @@ public class DefaultElementProducer implements ElementProducer {
             }
          } else {
 
-            //
             cell = new DebuggablePdfPCell(createPhrase(data, stylers));
          }
       } else {
 
-         //
          cell = new DebuggablePdfPCell();
       }
 
@@ -212,7 +211,7 @@ public class DefaultElementProducer implements ElementProducer {
     * @throws VectorPrintException
     */
    public Phrase createPhrase(Object data, Collection<? extends BaseStyler> stylers) throws VectorPrintException {
-      return initTextElementArray(styleHelper.style(new Phrase(), data, stylers), data, stylers);
+      return initTextElementArray(styleHelper.style(new Phrase(Float.NaN), data, stylers), data, stylers);
    }
 
    /**
@@ -224,7 +223,7 @@ public class DefaultElementProducer implements ElementProducer {
     * @throws VectorPrintException
     */
    public Paragraph createParagraph(Object data, Collection<? extends BaseStyler> stylers) throws VectorPrintException {
-      return initTextElementArray(styleHelper.style(new Paragraph(), data, stylers), data, stylers);
+      return initTextElementArray(styleHelper.style(new Paragraph(Float.NaN), data, stylers), data, stylers);
    }
 
    /**
@@ -236,7 +235,7 @@ public class DefaultElementProducer implements ElementProducer {
     * @throws VectorPrintException
     */
    public Anchor createAnchor(Object data, Collection<? extends BaseStyler> stylers) throws VectorPrintException {
-      return initTextElementArray(styleHelper.style(new Anchor(), data, stylers), data, stylers);
+      return initTextElementArray(styleHelper.style(new Anchor(Float.NaN), data, stylers), data, stylers);
    }
 
    /**
@@ -248,12 +247,12 @@ public class DefaultElementProducer implements ElementProducer {
     * @throws VectorPrintException
     */
    public ListItem createListItem(Object data, Collection<? extends BaseStyler> stylers) throws VectorPrintException {
-      return initTextElementArray(styleHelper.style(new ListItem(), data, stylers), data, stylers);
+      return initTextElementArray(styleHelper.style(new ListItem(Float.NaN), data, stylers), data, stylers);
    }
 
-   private <P extends TextElementArray> P initTextElementArray(P text, Object data, Collection<? extends BaseStyler> stylers) {
+   private <P extends TextElementArray> P initTextElementArray(P text, Object data, Collection<? extends BaseStyler> stylers) throws VectorPrintException {
       if (data != null) {
-         text.add(new Chunk(formatValue(data)));
+         text.add(data instanceof Element ? (Element) data : new Chunk(formatValue(data)));
       }
 
       boolean first = true;
@@ -381,7 +380,7 @@ public class DefaultElementProducer implements ElementProducer {
          if (log.isLoggable(Level.FINE)) {
             log.fine(String.format("loading pdf from %s", String.valueOf(pdf)));
          }
-         if ("file".equals(pdf.getProtocol()))  {
+         if ("file".equals(pdf.getProtocol())) {
             loadPdf(new File(pdf.getFile()), writer, password, imageProcessor, pages);
          } else {
             loadPdf(pdf.openStream(), writer, password, imageProcessor, pages);
@@ -406,7 +405,7 @@ public class DefaultElementProducer implements ElementProducer {
             log.fine(String.format("loading image from %s", String.valueOf(image)));
          }
          BufferedImage awtim = null;
-         if ("file".equals(image.getProtocol()))  {
+         if ("file".equals(image.getProtocol())) {
             awtim = makeImageTranslucent(ImageIO.read(new File(image.getFile())), opacity);
          } else {
             awtim = makeImageTranslucent(ImageIO.read(image), opacity);
@@ -563,8 +562,14 @@ public class DefaultElementProducer implements ElementProducer {
          return (E) createCell(data, stylers);
       } else if (Chunk.class.equals(elementClass)) {
          return (E) createChunk(data, stylers);
-      } else if (Phrase.class.isAssignableFrom(elementClass)) {
-         return (E) initTextElementArray(styleHelper.style((Phrase) elementClass.newInstance(), data, stylers), data, stylers);
+      } else if (Phrase.class.equals(elementClass)) {
+         return (E) createPhrase(data, stylers);
+      } else if (Paragraph.class.equals(elementClass)) {
+         return (E) createParagraph(data, stylers);
+      } else if (Anchor.class.equals(elementClass)) {
+         return (E) createAnchor(data, stylers);
+      } else if (ListItem.class.equals(elementClass)) {
+         return (E) createListItem(data, stylers);
       } else if (PdfPTable.class.equals(elementClass)) {
          return createElementByStyler(stylers, data, elementClass);
       } else if (Image.class.equals(elementClass)) {
@@ -754,7 +759,8 @@ public class DefaultElementProducer implements ElementProducer {
     */
    @Override
    public SimpleColumns createColumns(List<? extends BaseStyler> stylers) throws VectorPrintException {
-      ColumnText mct = styleHelper.style(ColumnText.class, null, stylers);
+      ColumnText mct = null;
+      mct = styleHelper.style(mct, null, stylers);
       SimpleColumns sc = StyleHelper.getStylers(stylers, SimpleColumns.class).get(0);
       return sc;
    }

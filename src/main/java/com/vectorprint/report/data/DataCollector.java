@@ -28,7 +28,7 @@ import com.vectorprint.report.running.ReportBuilder;
 /**
  * To generate a report we first need to collect data.
  *
- * @param RD the type of data that the collector will yield
+ * @param <RD> the type of data that the collector will yield
  * @author Eduard Drenth at VectorPrint.nl
  */
 public interface DataCollector<RD extends ReportDataHolder> {

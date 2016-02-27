@@ -32,15 +32,9 @@ import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.Section;
-import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfLayer;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.PdfStamper;
 import com.itextpdf.text.pdf.PdfWriter;
-import com.itextpdf.text.pdf.SimpleBookmark;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.EnhancedMap;
@@ -48,17 +42,18 @@ import com.vectorprint.configuration.annotation.SettingsField;
 import com.vectorprint.report.ReportConstants;
 import static com.vectorprint.report.ReportConstants.DEBUG;
 import com.vectorprint.report.ReportGenerator;
-import com.vectorprint.report.data.DataCollectionMessages;
-import static com.vectorprint.report.data.DataCollectionMessages.Level;
 import com.vectorprint.report.data.BlockingDataCollector.QUEUECONTROL;
+import com.vectorprint.report.data.DataCollectionMessages;
+import com.vectorprint.report.data.DataCollectionMessages.Level;
+import com.vectorprint.report.data.DataCollector;
 import com.vectorprint.report.data.ReportDataHolder;
 import com.vectorprint.report.data.ReportDataHolder.IdData;
 import com.vectorprint.report.data.types.DateValue;
+import com.vectorprint.report.data.types.DurationValue;
 import com.vectorprint.report.data.types.Formatter;
 import com.vectorprint.report.data.types.MoneyValue;
 import com.vectorprint.report.data.types.NumberValue;
 import com.vectorprint.report.data.types.PercentageValue;
-import com.vectorprint.report.data.types.DurationValue;
 import com.vectorprint.report.data.types.PeriodValue;
 import com.vectorprint.report.data.types.TextValue;
 import com.vectorprint.report.data.types.ValueHelper;
@@ -75,8 +70,8 @@ import com.vectorprint.report.itext.style.DocumentStyler;
 import com.vectorprint.report.itext.style.StyleHelper;
 import com.vectorprint.report.itext.style.StylerFactory;
 import com.vectorprint.report.itext.style.StylerFactoryHelper;
-import com.vectorprint.report.itext.style.stylers.SimpleColumns;
 import com.vectorprint.report.itext.style.stylers.DocumentSettings;
+import com.vectorprint.report.itext.style.stylers.SimpleColumns;
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -90,11 +85,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.Key;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -212,12 +203,12 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
 
          wasDebug = getSettings().getBooleanProperty(Boolean.FALSE, DEBUG);
          if (ds.getValue(DocumentSettings.TOC, Boolean.class)) {
-            out = new TocOutputStream(out);
+            out = new TocOutputStream(out, bufferSize, this);
             getSettings().put(DEBUG, Boolean.FALSE.toString());
          }
 
          if (ds.isParameterSet(DocumentSettings.KEYSTORE)) {
-            out = new SigningOutputStream(out);
+            out = new SigningOutputStream(out, bufferSize, this);
          }
 
          document = new VectorPrintDocument(eventHelper, stylerFactory, styleHelper);
@@ -240,12 +231,12 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
          }
 
          // data from the data collection phase doesn't have to be present
-         if (continueOnDataCollectionMessages(data.getMessages(), document)) {
+         if (data == null || continueOnDataCollectionMessages(data.getMessages(), document)) {
             createReportBody(document, data, writer);
             /*
              * when using queueing we may have run into failures in the data collection thread
              */
-            if (!data.getData().isEmpty()) {
+            if (data != null && !data.getData().isEmpty()) {
                Object t = data.getData().poll();
                if (t instanceof Throwable) {
                   throw new VectorPrintException((Throwable) t);
@@ -324,10 +315,10 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
             document.newPage();
             DebugHelper.appendDebugInfo(writer, document, settings, stylerFactory);
          } catch (VectorPrintException e) {
-            log.severe("Could not append to PDF:\n"+bo.toString());
+            log.severe("Could not append to PDF:\n" + bo.toString());
             log.log(java.util.logging.Level.SEVERE, null, e);
          } catch (DocumentException e) {
-            log.severe("Could not append to PDF:\n"+bo.toString());
+            log.severe("Could not append to PDF:\n" + bo.toString());
             log.log(java.util.logging.Level.SEVERE, null, e);
          } finally {
             document.close();
@@ -339,13 +330,15 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
    }
 
    /**
-    * Calls {@link #processData(com.vectorprint.report.data.ReportDataHolder) }
+    * Calls {@link #processData(com.vectorprint.report.data.ReportDataHolder) }. If you don't want to use the {@link DataCollector} /
+    * {@link ReportDataHolder} mechanism extend this class, override this method and provide it's name in a setting
+    * {@link ReportConstants#REPORTCLASS}.
     *
     * @throws com.vectorprint.VectorPrintException
     * @see com.vectorprint.report.itext.annotations.Element
     *
     * @param document
-    * @param data
+    * @param data may be null, for example when no {@link DataCollector} is used
     * @param writer the value of writer
     * @throws DocumentException
     */
@@ -491,6 +484,13 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
       return settings;
    }
 
+   /**
+    * sets settings and calls {@link StylerFactoryHelper#SETTINGS_ANNOTATION_PROCESSOR#initStylingObject(java.lang.Object, com.itextpdf.text.pdf.PdfWriter,
+    * com.itextpdf.text.Document, com.vectorprint.report.itext.ImageLoader, com.vectorprint.report.itext.LayerManager, com.vectorprint.configuration.EnhancedMap)
+    * } on the helpers (elementProducer, stylerFactory, eventHelper, itextHelper) this class uses.
+    *
+    * @param settings
+    */
    public void setSettings(EnhancedMap settings) {
       bufferSize = settings.getIntegerProperty(ReportConstants.DEFAULTBUFFERSIZE, ReportConstants.BUFFERSIZE);
       this.settings = settings;
@@ -534,228 +534,6 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
    @Override
    public SimpleColumns createColumns(List<? extends BaseStyler> stylers) throws VectorPrintException {
       return elementProducer.createColumns(stylers);
-   }
-
-   private class SigningOutputStream extends AbstractTwoPassStream {
-
-      public SigningOutputStream(OutputStream out) throws IOException {
-         super(out, bufferSize);
-      }
-
-      @Override
-      public void secondPass(InputStream firstPass, OutputStream orig) throws IOException {
-         PdfReader reader = null;
-         try {
-            reader = new PdfReader(firstPass);
-
-            PdfStamper stamper = PdfStamper.createSignature(reader, orig, '\0');
-
-            BaseReportGenerator.this.stylerFactory.getDocumentStyler()
-                .configureVisualSignature(stamper.getSignatureAppearance());
-
-            stamper.close();
-         } catch (DocumentException ex) {
-            throw new VectorPrintRuntimeException(ex);
-         } catch (KeyStoreException ex) {
-            throw new VectorPrintRuntimeException(ex);
-         } catch (NoSuchAlgorithmException ex) {
-            throw new VectorPrintRuntimeException(ex);
-         } catch (UnrecoverableKeyException ex) {
-            throw new VectorPrintRuntimeException(ex);
-         } catch (VectorPrintException ex) {
-            throw new VectorPrintRuntimeException(ex);
-         } finally {
-            if (reader != null) {
-               reader.close();
-            }
-         }
-      }
-
-   }
-
-   private class TocOutputStream extends AbstractTwoPassStream {
-
-      public TocOutputStream(OutputStream out) throws IOException {
-         super(out, bufferSize);
-      }
-
-      @Override
-      public void secondPass(InputStream firstPass, OutputStream orig) throws IOException {
-         PdfReader reader = null;
-         VectorPrintDocument vpd = (VectorPrintDocument) BaseReportGenerator.this.document;
-         try {
-            reader = new PdfReader(firstPass);
-
-            prepareToc();
-
-            // init fresh components for second pass styling
-            StylerFactory _stylerFactory = BaseReportGenerator.this.stylerFactory.getClass().newInstance();
-            StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(_stylerFactory, settings);
-            _stylerFactory.setLayerManager(elementProducer);
-            _stylerFactory.setImageLoader(elementProducer);
-            styleHelper.setStylerFactory(_stylerFactory);
-            stylerFactory = _stylerFactory;
-
-            EventHelper<RD> event = eventHelper.getClass().newInstance();
-            event.setItextStylerFactory(_stylerFactory);
-            event.setElementProvider(elementProducer);
-            eventHelper = event;
-            ((DefaultElementProducer) elementProducer).setPh(event);
-
-            Document d = new VectorPrintDocument(event, _stylerFactory, styleHelper);
-
-            PdfWriter w = PdfWriter.getInstance(d, orig);
-            w.setPageEvent(event);
-
-            styleHelper.setVpd((VectorPrintDocument) d);
-            _stylerFactory.setDocument(d, w);
-
-            DocumentStyler ds = _stylerFactory.getDocumentStyler();
-
-            styleHelper.style(d, null, StyleHelper.toCollection(ds));
-            d.open();
-            ds.styleAfterOpen(d, null);
-
-            List outline = SimpleBookmark.getBookmark(reader);
-            if (!ds.getValue(DocumentSettings.TOCAPPEND, Boolean.class)) {
-               printToc(d, w, vpd);
-               if (outline != null) {
-                  int cur = w.getCurrentPageNumber();
-                  SimpleBookmark.shiftPageNumbers(outline, cur, null);
-               }
-               d.newPage();
-            }
-
-            getSettings().put(DEBUG, Boolean.FALSE.toString());
-            for (int p = 1; p <= reader.getNumberOfPages(); p++) {
-               Image page = Image.getInstance(w.getImportedPage(reader, p));
-               page.setAbsolutePosition(0, 0);
-               d.setPageSize(page);
-               d.newPage();
-               Chunk i = new Chunk(" ");
-               if (vpd.getToc().containsKey(p)) {
-                  Section s = null;
-                  for (Map.Entry<Integer, List<Section>> e : vpd.getToc().entrySet()) {
-                     if (e.getKey() == p) {
-                        s = e.getValue().get(0);
-                        break;
-                     }
-                  }
-
-                  i.setLocalDestination(s.getTitle().getContent());
-               }
-               d.add(i);
-               w.getDirectContent().addImage(page);
-               w.freeReader(reader);
-            }
-            if (_stylerFactory.getDocumentStyler().getValue(DocumentSettings.TOCAPPEND, Boolean.class)) {
-               printToc(d, w, vpd);
-            }
-
-            w.setOutlines(outline);
-            if (wasDebug) {
-               event.setLastPage(writer.getCurrentPageNumber());
-               d.setPageSize(new Rectangle(ItextHelper.mmToPts(297), ItextHelper.mmToPts(210)));
-               d.setMargins(5, 5, 5, 5);
-               d.newPage();
-               getSettings().put(DEBUG, Boolean.TRUE.toString());
-               event.setDebugHereAfter(true);
-               DebugHelper.appendDebugInfo(w, d, settings, _stylerFactory);
-            }
-            d.close();
-         } catch (VectorPrintException ex) {
-            throw new VectorPrintRuntimeException(ex);
-         } catch (DocumentException ex) {
-            throw new VectorPrintRuntimeException(ex);
-         } catch (InstantiationException ex) {
-            throw new VectorPrintRuntimeException(ex);
-         } catch (IllegalAccessException ex) {
-            throw new VectorPrintRuntimeException(ex);
-         } finally {
-            if (reader != null) {
-               reader.close();
-            }
-         }
-
-      }
-
-   }
-
-   private void prepareToc() throws VectorPrintException {
-      DocumentStyler ds = stylerFactory.getDocumentStyler();
-      if (!settings.containsKey(DocumentSettings.TOCTITLESTYLEKEY)) {
-         settings.put(DocumentSettings.TOCTITLESTYLEKEY, DocumentSettings.TOCTITLESTYLE);
-      }
-      if (!settings.containsKey(DocumentSettings.TOCNRSTYLEKEY)) {
-         settings.put(DocumentSettings.TOCNRSTYLEKEY, DocumentSettings.TOCNRSTYLE);
-      }
-      if (!settings.containsKey(DocumentSettings.TOCHEADERSTYLEKEY)) {
-         settings.put(DocumentSettings.TOCHEADERSTYLEKEY, DocumentSettings.TOCHEADER);
-      }
-      if (!settings.containsKey(DocumentSettings.TOCCAPTIONKEY)) {
-         settings.put(DocumentSettings.TOCCAPTIONKEY, DocumentSettings.TOCCAPTION);
-      }
-      settings.remove(DefaultStylerFactory.PRESTYLERS);
-      settings.remove(DefaultStylerFactory.POSTSTYLERS);
-      settings.remove(DefaultStylerFactory.PAGESTYLERS);
-      settings.put(ReportConstants.PRINTFOOTER, "false");
-
-      if (!settings.containsKey(DocumentSettings.TOCTABLEKEY)) {
-         float tot = ItextHelper.ptsToMm(document.getPageSize().getWidth() - document.leftMargin() - document.rightMargin());
-         settings.put(DocumentSettings.TOCTABLEKEY, new String[]{"Table(columns=2,widths="
-            + (Math.round(tot * ds.getValue(DocumentSettings.TOCLEFTWIDTH, Float.class))) + '|'
-            + (Math.round(tot * ds.getValue(DocumentSettings.TOCRIGHTWIDTH, Float.class))) + ')',
-            "AddCell(data=Table of Contents,styleclass=toccaption)",
-            "AddCell(data=title,styleclass=tocheader)",
-            "AddCell(data=page,styleclass=tocheader)"}
-         );
-      }
-   }
-
-   private void printToc(Document d, PdfWriter w, VectorPrintDocument vpd) throws VectorPrintException, InstantiationException, IllegalAccessException, DocumentException {
-      DocumentStyler ds = stylerFactory.getDocumentStyler();
-      if (ds.getValue(DocumentSettings.TOCAPPEND, Boolean.class)) {
-         d.add(Chunk.NEXTPAGE);
-      }
-      if (wasDebug) {
-         getSettings().put(DEBUG, Boolean.TRUE.toString());
-         PdfContentByte canvas = w.getDirectContent();
-         startLayerInGroup(DEBUG, canvas);
-         BaseFont bf = DebugHelper.debugFont(canvas, settings);
-         canvas.showTextAligned(Element.ALIGN_RIGHT, "FOR DEBUG INFO IN THE DOCUMENT TURN OFF TOC (-DocumentSettings.toc=false)",
-             d.right(), d.getPageSize().getHeight() - ItextHelper.getTextHeight("F", bf, 8), 0);
-         canvas.endLayer();
-      }
-      PdfPTable tocTable = createElement(null, PdfPTable.class, DocumentSettings.TOCTABLEKEY);
-
-      for (Map.Entry<Integer, List<Section>> e : vpd.getToc().entrySet()) {
-         String link = null;
-         for (Section s : e.getValue()) {
-            if (ds.isParameterSet(DocumentSettings.TOCMAXDEPTH) && ds.getValue(DocumentSettings.TOCMAXDEPTH, Integer.class) < s.getDepth()) {
-               continue;
-            }
-            if (link == null) {
-               link = s.getTitle().getContent();
-            }
-            Chunk c = createElement(s.getTitle().getContent(), Chunk.class, DocumentSettings.TOCTITLESTYLEKEY);
-            if (ds.getValue(DocumentSettings.TOCDOTS, Boolean.class)) {
-               float tw = ItextHelper.getTextWidth(c);
-               float cw = tocTable.getAbsoluteWidths()[0];
-               float dw = ItextHelper.getTextWidth(createElement(".", Chunk.class, DocumentSettings.TOCTITLESTYLEKEY)) * 1.5f;
-               int numDots = (int) ((cw > tw) ? (cw - tw) / dw : 0);
-               char[] dots = new char[numDots];
-               Arrays.fill(dots, '.');
-               c = createElement(s.getTitle().getContent() + "  " + String.valueOf(dots), Chunk.class, DocumentSettings.TOCTITLESTYLEKEY);
-            }
-            c.setLocalGoto(link);
-            tocTable.addCell(createElement(c, PdfPCell.class, DocumentSettings.TOCTITLESTYLEKEY));
-
-            c = createElement(e.getKey(), Chunk.class, DocumentSettings.TOCNRSTYLEKEY);
-            c.setLocalGoto(link);
-            tocTable.addCell(createElement(c, PdfPCell.class, DocumentSettings.TOCNRSTYLEKEY));
-         }
-      }
-      d.add(tocTable);
    }
 
    private int bufferSize = ReportConstants.DEFAULTBUFFERSIZE;
@@ -879,7 +657,6 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
       elementProducer.loadTiff(tiff, imageProcessor, pages);
    }
 
-   
    @Override
    public void loadPdf(InputStream pdf, PdfWriter writer, Certificate certificate, Key key, String securityProvider, ImageProcessor imageProcessor, int... pages) throws VectorPrintException {
       elementProducer.loadPdf(pdf, writer, certificate, key, securityProvider, imageProcessor, pages);
@@ -941,8 +718,8 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
    private final DatamappingHelper dmh = new DatamappingHelper();
 
    /**
-    * looks for configuration of data mapping ({@link DatamappingHelper#toDataConfig(java.lang.Class, java.lang.String, com.vectorprint.report.itext.jaxb.Datamappingstype) })
-    * and calls {@link AbstractDatamappingProcessor} methods accordingly.
+    * looks for configuration of data mapping ({@link DatamappingHelper#toDataConfig(java.lang.Class, java.lang.String, com.vectorprint.report.itext.jaxb.Datamappingstype)
+    * }) and calls {@link AbstractDatamappingProcessor} methods accordingly.
     *
     * @param dw
     * @param containers
@@ -1013,15 +790,19 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
    }
 
    /**
-    * Processes the queue in the data holder to call 
-    * {@link #processDataObject(com.vectorprint.report.data.ReportDataHolder.IdData, java.util.Deque, com.vectorprint.report.itext.jaxb.Datamappingstype)}. For a BlockingQueue stops processing when a {@link QUEUECONTROL#END} is found on the queue.
+    * Processes the queue in the data holder to call
+    * {@link #processDataObject(com.vectorprint.report.data.ReportDataHolder.IdData, java.util.Deque, com.vectorprint.report.itext.jaxb.Datamappingstype)}.
+    * For a BlockingQueue stops processing when a {@link QUEUECONTROL#END} is found on the queue.
     *
-    * @param dataHolder
+    * @param dataHolder may be null, for example when no {@link DataCollector} is used
     * @throws VectorPrintException
     * @throws DocumentException
     */
    @Override
    public final void processData(RD dataHolder) throws VectorPrintException, DocumentException {
+      if (dataHolder == null) {
+         throw new VectorPrintException("No data to process, does your DataCollector return a ReportDataHolder? Or perhaps you should override createReportBody if don't use a DataCollector.");
+      }
       Deque containers = new LinkedList();
       Datamappingstype dmt = null;
       if (settings.containsKey(ReportConstants.DATAMAPPINGXML)) {
@@ -1105,5 +886,25 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
          }
       }
       return true;
+   }
+
+   public ItextHelper getItextHelper() {
+      return itextHelper;
+   }
+
+   public StylerFactory getStylerFactory() {
+      return stylerFactory;
+   }
+
+   public EventHelper<RD> getEventHelper() {
+      return eventHelper;
+   }
+
+   public ElementProducer getElementProducer() {
+      return elementProducer;
+   }
+
+   boolean isWasDebug() {
+      return wasDebug;
    }
 }

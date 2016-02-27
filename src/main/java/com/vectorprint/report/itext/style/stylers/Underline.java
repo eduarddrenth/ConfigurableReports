@@ -24,7 +24,7 @@ package com.vectorprint.report.itext.style.stylers;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-
+import com.itextpdf.awt.geom.AffineTransform;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Rectangle;
@@ -40,6 +40,7 @@ import com.vectorprint.report.itext.style.parameters.FloatParameter;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -59,7 +60,7 @@ public class Underline<DATATYPE> extends AdvancedImpl<DATATYPE> {
 
    @Override
    public void draw(Rectangle rect, String genericTag) throws VectorPrintException {
-      if (genericTag==null) {
+      if (genericTag == null) {
          if (log.isLoggable(Level.FINE)) {
             log.fine("not drawing underline because genericTag is null (no data for underline)");
          }
@@ -71,6 +72,13 @@ public class Underline<DATATYPE> extends AdvancedImpl<DATATYPE> {
          com.itextpdf.text.Font f = delayed.getChunk().getFont();
          canvas.setColorStroke((getColor() == null) ? f.getColor() : itextHelper.fromColor(getColor()));
          canvas.setLineWidth(getLineWidth());
+         if (delayed.getChunk().getTextRise() != 0) {
+            canvas.transform(AffineTransform.getTranslateInstance(0, delayed.getChunk().getTextRise()));
+         }
+         HashMap<String, Object> attributes = delayed.getChunk().getAttributes();
+         if (attributes != null && attributes.containsKey(Chunk.SKEW)) {
+            log.warning("lines under skewed text may not be at the correct position");
+         }
          canvas.moveTo(rect.getLeft(), rect.getBottom());
          canvas.lineTo(rect.getLeft() + rect.getWidth(), rect.getBottom());
          canvas.stroke();
@@ -87,15 +95,14 @@ public class Underline<DATATYPE> extends AdvancedImpl<DATATYPE> {
    }
 
    private void initParam() {
-      addParameter(new FloatParameter(LINEWIDTH, "float").setDefault(ItextHelper.mmToPts(1)),Underline.class);
-      addParameter(new ColorParameter(COLOR_PARAM, "#rgb: underline color (default is font color)"),Underline.class);
+      addParameter(new FloatParameter(LINEWIDTH, "float").setDefault(ItextHelper.mmToPts(1)), Underline.class);
+      addParameter(new ColorParameter(COLOR_PARAM, "#rgb: underline color (default is font color)"), Underline.class);
    }
 
    public Underline(Document document, PdfWriter writer, EnhancedMap settings) throws VectorPrintException {
       super(document, writer, settings);
       initParam();
    }
-
 
    public Color getColor() {
       return getValue(COLOR_PARAM, Color.class);
@@ -112,6 +119,7 @@ public class Underline<DATATYPE> extends AdvancedImpl<DATATYPE> {
    public void setLineWidth(float lineWidth) {
       setValue(LINEWIDTH, lineWidth);
    }
+
    @Override
    public String getHelp() {
       return "Underline text." + " " + super.getHelp();

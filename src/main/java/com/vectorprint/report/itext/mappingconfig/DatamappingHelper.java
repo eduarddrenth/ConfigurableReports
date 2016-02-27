@@ -152,8 +152,8 @@ public class DatamappingHelper {
    /**
     * returns the first Datamapping found for an object or Class. A datamapping is valid for an object when either a
     * regex is found in the classname of the object or the classname of the object equals the configured classname, when
-    * an id is provided the id in the datamapping found must match this id, when an id is not provided an id a datamapping
-    * with an id is not valid.
+    * an id is provided the id in the datamapping found must match this id, when an id is not provided an id a
+    * datamapping with an id is not valid.
     *
     * @param data the object or class for which a data mapping is searched
     * @param id an optional id that must be matched by the datamapping
@@ -192,8 +192,9 @@ public class DatamappingHelper {
 
    /**
     * Find a datamapping to start a container based on class annotation, uses static cache.
+    *
     * @param clazz
-    * @return 
+    * @return
     */
    public static List<StartContainerConfig> getContainers(Class clazz) {
       if (!cacheSCC.containsKey(clazz)) {
@@ -220,7 +221,10 @@ public class DatamappingHelper {
           .setSectionlevel(cs.sectionLevel())
           .addStyleClasses(cs.styleClasses())
           .setStyleclassesmethod(cs.styleClassesMethod())
-          .setValueasstringmethod(cs.dataFunction().getValueAsStringMethod());
+          .setValueasstringmethod(cs.dataFunction().getValueAsStringMethod())
+          .setDatatype(new DatatypeConfig()
+              .setDataclass(cs.dataType().dataClass())
+              .setFormat(cs.dataType().format()));
    }
 
    private static ElementConfig fromAnnotation(Element e) {
@@ -241,8 +245,9 @@ public class DatamappingHelper {
 
    /**
     * Find a datamapping to create an element based on class annotation, uses static cache.
+    *
     * @param clazz
-    * @return 
+    * @return
     */
    public static List<ElementConfig> getElements(Class clazz) {
       if (!cacheEC.containsKey(clazz)) {
@@ -264,7 +269,7 @@ public class DatamappingHelper {
    private static ElementConfig fromJaxb(Elementtype e) throws ClassNotFoundException {
       return (ElementConfig) new ElementConfig()
           .setElementtype((Class<? extends com.itextpdf.text.Element>) Class.forName(com.itextpdf.text.Element.class.getPackage().getName() + '.'
-                  + e.getElementtype().value()))
+              + e.getElementtype().value()))
           .setElementtypemethod(e.getElementtypemethod())
           .addStyleClasses(e.getStyleclass().toArray(new String[e.getStyleclass().size()]))
           .setStyleclassesmethod(e.getStyleclassesmethod())
@@ -275,8 +280,9 @@ public class DatamappingHelper {
    }
 
    /**
-    * Translate annotations (only when {@link Datamappingstype#isUseannotations() } is true) and xml configuration into {@link DataMapping} for use in a {@link DatamappingProcessor}, uses instance cache.
-    * XML config will override Annotations on classes.
+    * Translate annotations (only when {@link Datamappingstype#isUseannotations() } is true) and xml configuration into
+    * {@link DataMapping} for use in a {@link DatamappingProcessor}, uses instance cache. XML config will override
+    * Annotations on classes.
     *
     * @param dataClass
     * @param id an optional id to find in xml configuration
@@ -285,14 +291,14 @@ public class DatamappingHelper {
     * @return
     */
    public final DataMapping toDataConfig(Class dataClass, String id, Datamappingstype datamappingstype) throws ClassNotFoundException {
-      if (!dataMappings.containsKey(dataClass.getName()+id)) {
-         
+      if (!dataMappings.containsKey(dataClass.getName() + id)) {
+
          boolean useAnnotations = datamappingstype == null || datamappingstype.isUseannotations();
 
          Datamappingtype jaxbMapping = (datamappingstype != null) ? findDataMapping(dataClass, id, datamappingstype) : null;
 
          DataMapping dm = new DataMapping();
-         dataMappings.put(dataClass.getName()+id, dm);
+         dataMappings.put(dataClass.getName() + id, dm);
 
          if (jaxbMapping != null && jaxbMapping.getStartcontainer() != null && jaxbMapping.getStartcontainer().size() > 0) {
             dm.setId(jaxbMapping.getId());
@@ -379,7 +385,7 @@ public class DatamappingHelper {
             }
          }
       }
-      return dataMappings.get(dataClass.getName()+id);
+      return dataMappings.get(dataClass.getName() + id);
    }
 
 }

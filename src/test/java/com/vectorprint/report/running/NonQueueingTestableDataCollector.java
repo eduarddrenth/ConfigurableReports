@@ -25,6 +25,7 @@ package com.vectorprint.report.running;
  * #L%
  */
 
+import com.vectorprint.configuration.annotation.Setting;
 import com.vectorprint.report.data.DataCollectionMessages;
 import com.vectorprint.report.data.DataCollectorImpl;
 import com.vectorprint.report.data.ReportDataHolderImpl;
@@ -35,11 +36,8 @@ import com.vectorprint.report.data.ReportDataHolderImpl;
  */
 public class NonQueueingTestableDataCollector extends DataCollectorImpl {
 
-   private static boolean produceError = false;
-
-   public static void setProduceError(boolean produceError) {
-      NonQueueingTestableDataCollector.produceError = produceError;
-   }
+   @Setting(keys = "produceError")
+   private boolean produceError = false;
 
    @Override
    public ReportDataHolderImpl collect() {

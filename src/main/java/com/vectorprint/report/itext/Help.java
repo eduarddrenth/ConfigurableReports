@@ -95,14 +95,15 @@ public class Help {
       out.println("Getting started.");
       out.println("----------------\n");
       out.println("  0 optionally create a settings configuration file (xsd available), examples in junit test");
-      out.println("  1 create a settings file with stylinginformation (using current syntax, see step 0), examples in junit test");
-      out.println("  2 create an xml config file for the translation of java objects to report parts (xsd in .jar and in GUI); and/or");
-      out.println("  3 annotate your dataclasses (" + ContainerStart.class.getPackage().getName() + "), examples in junit tests");
-      out.println("  4 extend " + DataCollectorImpl.class.getName() + ", example in junit test");
-      out.println("  5 setup your classpath to include your classes, reporting jars and dependent jars (see lib folder in binary distribution)");
+      out.println("  1 create a settings file with stylinginformation (using current syntax, configure in step 0), examples in junit test.");
+      out.println("  2 create an xml config file for the translation of java objects to report parts (xsd in .jar and in GUI) and/or");
+      out.println("  3 annotate your dataclasses (" + ContainerStart.class.getPackage().getName() + "), examples in junit tests.");
+      out.println("  4 extend " + DataCollectorImpl.class.getName() + ", example in junit test or");
+      out.println("  5 extend " + BaseReportGenerator.class.getName() + " and override createReportBody, example in junit test.");
+      out.println("  6 setup your classpath to include your classes, reporting jars and dependent jars (see lib folder in binary distribution)");
 
-      out.println("  6 java -cp <cp> " + ReportRunner.class.getName() + "<settings configuration file> or <settings file> <settings in corrrect syntax>\n");
-      out.println("  Settings must contain " + ReportConstants.DATACLASS + ", look at " + ReportConstants.class.getName() + " for more available settings\n");
+      out.println("  7 java -cp <cp> " + ReportRunner.class.getName() + "<settings configuration file> or <settings file> <settings in corrrect syntax>\n");
+      out.println("  Settings must contain \"" + ReportConstants.DATACLASS + "\" or \""+ReportConstants.REPORTCLASS+"\", look at " + ReportConstants.class.getName() + " for more available settings\n");
       out.println("  You can look at the junit tests to see working examples\n");
       out.println("  Javadoc is recommended as a source for further details\n");
       out.println("Available stylers that can be configured in a settings file, together with parameters that may be used.");

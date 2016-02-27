@@ -25,15 +25,12 @@ package com.vectorprint.report.itext.style.stylers;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-
 //~--- non-JDK imports --------------------------------------------------------
-
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.TextElementArray;
 import com.itextpdf.text.pdf.BaseFont;
-import com.itextpdf.text.pdf.PdfPCell;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.parameters.ColorParameter;
 import com.vectorprint.configuration.parameters.StringParameter;
@@ -46,9 +43,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 //~--- JDK imports ------------------------------------------------------------
-
 /**
- * font settings for text (chunks and phrases)
+ * font settings for text (chunks, phrases, textElementArrays), also sets the font on chunks of testElementArrays that
+ * have an undefined font.
+ *
  * @author Eduard Drenth at VectorPrint.nl
  */
 public class Font extends AbstractStyler {
@@ -56,7 +54,7 @@ public class Font extends AbstractStyler {
    public static final String FAMILY_PARAM = "family";
    public static final String STYLE_PARAM = "style";
    public static final String FONTENCODING = "encoding";
-   
+
    public enum ENCODING {
       IDENTITY_H(BaseFont.IDENTITY_H), WINANSI(BaseFont.WINANSI), CP1252(BaseFont.CP1252);
       private String encoding;
@@ -68,13 +66,14 @@ public class Font extends AbstractStyler {
       public String getEncoding() {
          return encoding;
       }
-      
+
    }
 
    public enum STYLE {
 
       normal(com.itextpdf.text.Font.NORMAL), bold(com.itextpdf.text.Font.BOLD), italic(com.itextpdf.text.Font.ITALIC),
       underline(com.itextpdf.text.Font.UNDERLINE), strike(com.itextpdf.text.Font.STRIKETHRU), bolditalic(com.itextpdf.text.Font.BOLDITALIC);
+
       private STYLE(int style) {
          this.style = style;
       }
@@ -83,19 +82,19 @@ public class Font extends AbstractStyler {
       public int getStyle() {
          return style;
       }
-      
+
    }
 
    public Font() {
       super();
 
-      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(SIZE_PARAM, "fontsize").setDefault((float)com.itextpdf.text.Font.DEFAULTSIZE),Font.class);
-      addParameter(new ColorParameter(COLOR_PARAM, "#rgb").setDefault(Color.BLACK),Font.class);
-      addParameter(new FontStyleParameter(STYLE_PARAM, "style for a font" + Arrays.asList(STYLE.values()).toString()).setDefault(STYLE.normal),Font.class);
-      addParameter(new FontEncodingParameter(FONTENCODING, "encoding for a font" + Arrays.asList(ENCODING.values()).toString()).setDefault(ENCODING.WINANSI),Font.class);
-      addParameter(new StringParameter(FAMILY_PARAM, "font family").setDefault(FontFactory.HELVETICA),Font.class);
+      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(SIZE_PARAM, "fontsize").setDefault((float) com.itextpdf.text.Font.DEFAULTSIZE), Font.class);
+      addParameter(new ColorParameter(COLOR_PARAM, "#rgb").setDefault(Color.BLACK), Font.class);
+      addParameter(new FontStyleParameter(STYLE_PARAM, "style for a font" + Arrays.asList(STYLE.values()).toString()).setDefault(STYLE.normal), Font.class);
+      addParameter(new FontEncodingParameter(FONTENCODING, "encoding for a font" + Arrays.asList(ENCODING.values()).toString()).setDefault(ENCODING.WINANSI), Font.class);
+      addParameter(new StringParameter(FAMILY_PARAM, "font family").setDefault(FontFactory.HELVETICA), Font.class);
    }
-   
+
    public com.itextpdf.text.Font getFont() {
       com.itextpdf.text.Font f = FontFactory.getFont(getFamily(), getValue(FONTENCODING, ENCODING.class).getEncoding(), getSize(), getStyle().style);
 
@@ -107,9 +106,6 @@ public class Font extends AbstractStyler {
 
    @Override
    public <E> E style(E text, Object data) throws VectorPrintException {
-      if (text instanceof PdfPCell) {
-         return text;
-      }
 
       com.itextpdf.text.Font f = getFont();
 
@@ -117,9 +113,13 @@ public class Font extends AbstractStyler {
          ((Phrase) text).setFont(f);
       } else if (text instanceof Chunk) {
          ((Chunk) text).setFont(f);
-      } else if (text instanceof TextElementArray) {
-         for (Object o : ((TextElementArray)text).getChunks()) {
-            ((Chunk) o).setFont(f);
+      }
+      if (text instanceof TextElementArray) {
+         for (Object o : ((TextElementArray) text).getChunks()) {
+            Chunk c = (Chunk) o;
+            if (c.getFont().getFamily() == com.itextpdf.text.Font.FontFamily.UNDEFINED) {
+               c.setFont(f);
+            }
          }
       }
 
@@ -135,7 +135,7 @@ public class Font extends AbstractStyler {
    }
 
    public float getSize() {
-      return getValue(SIZE_PARAM,Float.class);
+      return getValue(SIZE_PARAM, Float.class);
    }
 
    public void setSize(float size) {
@@ -143,7 +143,7 @@ public class Font extends AbstractStyler {
    }
 
    public Color getColor() {
-      return getValue(COLOR_PARAM,Color.class);
+      return getValue(COLOR_PARAM, Color.class);
    }
 
    public void setColor(Color color) {
@@ -151,7 +151,7 @@ public class Font extends AbstractStyler {
    }
 
    public STYLE getStyle() {
-      return getValue(STYLE_PARAM,STYLE.class);
+      return getValue(STYLE_PARAM, STYLE.class);
    }
 
    public void setStyle(STYLE style) {
@@ -159,15 +159,16 @@ public class Font extends AbstractStyler {
    }
 
    public String getFamily() {
-      return getValue(FAMILY_PARAM,String.class);
+      return getValue(FAMILY_PARAM, String.class);
    }
 
    public void setFamily(String family) {
       setValue(FAMILY_PARAM, family);
    }
+
    @Override
    public String getHelp() {
-      return "Font definition for text." + " " + super.getHelp();
+      return "Font definition for text" + " " + super.getHelp();
    }
 
 }

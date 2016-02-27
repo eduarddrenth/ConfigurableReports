@@ -50,10 +50,10 @@ import com.vectorprint.report.itext.style.StyleHelper;
 import com.vectorprint.report.itext.style.StylerFactoryHelper;
 import static com.vectorprint.report.itext.style.StylerFactoryHelper.LOGGER;
 import com.vectorprint.report.itext.style.StylingCondition;
-import static com.vectorprint.report.itext.style.stylers.StylerHelper.supported;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -63,8 +63,8 @@ import java.util.logging.Logger;
 
 //~--- JDK imports ------------------------------------------------------------
 /**
- * Baseclass for stylers providing support for some general functionality such as parameters, conditions, help and
- * Element class support.
+ * Baseclass for stylers providing support for some general functionality such as conditions, css support, styling after
+ * adding to the document, whether or not an element can be styled and should be styled.
  *
  * @author Eduard Drenth at VectorPrint.nl
  */
@@ -95,7 +95,7 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
    private Document document;
    private PdfWriter writer;
    private String styleClass = NOT_FROM_CONFIGURATION;
-   protected ItextHelper itextHelper;
+   protected final ItextHelper itextHelper = new ItextHelper();
    /**
     *
     */
@@ -114,13 +114,9 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
 
    public AbstractStyler(Document document, PdfWriter writer, EnhancedMap settings) throws VectorPrintException {
       StylerFactoryHelper.initStylingObject(this, writer, document, null, null, settings);
-      itextHelper = new ItextHelper();
-      StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(itextHelper, getSettings());
    }
 
    public AbstractStyler() {
-      itextHelper = new ItextHelper();
-      StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(itextHelper, getSettings());
    }
 
    /**
@@ -135,8 +131,26 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
       if (element == null) {
          return creates();
       } else {
-         return supported(getSupportedClasses(), element);
+         return supported(element);
       }
+   }
+
+   /**
+    * return true when element is assignable from one of the classes in {@link #getSupportedClasses() }.
+    *
+    * @param element
+    * @return
+    */
+   public boolean supported(Object element) {
+      for (Class c : getSupportedClasses()) {
+         if (c.isAssignableFrom(element.getClass())) {
+            if (log.isLoggable(Level.FINE)) {
+               log.fine(element.getClass().getName() + " will be styled, it is assignable from " + c.getName());
+            }
+            return true;
+         }
+      }
+      return false;
    }
 
    @Override
@@ -188,11 +202,6 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
    public void setDocument(Document document, PdfWriter writer) {
       this.document = document;
       this.writer = writer;
-      for (StylingCondition condition : this.conditions) {
-         if (condition instanceof DocumentAware) {
-            ((DocumentAware) condition).setDocument(document, writer);
-         }
-      }
    }
 
    @Override
@@ -218,13 +227,29 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
 
    private boolean needConditions;
 
+   /**
+    * Will be called when a {@link Parameter} changes (when {@link Parameter#setDefault(java.io.Serializable) } or {@link Parameter#setValue(java.io.Serializable)
+    * } is called). This method will always be called because the parameter {@link #STYLEAFTER} has a default value.
+    * Here settings of {@link #itextHelper} will be initialized. When the parameter's key is {@link #CONDITONS} a flag
+    * is set that conditions should be initialized, this will be done in {@link #setConditionFactory(com.vectorprint.report.itext.style.ConditionFactory)
+    * }.
+    *
+    * @param o
+    * @param arg
+    */
    @Override
    public void update(Observable o, Object arg) {
       Parameter p = (Parameter) o;
+      if (!iTextSettingsApplied) {
+         iTextSettingsApplied = true;
+         StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(itextHelper, getSettings());
+      }
       if (CONDITONS.equals(p.getKey()) && p.getValue() != null) {
          needConditions = true;
       }
    }
+
+   private boolean iTextSettingsApplied = false;
 
    private static volatile EnhancedMap cssNames;
 
@@ -235,7 +260,7 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
             em = cssNames;
             if (em == null) {
                try {
-                  cssNames = em = new ParsingProperties(new PreparingProperties(new Settings(), StylerHelper.toList(new TrimKeyValue())),
+                  cssNames = em = new ParsingProperties(new PreparingProperties(new Settings(), Arrays.asList(new TrimKeyValue())),
                       new InputStreamReader(AbstractStyler.class.getResourceAsStream(CSS_NAMESPROPERTIES)));
                } catch (IOException ex) {
                   throw new VectorPrintRuntimeException(ex);

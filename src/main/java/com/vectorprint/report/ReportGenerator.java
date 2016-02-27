@@ -41,7 +41,7 @@ import java.io.OutputStream;
  * Implementers will be responsible for writing a report to an OutputStream
  *
  * @author Eduard Drenth at VectorPrint.nl
- * @param RD The data based on which the report is build
+ * @param <RD> The data based on which the report is build
  * @see DataCollector
  */
 public interface ReportGenerator<RD extends ReportDataHolder>  {

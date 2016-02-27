@@ -23,8 +23,6 @@ package com.vectorprint.report.itext.style;
 
 
 //~--- non-JDK imports --------------------------------------------------------
-import com.vectorprint.report.itext.DocumentAware;
-import com.vectorprint.report.itext.ImageLoaderAware;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.vectorprint.ClassHelper;
@@ -32,8 +30,10 @@ import com.vectorprint.VectorPrintException;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.configuration.annotation.SettingsAnnotationProcessor;
 import com.vectorprint.configuration.annotation.SettingsAnnotationProcessorImpl;
+import com.vectorprint.report.itext.DocumentAware;
 import com.vectorprint.report.itext.ElementProducer;
 import com.vectorprint.report.itext.ImageLoader;
+import com.vectorprint.report.itext.ImageLoaderAware;
 import com.vectorprint.report.itext.LayerManager;
 import com.vectorprint.report.itext.LayerManagerAware;
 import com.vectorprint.report.itext.style.stylers.Font;
@@ -65,6 +65,7 @@ public class StylerFactoryHelper {
     * @throws VectorPrintException
     */
    public static void initStylingObject(Object s, PdfWriter writer, Document document, ImageLoader imageLoader, LayerManager layerManager, EnhancedMap settings, ElementProducer elementProducer, StylerFactory stylerFactory, ConditionFactory conditionFactory) throws VectorPrintException {
+      SETTINGS_ANNOTATION_PROCESSOR.initSettings(s, settings);
       if (s instanceof DocumentAware) {
          ((DocumentAware) s).setDocument(document, writer);
       }

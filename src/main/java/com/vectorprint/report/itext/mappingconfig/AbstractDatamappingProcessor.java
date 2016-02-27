@@ -25,6 +25,7 @@ package com.vectorprint.report.itext.mappingconfig;
  * #L%
  */
 import com.itextpdf.text.Chapter;
+import com.itextpdf.text.Chunk;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Image;
@@ -178,7 +179,7 @@ public abstract class AbstractDatamappingProcessor implements DatamappingProcess
          if (element instanceof Element) {
             addToContainer((Element) container, (Element) element);
          } else {
-            log.fine(String.format("not adding %s to %s", element.getClass().getName(), container.getClass().getName()));
+            log.fine(String.format("not adding %s to %s", element == null ? "null" : element.getClass().getName(), container.getClass().getName()));
          }
          return;
       } else if (container instanceof SimpleColumns) {
@@ -221,7 +222,11 @@ public abstract class AbstractDatamappingProcessor implements DatamappingProcess
    @Override
    public void addToContainer(Element container, Element element) throws DocumentException, VectorPrintException {
       if (container instanceof TextElementArray) {
-         ((TextElementArray) container).add(element);
+         if (element instanceof Image) {
+            ((TextElementArray) container).add(new Chunk((Image) element, 0, 0, true));
+         } else {
+            ((TextElementArray) container).add(element);
+         }
       } else if (container instanceof PdfPTable) {
          if (element instanceof PdfPCell) {
             ((PdfPTable) container).addCell((PdfPCell) element);
@@ -300,20 +305,15 @@ public abstract class AbstractDatamappingProcessor implements DatamappingProcess
             }
 
             ((SimpleColumns) toRemove).write();
-         } else {
-            if (toRemove instanceof ToBeAdded) {
-               ToBeAdded ta = (ToBeAdded) toRemove;
-               try {
-                  addToContainer(ta.parentTable, ta.cellWithTable);
-               } catch (VectorPrintException ex) {
-                  throw new VectorPrintRuntimeException(ex);
-               }
-            } else {
-               if (stack.isEmpty()) {
-                  getDocument().add((Element) toRemove);
-               }
+         } else if (toRemove instanceof ToBeAdded) {
+            ToBeAdded ta = (ToBeAdded) toRemove;
+            try {
+               addToContainer(ta.parentTable, ta.cellWithTable);
+            } catch (VectorPrintException ex) {
+               throw new VectorPrintRuntimeException(ex);
             }
-
+         } else if (stack.isEmpty()) {
+            getDocument().add((Element) toRemove);
          }
          if (curDepth == depth) {
             break;

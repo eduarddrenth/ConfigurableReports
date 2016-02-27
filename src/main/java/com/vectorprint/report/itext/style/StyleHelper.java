@@ -32,12 +32,15 @@ import com.itextpdf.text.pdf.PdfPCellEvent;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfPTableEvent;
 import com.vectorprint.VectorPrintException;
+import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.report.itext.BaseReportGenerator;
 import com.vectorprint.report.itext.EventHelper;
-import com.vectorprint.report.itext.debug.DebugStyler;
 import com.vectorprint.report.itext.VectorPrintDocument;
+import com.vectorprint.report.itext.debug.DebugStyler;
 import com.vectorprint.report.itext.style.stylers.AbstractStyler;
 import com.vectorprint.report.itext.style.stylers.Advanced;
+import com.vectorprint.report.itext.style.stylers.Font;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -49,7 +52,7 @@ import java.util.logging.Logger;
  *
  * @author Eduard Drenth at VectorPrint.nl
  */
-public class StyleHelper {
+public class StyleHelper implements StylerFactoryAware {
 
    private VectorPrintDocument vpd;
 
@@ -57,16 +60,14 @@ public class StyleHelper {
 
    private static final Logger log = Logger.getLogger(StyleHelper.class.getName());
 
-   public <E> E style(Class<E> clazz, Object data, Collection<? extends BaseStyler> stylers)
-       throws VectorPrintException {
-      E e = null;
-      return (E) style(e, data, stylers);
-   }
+   private static final Font FONT = new Font();
 
    /**
-    * style elements, prepends the argument stylers with stylers by calling {@link StylerFactory#getStylers(java.lang.String...) }
-    * with the simpleName of the class of the element to be styled. When {@link BaseStyler#shouldStyle(java.lang.Object, java.lang.Object)}
-    * is true and {@link BaseStyler#styleAfterAdding() } is true, {@link VectorPrintDocument#addHook(com.vectorprint.report.itext.VectorPrintDocument.AddElementHook) }
+    * style elements, prepends the argument stylers with stylers by calling {@link StylerFactory#getStylers(java.lang.String...)
+    * }
+    * with the simpleName of the class of the element to be styled. When
+    * {@link BaseStyler#shouldStyle(java.lang.Object, java.lang.Object)} is true and {@link BaseStyler#styleAfterAdding()
+    * } is true, {@link VectorPrintDocument#addHook(com.vectorprint.report.itext.VectorPrintDocument.AddElementHook) }
     * will be called to do styling after adding the element. This way you can extend styling setup without using
     * styleClasses in your code.
     *
@@ -82,11 +83,19 @@ public class StyleHelper {
       if (e != null && stylerFactory.getSettings().containsKey(e.getClass().getSimpleName())) {
          /*
           * we get here with a stylers based on class names, first we prepend stylers based on the element class.
-          * this way we can style for example all PdfPCell without the need to define classes.
+          * this way we can style for example all PdfPCell without the need to use style classes.
           */
          Collection forElement = stylerFactory.getStylers(e.getClass().getSimpleName());
          forElement.addAll(stylers);
          stylers = forElement;
+      }
+      if (FONT.canStyle(e)) {
+         if (stylers == null || getStylers(stylers, FONT.getClass()).isEmpty()) {
+            if (log.isLoggable(Level.FINE)) {
+               log.fine(String.format("applying default font style to %s with data %s before appying stylers %s", e, data, stylers));
+            }
+            FONT.style(e, null);
+         }
       }
       if (stylers != null) {
          for (BaseStyler styler : stylers) {
@@ -110,30 +119,28 @@ public class StyleHelper {
                   } else {
                      e = (E) styler.style(e, data);
                   }
-               } else {
-                  if (log.isLoggable(Level.FINE)) {
-                     if (styler.getConditions().isEmpty()) {
-                        log.log(Level.FINE, "the implementation of shouldStyle in {0} prevents styling {1}",
-                            new Object[]{styler.getClass().getName(), (null != e)
-                                   ? e.getClass().getSimpleName()
-                                   : "null"});
-                     } else {
-                        log.log(Level.FINE, "a condition ({2}) prevents {0} from styling {1}",
-                            new Object[]{styler.getClass().getName(), (null != e)
-                                   ? e.getClass().getSimpleName()
-                                   : "null", getConditionConfig(styler.getConditions())});
-                     }
+               } else if (log.isLoggable(Level.FINE)) {
+                  if (styler.getConditions().isEmpty()) {
+                     log.log(Level.FINE, "the implementation of shouldStyle in {0} prevents styling {1}",
+                         new Object[]{styler.getClass().getName(), (null != e)
+                                ? e.getClass().getSimpleName()
+                                : "null"});
+                  } else {
+                     log.log(Level.FINE, "a condition ({2}) prevents {0} from styling {1}",
+                         new Object[]{styler.getClass().getName(), (null != e)
+                                ? e.getClass().getSimpleName()
+                                : "null", getConditionConfig(styler.getConditions())});
                   }
                }
-            } else {
-               if (log.isLoggable(Level.FINE)) {
-                  log.log(Level.FINE, "{0} cannot style {1}",
-                      new Object[]{styler.getClass().getName(), (null != e)
-                             ? e.getClass().getName()
-                             : "null"});
-               }
+            } else if (log.isLoggable(Level.FINE)) {
+               log.log(Level.FINE, "{0} cannot style {1}",
+                   new Object[]{styler.getClass().getName(), (null != e)
+                          ? e.getClass().getName()
+                          : "null"});
             }
          }
+      } else {
+         log.warning(String.format("%s with data %s not styled, stylers are null", e, data));
       }
 
       return e;
@@ -180,7 +187,7 @@ public class StyleHelper {
    }
 
    /**
-    * for debugging, uses {@link DebugStyler#getStyleSetup()  } to return classNames
+    * for debugging, uses {@link DebugStyler#getStyleSetup() } to return classNames
     *
     * @param l
     * @return
@@ -200,10 +207,11 @@ public class StyleHelper {
    }
 
    /**
-    * Call {@link #delayedStyle(com.itextpdf.text.Chunk, java.lang.String, java.util.Collection, com.vectorprint.report.itext.EventHelper, com.itextpdf.text.Image) }
+    * Call {@link #delayedStyle(com.itextpdf.text.Chunk, java.lang.String, java.util.Collection, com.vectorprint.report.itext.EventHelper, com.itextpdf.text.Image)
+    * }
     * with null for Image
     */
-   public void delayedStyle(Chunk c, String tag, Collection<? extends Advanced> stylers, EventHelper eventHelper) {
+   public static void delayedStyle(Chunk c, String tag, Collection<? extends Advanced> stylers, EventHelper eventHelper) {
       delayedStyle(c, tag, stylers, eventHelper, null);
    }
 
@@ -215,9 +223,10 @@ public class StyleHelper {
     * @param stylers
     * @param eventHelper
     * @param img the value of rect
-    * @see EventHelper#onGenericTag(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document, com.itextpdf.text.Rectangle, java.lang.String) 
+    * @see EventHelper#onGenericTag(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document,
+    * com.itextpdf.text.Rectangle, java.lang.String)
     */
-   public void delayedStyle(Chunk c, String tag, Collection<? extends Advanced> stylers, EventHelper eventHelper, Image img) {
+   public static void delayedStyle(Chunk c, String tag, Collection<? extends Advanced> stylers, EventHelper eventHelper, Image img) {
       // add to pagehelper and set generic tag
       eventHelper.addDelayedStyler(tag, stylers, c, img);
       c.setGenericTag(tag);
@@ -228,8 +237,20 @@ public class StyleHelper {
     *
     * @param stylerFactory
     */
+   @Override
    public void setStylerFactory(StylerFactory stylerFactory) {
       this.stylerFactory = stylerFactory;
+      try {
+         FONT.initialize(stylerFactory.getSettings());
+      } catch (NoSuchMethodException ex) {
+         throw new VectorPrintRuntimeException(ex);
+      } catch (InstantiationException ex) {
+         throw new VectorPrintRuntimeException(ex);
+      } catch (IllegalAccessException ex) {
+         throw new VectorPrintRuntimeException(ex);
+      } catch (InvocationTargetException ex) {
+         throw new VectorPrintRuntimeException(ex);
+      }
    }
 
    /**
