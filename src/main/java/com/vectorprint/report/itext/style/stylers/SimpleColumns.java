@@ -65,7 +65,7 @@ import java.util.logging.Logger;
 public class SimpleColumns extends AdvancedImpl<Object> implements ElementProducing {
 
    private static final Logger log = Logger.getLogger(SimpleColumns.class.getName());
-   private List<BaseStyler> stylers = new ArrayList<BaseStyler>(3);
+   private List<BaseStyler> stylers = new ArrayList<>(3);
 
    /**
     * This styler will process images and call {@link #style(java.lang.Object, java.lang.Object)  } using all
@@ -94,7 +94,7 @@ public class SimpleColumns extends AdvancedImpl<Object> implements ElementProduc
     * {@link #write(boolean) write(false)} should be called.
     */
    public static final String WRITECOUNT = "writecount";
-   private final java.util.List<Rectangle> columns = new ArrayList<Rectangle>(2);
+   private final java.util.List<Rectangle> columns = new ArrayList<>(2);
    private ColumnText ct = null;
    private StylerFactory stylerFactory;
    private ElementProducer elementProducer;
@@ -356,7 +356,7 @@ public class SimpleColumns extends AdvancedImpl<Object> implements ElementProduc
     */
    public SimpleColumns addContent(Object data, String... styleClasses) throws VectorPrintException, DocumentException {
       if (data != null) {
-         List<BaseStyler> l = new ArrayList<BaseStyler>(stylers);
+         List<BaseStyler> l = new ArrayList<>(stylers);
          if (styleClasses!=null) {
             l.addAll(stylerFactory.getStylers(styleClasses));
          }
@@ -388,9 +388,7 @@ public class SimpleColumns extends AdvancedImpl<Object> implements ElementProduc
                   ct.addElement(
                       elementProducer.createElement(data, Phrase.class, l));
                }
-            } catch (InstantiationException ex) {
-               throw new VectorPrintException(ex);
-            } catch (IllegalAccessException ex) {
+            } catch (InstantiationException | IllegalAccessException ex) {
                throw new VectorPrintException(ex);
             }
          }

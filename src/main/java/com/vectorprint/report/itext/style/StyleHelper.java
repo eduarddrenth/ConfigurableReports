@@ -169,7 +169,7 @@ public class StyleHelper implements StylerFactoryAware {
     */
    public static <E extends BaseStyler> List<E> getStylers(Collection<? extends BaseStyler> stylers, Class<E> clazz)
        throws VectorPrintException {
-      List<E> st = new ArrayList<E>(1);
+      List<E> st = new ArrayList<>(1);
       for (BaseStyler s : stylers) {
          if (clazz.isAssignableFrom(s.getClass())) {
             st.add((E) s);
@@ -179,7 +179,7 @@ public class StyleHelper implements StylerFactoryAware {
    }
 
    public static <E extends BaseStyler> Collection<E> toCollection(E style) {
-      Collection<E> stylers = new ArrayList<E>(1);
+      Collection<E> stylers = new ArrayList<>(1);
 
       stylers.add(style);
 
@@ -242,13 +242,7 @@ public class StyleHelper implements StylerFactoryAware {
       this.stylerFactory = stylerFactory;
       try {
          FONT.initialize(stylerFactory.getSettings());
-      } catch (NoSuchMethodException ex) {
-         throw new VectorPrintRuntimeException(ex);
-      } catch (InstantiationException ex) {
-         throw new VectorPrintRuntimeException(ex);
-      } catch (IllegalAccessException ex) {
-         throw new VectorPrintRuntimeException(ex);
-      } catch (InvocationTargetException ex) {
+      } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ex) {
          throw new VectorPrintRuntimeException(ex);
       }
    }

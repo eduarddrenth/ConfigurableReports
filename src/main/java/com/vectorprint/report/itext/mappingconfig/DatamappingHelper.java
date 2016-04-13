@@ -183,12 +183,12 @@ public class DatamappingHelper {
       return null;
    }
 
-   private final Map<String, DataMapping> dataMappings = new HashMap<String, DataMapping>(10);
+   private final Map<String, DataMapping> dataMappings = new HashMap<>(10);
 
-   private static final Map<Class, List<StartContainerConfig>> cacheSCC = new HashMap<Class, List<StartContainerConfig>>(1);
-   private static final Map<Class, List<ElementConfig>> cacheEC = new HashMap<Class, List<ElementConfig>>(1);
-   private static final Map<Class, ElementsFromData> cacheM = new HashMap<Class, ElementsFromData>(1);
-   private static final Map<Class, EndContainerConfig> cacheECC = new HashMap<Class, EndContainerConfig>(1);
+   private static final Map<Class, List<StartContainerConfig>> cacheSCC = new HashMap<>(1);
+   private static final Map<Class, List<ElementConfig>> cacheEC = new HashMap<>(1);
+   private static final Map<Class, ElementsFromData> cacheM = new HashMap<>(1);
+   private static final Map<Class, EndContainerConfig> cacheECC = new HashMap<>(1);
 
    /**
     * Find a datamapping to start a container based on class annotation, uses static cache.
@@ -198,7 +198,7 @@ public class DatamappingHelper {
     */
    public static List<StartContainerConfig> getContainers(Class clazz) {
       if (!cacheSCC.containsKey(clazz)) {
-         cacheSCC.put(clazz, new ArrayList<StartContainerConfig>(1));
+         cacheSCC.put(clazz, new ArrayList<>(1));
          ContainerStart cs = (ContainerStart) clazz.getAnnotation(ContainerStart.class);
          if (cs != null) {
             cacheSCC.get(clazz).add(fromContainerStart(cs));
@@ -251,7 +251,7 @@ public class DatamappingHelper {
     */
    public static List<ElementConfig> getElements(Class clazz) {
       if (!cacheEC.containsKey(clazz)) {
-         cacheEC.put(clazz, new ArrayList<ElementConfig>(1));
+         cacheEC.put(clazz, new ArrayList<>(1));
          Element e = (Element) clazz.getAnnotation(Element.class);
          if (e != null) {
             cacheEC.get(clazz).add(fromAnnotation(e));

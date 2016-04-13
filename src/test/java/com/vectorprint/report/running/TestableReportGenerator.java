@@ -60,7 +60,7 @@ public class TestableReportGenerator extends BaseReportGenerator<ReportDataHolde
    private boolean forceException = false;
 
    public TestableReportGenerator() throws VectorPrintException {
-      super(new EventHelper<ReportDataHolder>(), new DefaultElementProducer());
+      super(new EventHelper<>(), new DefaultElementProducer());
    }
 
    private static BindingHelperImpl conversion = new BindingHelperImpl();
@@ -293,13 +293,7 @@ public class TestableReportGenerator extends BaseReportGenerator<ReportDataHolde
 
          document.add(t);
 
-      } catch (InstantiationException ex) {
-         throw new VectorPrintException(ex);
-      } catch (IllegalAccessException ex) {
-         throw new VectorPrintException(ex);
-      } catch (NoSuchMethodException ex) {
-         throw new VectorPrintException(ex);
-      } catch (InvocationTargetException ex) {
+      } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException ex) {
          throw new VectorPrintException(ex);
       }
       if (forceException) {
@@ -313,11 +307,7 @@ public class TestableReportGenerator extends BaseReportGenerator<ReportDataHolde
       if (!messages.getMessages(DataCollectionMessages.Level.ERROR).isEmpty()) {
          try {
             createAndAddElement(messages.getMessages(DataCollectionMessages.Level.ERROR), Phrase.class, "bigbold");
-         } catch (InstantiationException ex) {
-            throw new VectorPrintException(ex);
-         } catch (IllegalAccessException ex) {
-            throw new VectorPrintException(ex);
-         } catch (DocumentException ex) {
+         } catch (InstantiationException | IllegalAccessException | DocumentException ex) {
             throw new VectorPrintException(ex);
          }
          return continueAfterError;

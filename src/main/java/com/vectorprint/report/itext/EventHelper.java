@@ -85,10 +85,10 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
    private StylerFactory stylerFactory;
    private boolean failuresHereAfter = false, debugHereAfter = false;
    private int lastPage;
-   private final java.util.List<Advanced> doForAllPages = new ArrayList<Advanced>(1);
-   private final Map<String, Collection<Advanced>> doOnGenericTag = new HashMap<String, Collection<Advanced>>(10);
-   private final Map<String, Chunk> imageChunks = new HashMap<String, Chunk>(10);
-   private final Map<String, Image> rectangles = new HashMap<String, Image>(10);
+   private final java.util.List<Advanced> doForAllPages = new ArrayList<>(1);
+   private final Map<String, Collection<Advanced>> doOnGenericTag = new HashMap<>(10);
+   private final Map<String, Chunk> imageChunks = new HashMap<>(10);
+   private final Map<String, Image> rectangles = new HashMap<>(10);
    private ItextHelper itextHelper;
    
    protected ElementProducer getElementProducer() {
@@ -195,14 +195,8 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
             log.warning("not printing footer, if you want page footers set " + ReportConstants.PRINTFOOTER + " to true");
          }
          maxTagForGenericTagOnPage = Integer.MAX_VALUE;
-      } catch (VectorPrintException e) {
+      } catch (VectorPrintException | DocumentException | InstantiationException | IllegalAccessException e) {
          throw new VectorPrintRuntimeException("failed to create the report header or footer: ", e);
-      } catch (DocumentException e) {
-         throw new VectorPrintRuntimeException("failed to create the report header or footer: ", e);
-      } catch (InstantiationException ex) {
-         throw new VectorPrintRuntimeException("failed to create the report header or footer: ", ex);
-      } catch (IllegalAccessException ex) {
-         throw new VectorPrintRuntimeException("failed to create the report header or footer: ", ex);
       }
    }
    
@@ -319,11 +313,7 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
       if (getSettings().getBooleanProperty(Boolean.FALSE, ReportConstants.PRINTFOOTER)) {
          try {
             printTotalPages(template, document.right(), footerBottom);
-         } catch (VectorPrintException ex) {
-            throw new VectorPrintRuntimeException(ex);
-         } catch (InstantiationException ex) {
-            throw new VectorPrintRuntimeException(ex);
-         } catch (IllegalAccessException ex) {
+         } catch (VectorPrintException | InstantiationException | IllegalAccessException ex) {
             throw new VectorPrintRuntimeException(ex);
          }
       }
@@ -344,9 +334,7 @@ public class EventHelper<RD extends ReportDataHolder> extends PdfPageEventHelper
    private PdfPCell createFooterCell(Object val) throws VectorPrintException {
       try {
          return elementProducer.createElement(val, PdfPCell.class, getStylers(PAGEFOOTERSTYLEKEY));
-      } catch (InstantiationException ex) {
-         throw new VectorPrintException(ex);
-      } catch (IllegalAccessException ex) {
+      } catch (InstantiationException | IllegalAccessException ex) {
          throw new VectorPrintException(ex);
       }
    }

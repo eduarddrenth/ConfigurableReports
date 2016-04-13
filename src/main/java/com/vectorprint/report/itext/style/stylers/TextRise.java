@@ -15,19 +15,18 @@ package com.vectorprint.report.itext.style.stylers;
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
 //~--- non-JDK imports --------------------------------------------------------
 import com.itextpdf.text.Chunk;
-import com.itextpdf.text.TextElementArray;
 import com.vectorprint.VectorPrintException;
 import com.vectorprint.report.itext.style.parameters.FloatParameter;
 import java.util.Arrays;
@@ -61,7 +60,7 @@ public class TextRise extends AbstractStyler {
       return text;
    }
 
-   private static final Class<Object>[] classes = new Class[]{Chunk.class, TextElementArray.class};
+   private static final Class<Object>[] classes = new Class[]{Chunk.class};
    private static final Set<Class> c = Collections.unmodifiableSet(new HashSet<Class>(Arrays.asList(classes)));
 
    @Override

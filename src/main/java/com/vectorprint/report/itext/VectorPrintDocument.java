@@ -73,8 +73,8 @@ public class VectorPrintDocument extends Document {
    private final StylerFactory factory;
    private PdfWriter writer;
    private StyleHelper styleHelper;
-   private Queue<AddElementHook> hooks = new ArrayDeque<AddElementHook>(20);
-   private Map<Integer, List<Section>> toc = new TreeMap<Integer, List<Section>>();
+   private Queue<AddElementHook> hooks = new ArrayDeque<>(20);
+   private Map<Integer, List<Section>> toc = new TreeMap<>();
 
    /**
     *
@@ -135,7 +135,7 @@ public class VectorPrintDocument extends Document {
       } else if (element instanceof Section) {
          rv = super.add(element);
          if (!toc.containsKey(writer.getCurrentPageNumber())) {
-            toc.put(writer.getCurrentPageNumber(), new ArrayList<Section>(3));
+            toc.put(writer.getCurrentPageNumber(), new ArrayList<>(3));
          }
          toc.get(writer.getCurrentPageNumber()).add((Section) element);
       } else {

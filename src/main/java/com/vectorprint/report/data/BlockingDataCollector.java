@@ -119,7 +119,7 @@ public abstract class BlockingDataCollector extends DataCollectorImpl implements
       private long timeout;
 
       private BlockingDataHolder(int size, long timeout) {
-         setData(new LinkedBlockingQueue<IdData>(size));
+         setData(new LinkedBlockingQueue<>(size));
          this.timeout = timeout;
       }
 

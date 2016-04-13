@@ -173,7 +173,7 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
    }
 
    public BaseReportGenerator() throws VectorPrintException {
-      this(new EventHelper<RD>(), new DefaultElementProducer());
+      this(new EventHelper<>(), new DefaultElementProducer());
    }
 
    @Override
@@ -260,13 +260,7 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
          writer.close();
 
          return 0;
-      } catch (RuntimeException e) {
-         return handleException(e, out);
-      } catch (DocumentException e) {
-         return handleException(e, out);
-      } catch (VectorPrintException e) {
-         return handleException(e, out);
-      } catch (IOException e) {
+      } catch (RuntimeException | DocumentException | VectorPrintException | IOException e) {
          return handleException(e, out);
       }
    }
@@ -314,10 +308,7 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
             document.add(new Paragraph(new Chunk(s, f)));
             document.newPage();
             DebugHelper.appendDebugInfo(writer, document, settings, stylerFactory);
-         } catch (VectorPrintException e) {
-            log.severe("Could not append to PDF:\n" + bo.toString());
-            log.log(java.util.logging.Level.SEVERE, null, e);
-         } catch (DocumentException e) {
+         } catch (VectorPrintException | DocumentException e) {
             log.severe("Could not append to PDF:\n" + bo.toString());
             log.log(java.util.logging.Level.SEVERE, null, e);
          } finally {
@@ -773,17 +764,7 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
          } else {
             throw new VectorPrintException(String.format("no datamapping configuration found for %s", dataClass.getName()));
          }
-      } catch (ClassNotFoundException ex) {
-         throw new VectorPrintException(ex);
-      } catch (NoSuchMethodException ex) {
-         throw new VectorPrintException(ex);
-      } catch (SecurityException ex) {
-         throw new VectorPrintException(ex);
-      } catch (IllegalAccessException ex) {
-         throw new VectorPrintException(ex);
-      } catch (InvocationTargetException ex) {
-         throw new VectorPrintException(ex);
-      } catch (InstantiationException ex) {
+      } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException | InstantiationException ex) {
          throw new VectorPrintException(ex);
       }
 
@@ -870,11 +851,7 @@ public class BaseReportGenerator<RD extends ReportDataHolder> extends AbstractDa
       if (!messages.getMessages(DataCollectionMessages.Level.ERROR).isEmpty()) {
          try {
             createAndAddElement(messages.getMessages(DataCollectionMessages.Level.ERROR), Phrase.class, "");
-         } catch (InstantiationException ex) {
-            throw new VectorPrintException(ex);
-         } catch (IllegalAccessException ex) {
-            throw new VectorPrintException(ex);
-         } catch (DocumentException ex) {
+         } catch (InstantiationException | IllegalAccessException | DocumentException ex) {
             throw new VectorPrintException(ex);
          }
          return false;

@@ -52,7 +52,7 @@ import java.util.List;
  */
 public class CellAndTableDebugger extends ZebraStripes implements PdfPCellEvent {
 
-   List<String> styleSetup = new ArrayList<String>(100);
+   List<String> styleSetup = new ArrayList<>(100);
    private BaseColor colorToDebug = null;
    DebugStyler ds;
 

@@ -89,9 +89,7 @@ public class AddCell extends AbstractStyler implements ElementProducing {
              getValue(AdvancedImpl.DATA, String.class),
              PdfPCell.class,
              st));
-      } catch (InstantiationException ex) {
-         throw new VectorPrintException(ex);
-      } catch (IllegalAccessException ex) {
+      } catch (InstantiationException | IllegalAccessException ex) {
          throw new VectorPrintException(ex);
       }
       return element;

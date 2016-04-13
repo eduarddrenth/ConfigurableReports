@@ -217,11 +217,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
       psa.setVisibleSignature(new Rectangle(0, getHeight() - 100, 200, getHeight()), 1, "signature");
       try {
          MakeSignature.signDetached(psa, as, pks, certificateChain, null, null, null, 0, MakeSignature.CryptoStandard.CMS);
-      } catch (IOException ex) {
-         throw new VectorPrintException(ex);
-      } catch (DocumentException ex) {
-         throw new VectorPrintException(ex);
-      } catch (GeneralSecurityException ex) {
+      } catch (IOException | DocumentException | GeneralSecurityException ex) {
          throw new VectorPrintException(ex);
       }
    }
@@ -310,9 +306,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
       if (getValue(PDFA, Boolean.class)) {
          try {
             pdfA1A(writer);
-         } catch (IOException ex) {
-            throw new VectorPrintException(ex);
-         } catch (DocumentException ex) {
+         } catch (IOException | DocumentException ex) {
             throw new VectorPrintException(ex);
          }
       }
@@ -490,9 +484,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
    protected Certificate loadCertificate() throws VectorPrintException {
       try {
          return CertificateHelper.loadCertificate(getValue(CERTIFICATE, URL.class).openStream());
-      } catch (IOException ex) {
-         throw new VectorPrintException(ex);
-      } catch (CertificateException ex) {
+      } catch (IOException | CertificateException ex) {
          throw new VectorPrintException(ex);
       }
    }
@@ -508,13 +500,7 @@ public class DocumentSettings<RD extends ReportDataHolder> extends AbstractStyle
       try {
          return CertificateHelper.loadKeyStore(getValue(KEYSTORE, URL.class).openStream(),
              getValue(KEYSTORETYPE_PARAM, KEYSTORETYPE.class).name(), pw);
-      } catch (IOException ex) {
-         throw new VectorPrintException(ex);
-      } catch (KeyStoreException ex) {
-         throw new VectorPrintException(ex);
-      } catch (NoSuchAlgorithmException ex) {
-         throw new VectorPrintException(ex);
-      } catch (CertificateException ex) {
+      } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException ex) {
          throw new VectorPrintException(ex);
       }
    }

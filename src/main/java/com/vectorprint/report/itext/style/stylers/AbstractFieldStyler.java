@@ -264,11 +264,7 @@ public abstract class AbstractFieldStyler extends AbstractPositioning<Object> im
                }
             }
          }
-      } catch (IOException ex) {
-         throw new VectorPrintRuntimeException(ex);
-      } catch (DocumentException ex) {
-         throw new VectorPrintRuntimeException(ex);
-      } catch (VectorPrintException ex) {
+      } catch (IOException | DocumentException | VectorPrintException ex) {
          throw new VectorPrintRuntimeException(ex);
       }
       getWriter().addAnnotation(pff);

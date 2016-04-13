@@ -25,8 +25,8 @@ import java.util.List;
  */
 public class DataMapping {
 
-   private List<StartContainerConfig> containers = new ArrayList<StartContainerConfig>(1);
-   private List<ElementConfig> elements = new ArrayList<ElementConfig>(1);
+   private List<StartContainerConfig> containers = new ArrayList<>(1);
+   private List<ElementConfig> elements = new ArrayList<>(1);
    private ElementsFromData elementsfromdata;
    private EndContainerConfig endcontainer;
    private String id;

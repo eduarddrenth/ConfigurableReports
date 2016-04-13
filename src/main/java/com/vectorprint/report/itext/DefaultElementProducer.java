@@ -307,7 +307,7 @@ public class DefaultElementProducer implements ElementProducer {
          return true;
       }
       try {
-         Collection<Advanced> a = new ArrayList<Advanced>(stylers.size());
+         Collection<Advanced> a = new ArrayList<>(stylers.size());
          for (Advanced adv : StyleHelper.getStylers(stylers, Advanced.class)) {
             Advanced.EVENTMODE mode = adv.getEventmode();
             if (Advanced.EVENTMODE.ALL.equals(mode) || Advanced.EVENTMODE.TEXT.equals(mode)) {
@@ -411,9 +411,7 @@ public class DefaultElementProducer implements ElementProducer {
             awtim = makeImageTranslucent(ImageIO.read(image), opacity);
          }
          return Image.getInstance(awtim, null);
-      } catch (BadElementException ex) {
-         throw new VectorPrintException(String.format("unable to load image %s", image.toString()), ex);
-      } catch (IOException ex) {
+      } catch (BadElementException | IOException ex) {
          throw new VectorPrintException(String.format("unable to load image %s", image.toString()), ex);
       }
    }
@@ -472,9 +470,7 @@ public class DefaultElementProducer implements ElementProducer {
                writer.freeReader(reader);
             }
          }
-      } catch (BadElementException ex) {
-         throw new VectorPrintException(String.format("unable to load image %s", pdf.toString()), ex);
-      } catch (IOException ex) {
+      } catch (BadElementException | IOException ex) {
          throw new VectorPrintException(String.format("unable to load image %s", pdf.toString()), ex);
       } finally {
          if (ra != null) {
@@ -506,9 +502,7 @@ public class DefaultElementProducer implements ElementProducer {
                writer.freeReader(reader);
             }
          }
-      } catch (BadElementException ex) {
-         throw new VectorPrintException(String.format("unable to load image %s", pdf.toString()), ex);
-      } catch (IOException ex) {
+      } catch (BadElementException | IOException ex) {
          throw new VectorPrintException(String.format("unable to load image %s", pdf.toString()), ex);
       } finally {
          if (f != null) {
@@ -529,9 +523,7 @@ public class DefaultElementProducer implements ElementProducer {
          BufferedImage awtim = makeImageTranslucent(ImageIO.read(image), opacity);
          Image img = Image.getInstance(awtim, null);
          return img;
-      } catch (BadElementException ex) {
-         throw new VectorPrintException(ex);
-      } catch (IOException ex) {
+      } catch (BadElementException | IOException ex) {
          throw new VectorPrintException(ex);
       }
    }
@@ -548,9 +540,7 @@ public class DefaultElementProducer implements ElementProducer {
          BufferedImage awtim = makeImageTranslucent(ImageIO.read(image), opacity);
          Image img = Image.getInstance(awtim, null);
          return img;
-      } catch (BadElementException ex) {
-         throw new VectorPrintException(ex);
-      } catch (IOException ex) {
+      } catch (BadElementException | IOException ex) {
          throw new VectorPrintException(ex);
       }
    }
@@ -582,7 +572,7 @@ public class DefaultElementProducer implements ElementProducer {
       return styleHelper.style(elementClass.newInstance(), data, stylers);
    }
 
-   private final Map<Integer, List<Section>> sections = new HashMap<Integer, List<Section>>(10);
+   private final Map<Integer, List<Section>> sections = new HashMap<>(10);
 
    public void clearSections() {
       sections.clear();
@@ -605,7 +595,7 @@ public class DefaultElementProducer implements ElementProducer {
          throw new VectorPrintException("chapter numbering starts with 1, wrong number: " + nesting);
       }
       if (sections.get(nesting) == null) {
-         sections.put(nesting, new ArrayList<Section>(10));
+         sections.put(nesting, new ArrayList<>(10));
       }
       Section current;
       if (nesting == 1) {
@@ -625,7 +615,7 @@ public class DefaultElementProducer implements ElementProducer {
       this.ph = ph;
    }
 
-   private final Map<String, PdfLayer> layerGroups = new HashMap<String, PdfLayer>(2);
+   private final Map<String, PdfLayer> layerGroups = new HashMap<>(2);
 
    @Override
    public PdfLayer startLayerInGroup(String groupId, PdfContentByte canvas) {

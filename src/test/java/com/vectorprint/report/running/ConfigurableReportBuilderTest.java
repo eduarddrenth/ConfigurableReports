@@ -387,7 +387,7 @@ public class ConfigurableReportBuilderTest {
       public void run() {
          try {
             runner = init(true, false, false, false, false);
-         } catch (Exception ex) {
+         } catch (IOException | VectorPrintException | JAXBException ex) {
             fail("failed to init");
          }
       }

@@ -82,7 +82,7 @@ public class DefaultStylerFactory implements StylerFactory, ConditionFactory {
     * not defined
     */
    public static final String DEFAULTDOCUMENTSETTINGS = "DocumentSettings(margin_top=25,margin_left=25,margin_right=25,margin_bottom=25,width=297,height=210)";
-   private final Map<String, String> styleSetup = new HashMap<String, String>(100);
+   private final Map<String, String> styleSetup = new HashMap<>(100);
    /**
     * put your own stylers in this package
     */
@@ -92,7 +92,7 @@ public class DefaultStylerFactory implements StylerFactory, ConditionFactory {
     */
    public static final String CONDITIONPACKAGENAME = AbstractCondition.class.getPackage().getName();
    private static final Logger log = Logger.getLogger(DefaultStylerFactory.class.getName());
-   private final Map<String, Object> cache = new HashMap<String, Object>(100);
+   private final Map<String, Object> cache = new HashMap<>(100);
    @SettingsField
    private EnhancedMap settings;
    private Document document;
@@ -121,7 +121,7 @@ public class DefaultStylerFactory implements StylerFactory, ConditionFactory {
              .setSettings(settings).setPackageName(STYLERPACKAGENAME)
              .parseParameterizable();
          StylerFactoryHelper.initStylingObject(ds, writer, document, imageLoader, layerManager, settings);
-         List<BaseStyler> c = new ArrayList<BaseStyler>(1);
+         List<BaseStyler> c = new ArrayList<>(1);
          c.add((BaseStyler) ds);
          cache.put(ReportConstants.DOCUMENTSETTINGS, c);
          return ds;
@@ -220,13 +220,7 @@ public class DefaultStylerFactory implements StylerFactory, ConditionFactory {
          StylerFactoryHelper.initStylingObject(dst, writer, document, null, layerManager, settings);
          try {
             ParamAnnotationProcessorImpl.PAP.initParameters(dst);
-         } catch (NoSuchMethodException ex) {
-            throw new VectorPrintException(ex);
-         } catch (InstantiationException ex) {
-            throw new VectorPrintException(ex);
-         } catch (IllegalAccessException ex) {
-            throw new VectorPrintException(ex);
-         } catch (InvocationTargetException ex) {
+         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ex) {
             throw new VectorPrintException(ex);
          }
          for (String n : names) {
@@ -257,7 +251,7 @@ public class DefaultStylerFactory implements StylerFactory, ConditionFactory {
       if (styleClasses == null || styleClasses.length == 0 || styleClasses[0] == null || styleClasses[0].isEmpty()) {
          return Collections.EMPTY_LIST;
       }
-      List<BaseStyler> stylers = new ArrayList<BaseStyler>(styleClasses.length + 4);
+      List<BaseStyler> stylers = new ArrayList<>(styleClasses.length + 4);
 
       preOrPostStyle(PRESTYLERS, stylers, styleClasses);
 
@@ -374,7 +368,7 @@ public class DefaultStylerFactory implements StylerFactory, ConditionFactory {
 
    @Override
    public List<BaseStyler> getBaseStylersFromCache(String... styleClasses) throws VectorPrintException {
-      List<BaseStyler> stylers = new ArrayList<BaseStyler>(styleClasses.length * 4);
+      List<BaseStyler> stylers = new ArrayList<>(styleClasses.length * 4);
       if (styleClasses == null) {
          return stylers;
       }

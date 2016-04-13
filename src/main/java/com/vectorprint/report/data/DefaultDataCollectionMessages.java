@@ -34,11 +34,11 @@ import java.util.Map;
  */
 public class DefaultDataCollectionMessages implements DataCollectionMessages<String> {
 
-   private Map<Level, List<String>> messages = new EnumMap<Level, List<String>>(Level.class);
+   private Map<Level, List<String>> messages = new EnumMap<>(Level.class);
 
    {
       for (Level l : Level.values()) {
-         messages.put(l, new ArrayList<String>(3));
+         messages.put(l, new ArrayList<>(3));
       }
    }
 

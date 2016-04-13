@@ -27,7 +27,7 @@ import java.util.List;
 public class DataConfig {
 
    private DatatypeConfig datatype;
-   private List<String> styleclasses = new ArrayList<String>(1);
+   private List<String> styleclasses = new ArrayList<>(1);
    private String styleclassesmethod;
 
    protected String valueasstringmethod = "toString";

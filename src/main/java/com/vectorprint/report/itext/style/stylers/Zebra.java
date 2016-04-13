@@ -68,9 +68,7 @@ public class Zebra extends AbstractStyler implements LayerManagerAware {
       try {
          zs = (ZebraStripes) getValue(TABLEEVENTCLASS, Class.class).newInstance();
          zs.setAlternate(getAlternate());
-      } catch (InstantiationException ex) {
-         throw new VectorPrintException(ex);
-      } catch (IllegalAccessException ex) {
+      } catch (InstantiationException | IllegalAccessException ex) {
          throw new VectorPrintException(ex);
       }
       StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(zs, getSettings());

@@ -10,17 +10,16 @@ package com.vectorprint.report.itext;
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -55,6 +54,7 @@ import java.util.Map;
 
 /**
  * Responsible for printing a table of contents according to settings in {@link DocumentSettings}.
+ *
  * @author Eduard Drenth at VectorPrint.nl
  */
 class TocOutputStream extends AbstractTwoPassStream {
@@ -136,13 +136,7 @@ class TocOutputStream extends AbstractTwoPassStream {
             DebugHelper.appendDebugInfo(w, d, outer.getSettings(), _stylerFactory);
          }
          d.close();
-      } catch (VectorPrintException ex) {
-         throw new VectorPrintRuntimeException(ex);
-      } catch (DocumentException ex) {
-         throw new VectorPrintRuntimeException(ex);
-      } catch (InstantiationException ex) {
-         throw new VectorPrintRuntimeException(ex);
-      } catch (IllegalAccessException ex) {
+      } catch (VectorPrintException | DocumentException | InstantiationException | IllegalAccessException ex) {
          throw new VectorPrintRuntimeException(ex);
       } finally {
          if (reader != null) {

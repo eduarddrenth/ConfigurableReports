@@ -86,7 +86,7 @@ public class AdvancedImpl<DATATYPE> extends AbstractStyler implements Advanced<D
    public static final String TRANSFORM = "transform";
    public static final String BACKGROUND = "background";
    public static final String OPACITY = "opacity";
-   private Map<String, DelayedData> delayedData = new HashMap<String, DelayedData>(10);
+   private Map<String, DelayedData> delayedData = new HashMap<>(10);
    private DATATYPE data;
 
    public AdvancedImpl() {

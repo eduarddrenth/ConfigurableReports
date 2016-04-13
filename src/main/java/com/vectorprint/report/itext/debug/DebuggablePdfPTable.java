@@ -51,7 +51,7 @@ public class DebuggablePdfPTable extends PdfPTable {
       super(numColumns);
    }
 
-   private List<NestedTableEvent> childEvents = new ArrayList<NestedTableEvent>(1);
+   private List<NestedTableEvent> childEvents = new ArrayList<>(1);
    private boolean nestingAdded = false;
 
    @Override

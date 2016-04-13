@@ -264,11 +264,7 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
          Class dataClass = Class.forName(getSettings().getProperty(DATACLASS));
 
          return (DataCollector<RD>) dataClass.newInstance();
-      } catch (ClassNotFoundException ex) {
-         throw new VectorPrintException(ex);
-      } catch (InstantiationException ex) {
-         throw new VectorPrintException(ex);
-      } catch (IllegalAccessException ex) {
+      } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
          throw new VectorPrintException(ex);
       }
    }
@@ -286,11 +282,7 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
          Class reportClass = getSettings().getClassProperty(BaseReportGenerator.class, REPORTCLASS);
 
          return (ReportGenerator<RD>) reportClass.newInstance();
-      } catch (InstantiationException ex) {
-         throw new VectorPrintException(ex);
-      } catch (IllegalAccessException ex) {
-         throw new VectorPrintException(ex);
-      } catch (ClassNotFoundException ex) {
+      } catch (InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
          throw new VectorPrintException(ex);
       }
    }
@@ -405,35 +397,7 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
          }
 
          return rg.generate(dc == null ? null : dc.collect(), out);
-      } catch (IOException exception) {
-         log.log(Level.SEVERE, exception.getMessage(), exception);
-
-         throw exception;
-      } catch (ClassNotFoundException exception) {
-         log.log(Level.SEVERE, exception.getMessage(), exception);
-
-         throw exception;
-      } catch (InstantiationException exception) {
-         log.log(Level.SEVERE, exception.getMessage(), exception);
-
-         throw exception;
-      } catch (IllegalAccessException exception) {
-         log.log(Level.SEVERE, exception.getMessage(), exception);
-
-         throw exception;
-      } catch (NoSuchMethodException exception) {
-         log.log(Level.SEVERE, exception.getMessage(), exception);
-
-         throw exception;
-      } catch (InvocationTargetException exception) {
-         log.log(Level.SEVERE, exception.getMessage(), exception);
-
-         throw exception;
-      } catch (VectorPrintException exception) {
-         log.log(Level.SEVERE, exception.getMessage(), exception);
-
-         throw exception;
-      } catch (RuntimeException exception) {
+      } catch (IOException | ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException | VectorPrintException | RuntimeException exception) {
          log.log(Level.SEVERE, exception.getMessage(), exception);
 
          throw exception;

@@ -48,7 +48,7 @@ import java.util.Set;
  */
 public class DebugStyler<DATATYPE> extends AdvancedImpl<DATATYPE> {
 
-   List<String> styleSetup = new ArrayList<String>(100);
+   List<String> styleSetup = new ArrayList<>(100);
 
    private boolean doSet = true;
 

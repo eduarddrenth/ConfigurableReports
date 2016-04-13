@@ -54,15 +54,7 @@ class SigningOutputStream extends AbstractTwoPassStream {
          PdfStamper stamper = PdfStamper.createSignature(reader, orig, '\0');
          outer.getDocumentStyler().configureVisualSignature(stamper.getSignatureAppearance());
          stamper.close();
-      } catch (DocumentException ex) {
-         throw new VectorPrintRuntimeException(ex);
-      } catch (KeyStoreException ex) {
-         throw new VectorPrintRuntimeException(ex);
-      } catch (NoSuchAlgorithmException ex) {
-         throw new VectorPrintRuntimeException(ex);
-      } catch (UnrecoverableKeyException ex) {
-         throw new VectorPrintRuntimeException(ex);
-      } catch (VectorPrintException ex) {
+      } catch (DocumentException | KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException | VectorPrintException ex) {
          throw new VectorPrintRuntimeException(ex);
       } finally {
          if (reader != null) {

@@ -130,11 +130,7 @@ ed
          }
 
          return stat;
-      } catch (FontFormatException ex) {
-         log.log(Level.SEVERE, null, ex);
-
-         throw new VectorPrintException("failed to load " + path, ex);
-      } catch (IOException ex) {
+      } catch (FontFormatException | IOException ex) {
          log.log(Level.SEVERE, null, ex);
 
          throw new VectorPrintException("failed to load " + path, ex);

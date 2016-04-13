@@ -114,7 +114,7 @@ public class ImportTiff extends Image<Object> implements ImageProcessor {
     */
    public static final String DRAWDIRECT = "drawdirect";
 
-   private final java.util.List<BaseStyler> stylers = new ArrayList<BaseStyler>(3);
+   private final java.util.List<BaseStyler> stylers = new ArrayList<>(3);
 
    public ImportTiff() {
    }

@@ -107,7 +107,7 @@ public class StylerFactoryHelper {
     * @return the java.util.Collection<com.vectorprint.report.itext.style.BaseStyler>
     */
    public static Collection<BaseStyler> findForCssName(String cssName, boolean required) throws ClassNotFoundException, IOException, InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-      Collection<BaseStyler> stylers = new ArrayList<BaseStyler>(1);
+      Collection<BaseStyler> stylers = new ArrayList<>(1);
       for (Class<?> c : ClassHelper.fromPackage(Font.class.getPackage())) {
          if (!Modifier.isAbstract(c.getModifiers())&&BaseStyler.class.isAssignableFrom(c)) {
             BaseStyler bs = (BaseStyler) c.newInstance();

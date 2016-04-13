@@ -112,15 +112,7 @@ public class ImportPdf extends ImportTiff {
                 getValue(Image.URLPARAM, URL.class).openStream(),
                 getWriter(), ks.getCertificate(alias), CertificateHelper.getKey(ks, alias, pw.clone()), provider, this,
                 ArrayHelper.unWrap(getValue(NumberCondition.NUMBERS, Integer[].class)));
-         } catch (KeyStoreException ex) {
-            throw new VectorPrintException(ex);
-         } catch (IOException ex) {
-            throw new VectorPrintException(ex);
-         } catch (NoSuchAlgorithmException ex) {
-            throw new VectorPrintException(ex);
-         } catch (CertificateException ex) {
-            throw new VectorPrintException(ex);
-         } catch (UnrecoverableKeyException ex) {
+         } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException ex) {
             throw new VectorPrintException(ex);
          }
       } else {
