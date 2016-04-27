@@ -14,12 +14,12 @@ package com.vectorprint.report.running;
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
@@ -84,6 +84,7 @@ public class TestableReportGenerator extends BaseReportGenerator<ReportDataHolde
          createAndAddElement(
              getText("dit is een hele lange \ntext met een grote\nregelhoogte"), Phrase.class, "wide");
          newLine();
+
          createColumns(getStylers("kols")).addContent(
              "kolom "
              + "kolom "
@@ -221,11 +222,15 @@ public class TestableReportGenerator extends BaseReportGenerator<ReportDataHolde
              getText("dit is een hele lange \ntext met een kleine\nregelhoogte"), Phrase.class, "narrow");
          document.newPage();
          getAndAddIndex("Nest € 1", 2, "niveau1");
+
          createAndAddElement("Link", Anchor.class, "empty");
          newLine();
          getAndAddIndex("Nest 1", 3, "niveau2", "link");
          createAndAddElement("Item", ListItem.class, "bigbold");
          newLine();
+
+         createAndAddElement(null, getStylers("qr"), Image.class);
+
          createAndAddElement(getNumber(10.23), Phrase.class, "header");
          newLine();
          createAndAddElement(getDate(new Date()), Phrase.class, "header");

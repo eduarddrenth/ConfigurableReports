@@ -14,12 +14,12 @@ package com.vectorprint.report.itext;
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
@@ -35,11 +35,11 @@ import com.vectorprint.VectorPrintException;
 import com.vectorprint.VectorPrintRuntimeException;
 import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.report.ReportConstants;
+import com.vectorprint.report.itext.VectorPrintDocument.AddElementHook.INTENTION;
 import com.vectorprint.report.itext.style.BaseStyler;
 import com.vectorprint.report.itext.style.StyleHelper;
 import com.vectorprint.report.itext.style.StylerFactory;
 import com.vectorprint.report.itext.style.stylers.Advanced;
-import static com.vectorprint.report.itext.VectorPrintDocument.AddElementHook.INTENTION;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -51,7 +51,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * 
+ *
  * This subclass of document gathers information for table of contents and enables you to work with
  * {@link VectorPrintDocument.AddElementHook hooks}. Hooks are added to this document before elements are added and
  * enable for example drawing near content.
@@ -90,13 +90,16 @@ public class VectorPrintDocument extends Document {
 
    /**
     * If there is a hook for the element it will be processed, For all hooks except {@link INTENTION stylelater}
-    * {@link StyleHelper#delayedStyle(com.itextpdf.text.Chunk, java.lang.String, java.util.Collection, com.vectorprint.report.itext.EventHelper, com.itextpdf.text.Image) }
-    * (variant without image when there is none) will be called. When element is a Section the pagenumber and the Section are remembered, see {@link #getToc() }.
+    * {@link StyleHelper#delayedStyle(com.itextpdf.text.Chunk, java.lang.String, java.util.Collection, com.vectorprint.report.itext.EventHelper, com.itextpdf.text.Image)
+    * }
+    * (variant without image when there is none) will be called. When element is a Section the pagenumber and the
+    * Section are remembered, see {@link #getToc() }.
     *
     * @param element
     * @return
     * @throws DocumentException
-    * @see EventHelper#onGenericTag(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document, com.itextpdf.text.Rectangle, java.lang.String) 
+    * @see EventHelper#onGenericTag(com.itextpdf.text.pdf.PdfWriter, com.itextpdf.text.Document,
+    * com.itextpdf.text.Rectangle, java.lang.String)
     */
    @Override
    public boolean add(Element element) throws DocumentException {
@@ -118,14 +121,14 @@ public class VectorPrintDocument extends Document {
 
          hook = find(element, AddElementHook.INTENTION.DEBUGIMAGE);
          if (hook != null && ((EnhancedMap) factory.getSettings()).getBooleanProperty(false, ReportConstants.DEBUG)) {
-            rv = tracePosition(image, hook, IMG_DEBUG,true);
+            rv = tracePosition(image, hook, IMG_DEBUG, true);
          }
          hook = find(element, AddElementHook.INTENTION.DRAWNEARIMAGE);
          if (hook != null) {
             if (rv) {
-               tracePosition(image, hook, DRAWNEAR,false);
+               tracePosition(image, hook, DRAWNEAR, false);
             } else {
-               rv = tracePosition(image, hook, DRAWNEAR,true);
+               rv = tracePosition(image, hook, DRAWNEAR, true);
             }
          }
          if (!rv) {
@@ -157,17 +160,17 @@ public class VectorPrintDocument extends Document {
    }
 
    /**
-    * 
+    *
     * @param image
     * @param hook
     * @param prefix
     * @param wrap
     * @return true when the image was added to the document
-    * @throws DocumentException 
+    * @throws DocumentException
     */
    private boolean tracePosition(Image image, AddElementHook hook, String prefix, boolean wrap) throws DocumentException {
       String gt = prefix + hook.styleClass;
-      if (wrap&&image.hasAbsoluteX() && image.hasAbsoluteY()) {
+      if (wrap && image.hasAbsoluteX() && image.hasAbsoluteY()) {
          // tracing position when an image is absolutely positioned by wrapping it in a chunk
          Chunk wrapper = new Chunk(image,
              (Float.NaN == image.getAbsoluteX()) ? 0 : image.getAbsoluteX(),
