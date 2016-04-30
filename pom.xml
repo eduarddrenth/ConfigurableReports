@@ -8,7 +8,7 @@
    <version>9.0-SNAPSHOT</version>
    <inceptionYear>2014</inceptionYear>
 
-   <url>http://vectorprintreport.java.net</url>
+   <url>https://github.com/eduarddrenth/ConfigurableReports/wiki</url>
 
    <description>This powerful reporting library aims to simplify producing reports using iText. The most demanding and coding intensive tasks
       when producing reports with iText are how to get from data to report elements, how to style those blocks and how to evaluate (debug) the resulting report
@@ -55,10 +55,15 @@
    </organization>
 
    <scm>
-      <url>https://java.net/projects/vectorprintreport/sources/subversion/show/trunk/ConfigurableReports</url>
-      <connection>scm:svn:https://svn.java.net/svn/vectorprintreport~subversion/trunk/ConfigurableReports</connection>
-      <developerConnection>scm:svn:https://svn.java.net/svn/vectorprintreport~subversion/trunk/ConfigurableReports</developerConnection>
+      <url>https://github.com/eduarddrenth/ConfigurableReports</url>
+      <connection>scm:svn:https://github.com/eduarddrenth/ConfigurableReports</connection>
+      <developerConnection>scm:svn:https://github.com/eduarddrenth/ConfigurableReports</developerConnection>
    </scm>
+
+   <issueManagement>
+      <system>github</system>
+      <url>https://github.com/eduarddrenth/ConfigurableReports/issues</url>
+   </issueManagement>
 
    <dependencies>
       <dependency>
