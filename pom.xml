@@ -286,10 +286,6 @@
                   <groupId>external.atlassian.jgitflow</groupId>
                   <artifactId>jgitflow-maven-plugin</artifactId>
                   <version>1.0-m5.1</version>
-                  <configuration>
-                     <!-- For specific plugin configuration options,
-                     see the Goals documentation page -->
-                  </configuration>
                </plugin>
                <plugin>
                   <groupId>org.apache.maven.plugins</groupId>
