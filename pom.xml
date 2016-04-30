@@ -56,8 +56,8 @@
 
    <scm>
       <url>https://github.com/eduarddrenth/ConfigurableReports</url>
-      <connection>scm:svn:https://github.com/eduarddrenth/ConfigurableReports</connection>
-      <developerConnection>scm:svn:https://github.com/eduarddrenth/ConfigurableReports</developerConnection>
+      <connection>scm:git:https://github.com/eduarddrenth/ConfigurableReports</connection>
+      <developerConnection>scm:git:https://github.com/eduarddrenth/ConfigurableReports</developerConnection>
    </scm>
 
    <issueManagement>
