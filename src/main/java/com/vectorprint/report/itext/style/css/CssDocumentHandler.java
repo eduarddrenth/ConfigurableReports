@@ -10,12 +10,12 @@ package com.vectorprint.report.itext.style.css;
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
@@ -81,15 +81,15 @@ public class CssDocumentHandler implements CssToBaseStylers {
    private final Map<String, Collection<BaseStyler>> cssStylers = new HashMap<>(10);
 
    private static final Logger LOGGER = Logger.getLogger(CssDocumentHandler.class.getName());
-   
+
    private Boolean mustFindStylersForCssNames = true;
 
    public void setMustFindStylersForCssNames(Boolean mustFindStylersForCssNames) {
-      if (mustFindStylersForCssNames!=null) {
+      if (mustFindStylersForCssNames != null) {
          this.mustFindStylersForCssNames = mustFindStylersForCssNames;
       }
    }
-   
+
    private Collection<BaseStyler> getOrCreate(String cssClass) {
       if (!cssStylers.containsKey(cssClass)) {
          cssStylers.put(cssClass, new ArrayList<>(3));
@@ -187,8 +187,9 @@ public class CssDocumentHandler implements CssToBaseStylers {
 
    /**
     * remembers the current list
+    *
     * @param sl
-    * @throws CSSException 
+    * @throws CSSException
     */
    @Override
    public void startSelector(SelectorList sl) throws CSSException {
@@ -197,8 +198,9 @@ public class CssDocumentHandler implements CssToBaseStylers {
 
    /**
     * forget the current list
+    *
     * @param sl
-    * @throws CSSException 
+    * @throws CSSException
     */
    @Override
    public void endSelector(SelectorList sl) throws CSSException {
@@ -206,11 +208,13 @@ public class CssDocumentHandler implements CssToBaseStylers {
    }
 
    /**
-    * for each {@link Selector} in the current list, call {@link #toBaseStylerParam(org.w3c.css.sac.Selector, java.lang.String, org.w3c.css.sac.LexicalUnit) }
+    * for each {@link Selector} in the current list, call {@link #toBaseStylerParam(org.w3c.css.sac.Selector, java.lang.String, org.w3c.css.sac.LexicalUnit)
+    * }
+    *
     * @param string
     * @param lu
     * @param bln
-    * @throws CSSException 
+    * @throws CSSException
     */
    @Override
    public void property(String string, LexicalUnit lu, boolean bln) throws CSSException {
@@ -257,7 +261,7 @@ public class CssDocumentHandler implements CssToBaseStylers {
       boolean toAdd = false;
       if (stylers.isEmpty()) {
          try {
-            stylers = StylerFactoryHelper.findForCssName(key,mustFindStylersForCssNames);
+            stylers = StylerFactoryHelper.findForCssName(key, mustFindStylersForCssNames);
             toAdd = true;
          } catch (ClassNotFoundException | IOException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException ex) {
             throw new VectorPrintRuntimeException(ex);
@@ -270,58 +274,60 @@ public class CssDocumentHandler implements CssToBaseStylers {
 
          @Override
          public boolean add(Padding e) {
-            if (e!=null) {
+            if (e != null) {
                return super.add(e);
             } else {
                return false;
             }
          }
-         
+
       };
-      if (null != key) switch (key) {
-         case "padding":
-            // TODO if we have padding we need 1 to 4 Padding stylers depending on the number of paddings set in the combined css padding.
-            // Add them here, prepare Padding#whichPadding, interact with fillParameters....?
-            stylers.clear();
-            for (Iterator<BaseStyler> it = getOrCreate(cssClass).iterator(); it.hasNext();) {
-               BaseStyler bss = it.next();
-               if (!bss.findForCssProperty(key).isEmpty()) {
-                  it.remove();
+      if (null != key) {
+         switch (key) {
+            case "padding":
+               stylers.clear();
+               for (Iterator<BaseStyler> it = getOrCreate(cssClass).iterator(); it.hasNext();) {
+                  BaseStyler bss = it.next();
+                  if (!bss.findForCssProperty(key).isEmpty()) {
+                     it.remove();
+                  }
                }
-            }  switch (getUnits(value).size()) {
-               case 1:// trbl same
-                  pToAdd.add(getOrAddPadding(BaseStyler.POSITION.TRBL,stylers));
-                  break;
-               case 2:// tb - lr, need two stylers
-                  pToAdd.add(getOrAddPadding(BaseStyler.POSITION.BT,stylers));
-                  pToAdd.add(getOrAddPadding(BaseStyler.POSITION.LR,stylers));
-                  break;
-               case 3:// t - lr - b, need three stylers
-                  pToAdd.add(getOrAddPadding(BaseStyler.POSITION.TOP,stylers));
-                  pToAdd.add(getOrAddPadding(BaseStyler.POSITION.LR,stylers));
-                  pToAdd.add(getOrAddPadding(BaseStyler.POSITION.BOTTOM,stylers));
-                  break;
-               case 4:// trbl different, need four stylers
-                  pToAdd.add(getOrAddPadding(BaseStyler.POSITION.TOP,stylers));
-                  pToAdd.add(getOrAddPadding(BaseStyler.POSITION.RIGHT,stylers));
-                  pToAdd.add(getOrAddPadding(BaseStyler.POSITION.BOTTOM,stylers));
-                  pToAdd.add(getOrAddPadding(BaseStyler.POSITION.LEFT,stylers));
-                  break;
-            }  break;
-         case "padding-top":
-            pToAdd.add(getOrAddPadding(BaseStyler.POSITION.TOP, stylers));
-            break;
-         case "padding-right":
-            pToAdd.add(getOrAddPadding(BaseStyler.POSITION.RIGHT, stylers));
-            break;
-         case "padding-bottom":
-            pToAdd.add(getOrAddPadding(BaseStyler.POSITION.BOTTOM, stylers));
-            break;
-         case "padding-left":
-            pToAdd.add(getOrAddPadding(BaseStyler.POSITION.LEFT, stylers));
-            break;
-         default:
-            break;
+               switch (getUnits(value).size()) {
+                  case 1:// trbl same
+                     pToAdd.add(getOrAddPadding(BaseStyler.POSITION.TRBL, stylers));
+                     break;
+                  case 2:// tb - lr, need two stylers
+                     pToAdd.add(getOrAddPadding(BaseStyler.POSITION.BT, stylers));
+                     pToAdd.add(getOrAddPadding(BaseStyler.POSITION.LR, stylers));
+                     break;
+                  case 3:// t - lr - b, need three stylers
+                     pToAdd.add(getOrAddPadding(BaseStyler.POSITION.TOP, stylers));
+                     pToAdd.add(getOrAddPadding(BaseStyler.POSITION.LR, stylers));
+                     pToAdd.add(getOrAddPadding(BaseStyler.POSITION.BOTTOM, stylers));
+                     break;
+                  case 4:// trbl different, need four stylers
+                     pToAdd.add(getOrAddPadding(BaseStyler.POSITION.TOP, stylers));
+                     pToAdd.add(getOrAddPadding(BaseStyler.POSITION.RIGHT, stylers));
+                     pToAdd.add(getOrAddPadding(BaseStyler.POSITION.BOTTOM, stylers));
+                     pToAdd.add(getOrAddPadding(BaseStyler.POSITION.LEFT, stylers));
+                     break;
+               }
+               break;
+            case "padding-top":
+               pToAdd.add(getOrAddPadding(BaseStyler.POSITION.TOP, stylers));
+               break;
+            case "padding-right":
+               pToAdd.add(getOrAddPadding(BaseStyler.POSITION.RIGHT, stylers));
+               break;
+            case "padding-bottom":
+               pToAdd.add(getOrAddPadding(BaseStyler.POSITION.BOTTOM, stylers));
+               break;
+            case "padding-left":
+               pToAdd.add(getOrAddPadding(BaseStyler.POSITION.LEFT, stylers));
+               break;
+            default:
+               break;
+         }
       }
       if (toAdd) {
          getOrCreate(cssClass).addAll(stylers);
@@ -330,7 +336,7 @@ public class CssDocumentHandler implements CssToBaseStylers {
       }
       for (BaseStyler bs : stylers) {
          if (bs instanceof FormFieldStyler) {
-            LOGGER.warning(String.format("skipping %s, FormFieldStylers not supported yet",bs.getClass().getName()));
+            LOGGER.warning(String.format("skipping %s, FormFieldStylers not supported yet", bs.getClass().getName()));
             continue;
          }
          Collection<Parameter> ps = bs.findForCssProperty(key);
@@ -360,7 +366,7 @@ public class CssDocumentHandler implements CssToBaseStylers {
                   p.setValue(BaseStyler.ALIGN.valueOf((BaseStyler.ALIGN.LEFTPART + '_' + align).toUpperCase()));
                }
             } else {
-               p.setValue((Serializable) ParamBindingService.getInstance().getFactory().getBindingHelper().convert(fromLexicalUnit(value),p.getValueClass()));
+               p.setValue((Serializable) ParamBindingService.getInstance().getFactory().getBindingHelper().convert(fromLexicalUnit(value), p.getValueClass()));
             }
          } else {
             fillParameters(bs, ps, key, value);
@@ -369,10 +375,9 @@ public class CssDocumentHandler implements CssToBaseStylers {
       return stylers;
    }
 
-   
    private Padding getOrAddPadding(BaseStyler.POSITION position, Collection<BaseStyler> stylers) {
       for (BaseStyler bs : stylers) {
-         if (position.equals(((Padding)bs).getWhichPadding())) {
+         if (position.equals(((Padding) bs).getWhichPadding())) {
             return null;
          }
       }
@@ -381,7 +386,7 @@ public class CssDocumentHandler implements CssToBaseStylers {
       stylers.add(p);
       return p;
    }
-   
+
    private void setPadding(LexicalUnit lu, Padding p, BaseStyler.POSITION position) {
       if (position.equals(p.getWhichPadding())) {
          p.setPadding(getPoints(lu));
@@ -394,7 +399,7 @@ public class CssDocumentHandler implements CssToBaseStylers {
          // TODO values in css border are not required, need more intelligence here
          Border b = (Border) bs;
          b.setValue(Border.BORDERWIDTH, getPoints(value));
-         b.setValue(BaseStyler.COLOR_PARAM, (Serializable) ParamBindingService.getInstance().getFactory().getBindingHelper().convert(fromLexicalUnit(value.getNextLexicalUnit().getNextLexicalUnit()),Color.class));
+         b.setValue(BaseStyler.COLOR_PARAM, (Serializable) ParamBindingService.getInstance().getFactory().getBindingHelper().convert(fromLexicalUnit(value.getNextLexicalUnit().getNextLexicalUnit()), Color.class));
          LOGGER.warning(String.format("ignoring %s", value.getNextLexicalUnit().toString()));
          return;
       } else if ("margin".equals(key)) {
@@ -453,7 +458,6 @@ public class CssDocumentHandler implements CssToBaseStylers {
          return;
       }
 
-      // TODO special cases where multiple parameters take care of implementing one cssProperty
       throw new UnsupportedOperationException(String.format("Not supported yet to use %s for implementing %s defined by %s in %s", params, value, key, bs.getClass().getSimpleName()));
    }
 
@@ -472,7 +476,7 @@ public class CssDocumentHandler implements CssToBaseStylers {
          case LexicalUnit.SAC_CENTIMETER:
             return ItextHelper.mmToPts(lu.getFloatValue() * 10);
          case LexicalUnit.SAC_INCH:
-            return ItextHelper.round(lu.getFloatValue()/72f, 3);
+            return ItextHelper.round(lu.getFloatValue() / 72f, 3);
          case LexicalUnit.SAC_MILLIMETER:
             return ItextHelper.mmToPts(lu.getFloatValue());
          case LexicalUnit.SAC_POINT:
@@ -507,7 +511,6 @@ public class CssDocumentHandler implements CssToBaseStylers {
    private Collection<BaseStyler> getStylersFound(String selector) {
       return getOrCreate(selector);
    }
-   
 
    @Override
    public void printStylers(OutputStream os) throws IOException {
@@ -524,7 +527,7 @@ public class CssDocumentHandler implements CssToBaseStylers {
          }
          settings.put(e.getKey(), config.toArray(new String[config.size()]));
       }
-      
+
       OutputStreamWriter osw = new OutputStreamWriter(os);
       ems.serialize(settings, osw);
    }
@@ -536,8 +539,8 @@ public class CssDocumentHandler implements CssToBaseStylers {
       }
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       printStylers(out);
-         styling = new ParsingProperties(new Settings(),new StringReader(out.toString()));
-         return styling;
+      styling = new ParsingProperties(new Settings(), new StringReader(out.toString()));
+      return styling;
    }
 
    EnhancedMap styling;
