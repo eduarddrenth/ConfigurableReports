@@ -5,6 +5,6 @@ This powerful reporting library aims to simplify producing reports using iText. 
 
 Exactly those three tasks are simplified by this library:
 
-- xml configuration and/or annotations to transform existing Java data objects into report block
+- xml configuration and/or annotations to transform existing Java data objects into report blocks
 - provide styling information (css like, syntax independent) seperate from code
 - a firebug like debug mode to help evaluate your report.
