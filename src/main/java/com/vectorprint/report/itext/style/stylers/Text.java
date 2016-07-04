@@ -14,12 +14,12 @@ package com.vectorprint.report.itext.style.stylers;
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
@@ -53,10 +53,10 @@ public class Text extends AbstractPositioning<String> {
    }
 
    private void initParams() {
-      addParameter(new IntParameter(SIZE_PARAM, "fontsize").setDefault(com.itextpdf.text.Font.DEFAULTSIZE),Text.class);
-      addParameter(new ColorParameter(COLOR_PARAM, "#rgb").setDefault(Color.BLACK),Text.class);
-      addParameter(new StringParameter(Font.FAMILY_PARAM, "string").setDefault(FontFactory.HELVETICA),Text.class);
-      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(ROTATE, "float"),Text.class);
+      addParameter(new IntParameter(SIZE_PARAM, "fontsize").setDefault(com.itextpdf.text.Font.DEFAULTSIZE), Text.class);
+      addParameter(new ColorParameter(COLOR_PARAM, "#rgb").setDefault(Color.BLACK), Text.class);
+      addParameter(new StringParameter(Font.FAMILY_PARAM, "string").setDefault(FontFactory.HELVETICA), Text.class);
+      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(ROTATE, "float"), Text.class);
    }
 
    public Text(Document document, PdfWriter writer, EnhancedMap settings) throws VectorPrintException {
@@ -71,8 +71,8 @@ public class Text extends AbstractPositioning<String> {
          throw new VectorPrintRuntimeException("font " + getAlias() + " does not have a basefont, check your fontloading");
       }
       canvas.setFontAndSize(bf, getSize());
-      canvas.setColorFill(itextHelper.fromColor((isDrawShadow())?getShadowColor():getColor()));
-      canvas.setColorStroke(itextHelper.fromColor((isDrawShadow())?getShadowColor():getColor()));
+      canvas.setColorFill(itextHelper.fromColor((isDrawShadow()) ? getShadowColor() : getColor()));
+      canvas.setColorStroke(itextHelper.fromColor((isDrawShadow()) ? getShadowColor() : getColor()));
       canvas.beginText();
       canvas.showTextAligned(Element.ALIGN_LEFT, getData(), x, y, getRotate());
       canvas.endText();
@@ -114,6 +114,7 @@ public class Text extends AbstractPositioning<String> {
    public void setRotate(float rotate) {
       setValue(ROTATE, rotate);
    }
+
    @Override
    public String getHelp() {
       return "Draw text at a position or near text, cell or table." + " " + super.getHelp();
