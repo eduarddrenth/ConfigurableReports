@@ -1,3 +1,5 @@
+[![Maven Central](https://img.shields.io/maven-central/v/com.vectorprint/ConfigurableReports.svg)](https://maven-badges.herokuapp.com/maven-central/com.vectorprint/ConfigurableReports)
+
 This powerful reporting library aims to simplify producing reports using iText. The most demanding and coding intensive tasks when producing reports with iText are:
 - how to get from data to report elements
 - how to style those blocks
