@@ -5,7 +5,7 @@
    <artifactId>ConfigurableReports</artifactId>
    <packaging>jar</packaging>
    <name>ConfigurableReports</name>
-   <version>9.2</version>
+   <version>9.3-SNAPSHOT</version>
    <inceptionYear>2014</inceptionYear>
 
    <url>https://github.com/eduarddrenth/ConfigurableReports/wiki</url>
