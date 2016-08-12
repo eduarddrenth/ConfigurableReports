@@ -7,7 +7,7 @@
    <ns1:url>src/test/resources/config/run.properties</ns1:url>
    <ns1:url>src/test/resources/config/page.properties</ns1:url>
    <ns1:url>src/test/resources/config/styling.properties</ns1:url>
-   <ns1:feature classname="com.vectorprint.configuration.decoration.ThreadSafeProperties"/>
+   <ns1:feature classname="com.vectorprint.configuration.decoration.ThreadBoundProperties"/>
    <ns1:feature classname="com.vectorprint.configuration.decoration.FindableProperties"/>
    <ns1:feature classname="com.vectorprint.configuration.decoration.HelpSupportedProperties">
       <ns1:url>src/test/resources/config/help.properties</ns1:url>
