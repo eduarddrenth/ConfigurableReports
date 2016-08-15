@@ -14,17 +14,16 @@ package com.vectorprint.report.itext.style.stylers;
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
  */
-
 import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Image;
@@ -48,6 +47,7 @@ import java.util.Arrays;
 
 /**
  * printing barcodes as images
+ *
  * @author Eduard Drenth at VectorPrint.nl
  */
 public class Barcode extends com.vectorprint.report.itext.style.stylers.Image<String> {
@@ -58,25 +58,28 @@ public class Barcode extends com.vectorprint.report.itext.style.stylers.Image<St
    public static final String BARCOLOR = "barcolor";
    public static final String TXTCOLOR = "txtcolor";
    public static final String FONTSIZE = "fontsize";
-   public enum BARCODE { EAN8, EAN13, UPCA, UPCE, CODE128, CODE128UCC, CODE128RAW, PLANET, POSTNET }
-   
+
+   public enum BARCODE {
+      EAN8, EAN13, UPCA, UPCE, CODE128, CODE128UCC, CODE128RAW, PLANET, POSTNET
+   }
+
    public Barcode() {
       super();
       initParams();
    }
 
    private void initParams() {
-      addParameter(new BarcodeParameter(CODETYPE, "type of the barcode: " + Arrays.asList(BARCODE.values()).toString()).setDefault(BARCODE.EAN13),Barcode.class);
-      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(FONTSIZE, "size of text").setDefault(8f),Barcode.class);
-      addParameter(new BasefontParameter(Font.FAMILY_PARAM, "alias of text font"),Barcode.class);
-      addParameter(new ColorParameter(BARCOLOR, "color of bars").setDefault(Color.BLACK),Barcode.class);
-      addParameter(new ColorParameter(TXTCOLOR, "color of text").setDefault(Color.BLACK),Barcode.class);
-      addParameter(new FloatParameter(BARHEIGHT, "height of bars").setDefault(ItextHelper.mmToPts(10)),Barcode.class);
-      addParameter(new FloatParameter(MINBARWIDTH, "minimal width of bars").setDefault(ItextHelper.mmToPts(1)),Barcode.class);
+      addParameter(new BarcodeParameter(CODETYPE, "type of the barcode: " + Arrays.asList(BARCODE.values()).toString()).setDefault(BARCODE.EAN13), Barcode.class);
+      addParameter(new com.vectorprint.configuration.parameters.FloatParameter(FONTSIZE, "size of text").setDefault(8f), Barcode.class);
+      addParameter(new BasefontParameter(Font.FAMILY_PARAM, "alias of text font"), Barcode.class);
+      addParameter(new ColorParameter(BARCOLOR, "color of bars").setDefault(Color.BLACK), Barcode.class);
+      addParameter(new ColorParameter(TXTCOLOR, "color of text").setDefault(Color.BLACK), Barcode.class);
+      addParameter(new FloatParameter(BARHEIGHT, "height of bars").setDefault(ItextHelper.mmToPts(10)), Barcode.class);
+      addParameter(new FloatParameter(MINBARWIDTH, "minimal width of bars").setDefault(ItextHelper.mmToPts(1)), Barcode.class);
    }
 
    public Barcode(ImageLoader imageLoader, LayerManager layerManager, Document document, PdfWriter writer, EnhancedMap settings) throws VectorPrintException {
-      super(imageLoader,layerManager,document, writer, settings);
+      super(imageLoader, layerManager, document, writer, settings);
       initParams();
    }
 
@@ -133,7 +136,7 @@ public class Barcode extends com.vectorprint.report.itext.style.stylers.Image<St
          throw new VectorPrintException(String.format("No barcode value for styleclass %s", getStyleClass()));
       }
       code.setCode(data);
-      if (getValue(Font.FAMILY_PARAM, BaseFontWrapper.class)!=null) {
+      if (getValue(Font.FAMILY_PARAM, BaseFontWrapper.class) != null) {
          code.setFont(getValue(Font.FAMILY_PARAM, BaseFontWrapper.class).getBaseFont());
       }
       code.setBarHeight(getValue(BARHEIGHT, Float.class));
@@ -142,8 +145,8 @@ public class Barcode extends com.vectorprint.report.itext.style.stylers.Image<St
       Image img;
       try {
          img = code.createImageWithBarcode(canvas,
-             itextHelper.fromColor(getValue(BARCOLOR, Color.class)),
-             itextHelper.fromColor(getValue(TXTCOLOR, Color.class)));
+             itextHelper.fromColor(isDrawShadow() ? getShadowColor() : getValue(BARCOLOR, Color.class)),
+             itextHelper.fromColor(isDrawShadow() ? getShadowColor() : getValue(TXTCOLOR, Color.class)));
       } catch (Exception e) {
          throw new VectorPrintException("invalid barcode: " + data, e);
       }

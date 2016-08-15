@@ -15,12 +15,12 @@ package com.vectorprint.report.running;
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
@@ -293,7 +293,9 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
 
    public static final String SETTINGS_HELP = "Provide the path to your settingsfile as argument. "
        + "A settingsfile contains either xml declaring settings (xsd available in Config jar) or it contains settings.\n"
-       + "You can also just put " + ReportConstants.CONFIG_FILE + " in the current working directory or in the root of one of your jars.";
+       + "You can also just put " + ReportConstants.CONFIG_FILE + " in the current working directory or in the root of one of your jars.\n"
+       + "The last argument (optional or sole argument) on the commandline can contain settings in the current syntax, these will override settings read"
+       + " from file.";
 
    /**
     * looks for {@link #CONFIG_FILE} in the working directory or in the classpath ({@link ClassLoader#getResourceAsStream(java.lang.String)
@@ -392,7 +394,7 @@ public class ReportRunner<RD extends ReportDataHolder> implements ReportBuilder<
          }
 
          StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(rg, settings);
-         if (dc!=null) {
+         if (dc != null) {
             StylerFactoryHelper.SETTINGS_ANNOTATION_PROCESSOR.initSettings(dc, settings);
          }
 
