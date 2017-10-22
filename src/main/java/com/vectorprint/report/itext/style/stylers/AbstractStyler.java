@@ -91,7 +91,7 @@ public abstract class AbstractStyler extends ParameterizableImpl implements Base
     */
    public static final String NOT_FROM_CONFIGURATION = "not from configuration";
    public static final String CONDITONS = "conditions";
-   private java.util.List<StylingCondition> conditions = new ArrayList<>(1);
+   private final java.util.List<StylingCondition> conditions = new ArrayList<>(1);
    private Document document;
    private PdfWriter writer;
    private String styleClass = NOT_FROM_CONFIGURATION;

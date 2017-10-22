@@ -38,7 +38,6 @@ import com.vectorprint.configuration.EnhancedMap;
 import com.vectorprint.report.itext.DefaultElementProducer;
 import com.vectorprint.report.itext.style.DefaultStylerFactory;
 import com.vectorprint.report.itext.style.ZebraStripes;
-import java.util.ArrayList;
 import java.util.List;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -52,9 +51,9 @@ import java.util.List;
  */
 public class CellAndTableDebugger extends ZebraStripes implements PdfPCellEvent {
 
-   List<String> styleSetup = new ArrayList<>(100);
+   private final List<String> styleSetup;
    private BaseColor colorToDebug = null;
-   DebugStyler ds;
+   private final DebugStyler ds;
 
    public CellAndTableDebugger(List<String> setup, EnhancedMap settings, DebugStyler ds) {
       styleSetup = setup;
